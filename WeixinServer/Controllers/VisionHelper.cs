@@ -38,10 +38,6 @@ namespace WeixinServer.Controllers
             var resizeLayer = new ResizeLayer(size: new Size(detect.Width, detect.Height), resizeMode: ResizeMode.Stretch);
             var frameSteam = new MemoryStream();
             var frameFactory = new ImageFactory(preserveExifData: false);
-            
-            //var frameRequest = (HttpWebRequest)WebRequest.Create(this.frameImageUri);
-            //var frameResponse = (HttpWebResponse)frameRequest.GetResponse();
-            //var stream = frameResponse.GetResponseStream();
             frameFactory.Load(this.frameImageUri).Resize(resizeLayer).Save(frameSteam);
 
             var frameImage = Image.FromStream(frameSteam);
@@ -52,17 +48,26 @@ namespace WeixinServer.Controllers
             };
         }
 
-        static TextLayer GetTextLayer(string text, int width, int height)
+        private TextLayer GetTextLayer(string text, int width, int height, Microsoft.ProjectOxford.Vision.Contract.Color color)
         {
-            var x = (int)(width * 0.05);
-            var y = (int)(height * 0.85);
+            const int RGBMAX = 255;
+
+            System.Drawing.Color fontColor = System.Drawing.Color.DeepPink;
+            if (color != null && !string.IsNullOrWhiteSpace(color.AccentColor))
+            {
+                var accentColor = ColorTranslator.FromHtml("#" + color.AccentColor);
+                fontColor = System.Drawing.Color.FromArgb(RGBMAX - accentColor.R, RGBMAX - accentColor.G, RGBMAX - accentColor.B);
+            }
 
             var fontSize = width < 1000 ? 24 : 36;
+
+            var x = (int)(width * 0.05);
+            var y = height - (fontSize + 5) * 5;
 
             return new TextLayer
             {
                 DropShadow = true,
-                FontColor = System.Drawing.Color.DeepPink,
+                FontColor = fontColor,
                 FontSize = fontSize,
                 FontFamily = new FontFamily(GenericFontFamilies.SansSerif),
                 Text = text,
@@ -720,7 +725,7 @@ namespace WeixinServer.Controllers
 
                         // Save
                         imageFactory
-                            .Watermark(GetTextLayer(captionText, result.Metadata.Width, result.Metadata.Height))
+                            .Watermark(this.GetTextLayer(captionText, result.Metadata.Width, result.Metadata.Height, result.Color))
                             .Format(new JpegFormat())
                             .Save(outStream);
                     }
