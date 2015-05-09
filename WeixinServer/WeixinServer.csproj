@@ -126,10 +126,10 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\UpYun.cs" />
-    <Compile Include="Controllers\VisionHelper.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Helpers\VisionHelper.cs" />
     <Compile Include="Models\MsgObject.cs" />
     <Compile Include="Models\WeixinDBContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
