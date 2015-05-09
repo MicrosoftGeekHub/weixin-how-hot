@@ -59,7 +59,7 @@ namespace WeixinServer.Helpers
                 { "indoor_room", "房间" },
                 { "indoor_venue", "体育场" },
                 { "dark_light", "光" },
-                { "others_", "其他" },
+                { "others_", "奇怪的东东" },
                 { "outdoor_", "户外" },
                 { "outdoor_city", "城市" },
                 { "outdoor_field", "农田" },
@@ -143,16 +143,17 @@ namespace WeixinServer.Helpers
 
                     //Task.Run(async () =>
                     //{
-                    timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage AnalyzeImageAsync begin\n", DateTime.Now - this.startTime));
-                    var ret = this.visionClient.AnalyzeImageAsync(imagePathOrUrl);
-                    analysisResult = await ret;
-                    //}).Wait();
                     timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage AnalyzeImageAsync end\n", DateTime.Now - this.startTime));
                     WebClient client = new WebClient();
                     client.DownloadDataCompleted += DownloadDataCompleted;
                     taskb = client.DownloadDataTaskAsync(new Uri(imagePathOrUrl));
                     timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage client.DownloadDataTaskAsync begin\n", DateTime.Now - this.startTime));
 
+                    timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage AnalyzeImageAsync begin\n", DateTime.Now - this.startTime));
+                    var ret = this.visionClient.AnalyzeImageAsync(imagePathOrUrl);
+                    analysisResult = await ret;
+                    //}).Wait();
+                    
                 }
                 else
                 {
