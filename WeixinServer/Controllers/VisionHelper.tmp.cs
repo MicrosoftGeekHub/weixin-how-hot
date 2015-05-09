@@ -1,4 +1,4 @@
-﻿/********************************************************
+/********************************************************
 *                                                        *
 *   Copyright (c) Microsoft. All rights reserved.        *
 *                                                        *
@@ -39,6 +39,10 @@ namespace WeixinServer.Controllers
             var resizeLayer = new ResizeLayer(size: new Size(detect.Width, detect.Height), resizeMode: ResizeMode.Stretch);
             var frameSteam = new MemoryStream();
             var frameFactory = new ImageFactory(preserveExifData: false);
+            
+            //var frameRequest = (HttpWebRequest)WebRequest.Create(this.frameImageUri);
+            //var frameResponse = (HttpWebResponse)frameRequest.GetResponse();
+            //var stream = frameResponse.GetResponseStream();
             frameFactory.Load(this.frameImageUri).Resize(resizeLayer).Save(frameSteam);
 
             var frameImage = Image.FromStream(frameSteam);
@@ -49,26 +53,17 @@ namespace WeixinServer.Controllers
             };
         }
 
-        private TextLayer GetTextLayer(string text, int width, int height, Microsoft.ProjectOxford.Vision.Contract.Color color)
+        static TextLayer GetTextLayer(string text, int width, int height)
         {
-            const int RGBMAX = 255;
-
-            System.Drawing.Color fontColor = System.Drawing.Color.DeepPink;
-            if (color != null && !string.IsNullOrWhiteSpace(color.AccentColor))
-            {
-                var accentColor = ColorTranslator.FromHtml("#" + color.AccentColor);
-                fontColor = System.Drawing.Color.FromArgb(RGBMAX - accentColor.R, RGBMAX - accentColor.G, RGBMAX - accentColor.B);
-            }
+            var x = (int)(width * 0.05);
+            var y = (int)(height * 0.85);
 
             var fontSize = width < 1000 ? 24 : 36;
-
-            var x = (int)(width * 0.05);
-            var y = height - (fontSize + 5) * 5;
 
             return new TextLayer
             {
                 DropShadow = true,
-                FontColor = fontColor,
+                FontColor = System.Drawing.Color.DeepPink,
                 FontSize = fontSize,
                 FontFamily = new FontFamily(GenericFontFamilies.SansSerif),
                 Text = text,
@@ -204,7 +199,7 @@ namespace WeixinServer.Controllers
             this.originalImageUrl = imagePathOrUrl;
             this.ShowInfo("Analyzing");
             AnalysisResult analysisResult = null;
-            Task<Byte[]> taskb = null;
+
             string resultStr = string.Empty;
             try
             {
@@ -227,7 +222,7 @@ namespace WeixinServer.Controllers
                     //}).Wait();
                         WebClient client = new WebClient();
                         client.DownloadDataCompleted += DownloadDataCompleted;
-                        taskb = client.DownloadDataTaskAsync(new Uri(imagePathOrUrl));
+                        client.DownloadDataAsync(new Uri(imagePathOrUrl));
 
                     
                 }
@@ -262,7 +257,7 @@ namespace WeixinServer.Controllers
             //return this.ShowRichAnalysisResult(analysisResult);
             var resTxt = this.ShowRichAnalysisResult(analysisResult);
             if (string.IsNullOrEmpty(resTxt)) return resTxt;
-            photoBytes = await taskb;
+
             var resImg = this.RenderAnalysisResultAsImage(analysisResult, resTxt);
             if (string.IsNullOrEmpty(resImg)) return resTxt;
             return resImg;
@@ -563,20 +558,20 @@ namespace WeixinServer.Controllers
             string res = "result";
             string des = "这幅图片";
             StringWriter desStringWriter = new StringWriter();
-            //Dictionary<string, string> map = new Dictionary<string, string>();
+            Dictionary<string, string> map = new Dictionary<string, string>();
             if (result == null)
             {
-                //res = "NULL";
-                //des += "看不出任何东西";
+                res = "NULL";
+                des += "看不出任何东西";
                 desStringWriter.Write("看不出任何东西");
                 return des;
             }
 
             if (result.Metadata != null)
             {
-                //res += "Image Format : " + result.Metadata.Format;
-                //res += "Image Dimensions : " + result.Metadata.Width + " x " + result.Metadata.Height;
-                ////des += string.Format("格式是：{0}\n", result.Metadata.Format);
+                res += "Image Format : " + result.Metadata.Format;
+                res += "Image Dimensions : " + result.Metadata.Width + " x " + result.Metadata.Height;
+                //des += string.Format("格式是：{0}\n", result.Metadata.Format);
                 //des += string.Format("分辨率是：{0}X{1}\n", result.Metadata.Width, result.Metadata.Height);
             }
 
@@ -621,19 +616,19 @@ namespace WeixinServer.Controllers
             double ascr = 0.0f, rscr = 0.0f;
             if (result.Adult != null)
             {
-                //res += "Is Adult Content : " + result.Adult.IsAdultContent;
-                //map.Add("isadult", result.Adult.IsAdultContent.ToString());
-                //res += "Adult Score : " + result.Adult.AdultScore;
-                //map.Add("adultscore", result.Adult.AdultScore.ToString());
-                //res += "Is Racy Content : " + result.Adult.IsRacyContent;
-                //map.Add("isRacy", result.Adult.IsRacyContent.ToString());
-                //res += "Racy Score : " + result.Adult.RacyScore;
-                //map.Add("RacyScore", result.Adult.RacyScore.ToString());
+                res += "Is Adult Content : " + result.Adult.IsAdultContent;
+                map.Add("isadult", result.Adult.IsAdultContent.ToString());
+                res += "Adult Score : " + result.Adult.AdultScore;
+                map.Add("adultscore", result.Adult.AdultScore.ToString());
+                res += "Is Racy Content : " + result.Adult.IsRacyContent;
+                map.Add("isRacy", result.Adult.IsRacyContent.ToString());
+                res += "Racy Score : " + result.Adult.RacyScore;
+                map.Add("RacyScore", result.Adult.RacyScore.ToString());
 
                 ascr = result.Adult.AdultScore * 150.0;
                 rscr = result.Adult.RacyScore * 100.0;
             }
-            desStringWriter.Write(string.Format("环境鲜度为{0:F2}%\n", rscr));//TODO 少量 or More by Score
+            desStringWriter.Write(string.Format("活泼内容比例为{0:F2}%\n", rscr));//TODO 少量 or More by Score
             if (result.Categories != null && result.Categories.Length > 0)
             {
                 //res += "Categories : ";
@@ -657,7 +652,7 @@ namespace WeixinServer.Controllers
                 //}
                 desStringWriter.Write(string.Format("{0}", sb.TrimEnd('、')));
                 if (result.Categories.Length > 1 && sb.Length > 1)
-                    desStringWriter.Write(string.Format("等内容。\n"));
+                    desStringWriter.Write(string.Format("等内容"));
             }
 
             if (result.Faces != null && result.Faces.Length > 0)
@@ -682,19 +677,19 @@ namespace WeixinServer.Controllers
                     }
                 }
 
-                desStringWriter.Write(string.Format("人物骚度为{0:F2}%。\n", ascr));//TODO 少量 or More by Score
+                desStringWriter.Write(string.Format(", 火爆指数为{0:F0}。\n", ascr));//TODO 少量 or More by Score
 
                 //里面的男人很幸福
                 //一群男or女屌丝
-                if (numFemale > numMale && numMale > 0) desStringWriter.Write(string.Format("这{0}个骚男很幸福:)", numMale));
+                if (numFemale > numMale && numMale > 0) desStringWriter.Write(string.Format("这{0}个男人很幸福:)", numMale));
                 else if (numFemale < numMale && numFemale > 0) desStringWriter.Write(string.Format("这{0}个女人很幸福:)", numFemale));
-                else if (numFemale == 0) desStringWriter.Write(string.Format("{0}个孤独的骚男, 颜龄在{1}岁左右……", numMale, mAvgAge));
-                else if (numMale == 0) desStringWriter.Write(string.Format("{0}个寂寞的骚女, 颜龄在{1}岁左右……", numFemale, fAvgAge));
+                else if (numFemale == 0) desStringWriter.Write(string.Format("{0}个孤独的男屌丝……", numMale));
+                else if (numMale == 0) desStringWriter.Write(string.Format("{0}个寂寞的女屌丝……", numFemale));
                 else 
                 {
                     //desStringWriter.Write(string.Format("里面有{0}男{1}女,", numMale, numFemale));//TODO 少量 or More by Score
                     //desStringWriter.Write(string.Format("平均年龄{0:F0}岁", avgAge / (numMale + numFemale)));//TODO 少量 or More by Score
-                    desStringWriter.Write(string.Format(",{0}位颜龄{1:F0}岁左右的骚男,和{2}位颜龄{3:F0}岁左右的骚女", numMale, mAvgAge / numMale, numFemale, fAvgAge / numFemale));//TODO 少量 or More by Score
+                    desStringWriter.Write(string.Format(",{0}位颜龄{1:F0}岁左右的男人,和{2}位颜龄{3:F0}岁左右的女人", numMale, mAvgAge / numMale, numFemale, fAvgAge / numFemale));//TODO 少量 or More by Score
                 }
                 //老驴啃嫩草
                 float ratio = mAvgAge / fAvgAge;
@@ -706,18 +701,18 @@ namespace WeixinServer.Controllers
 
             if (result.Color != null)
             {
-                //res += "AccentColor : " + result.Color.AccentColor;
-                //res += "Dominant Color Background : " + result.Color.DominantColorBackground;
-                //res += "Dominant Color Foreground : " + result.Color.DominantColorForeground;
+                res += "AccentColor : " + result.Color.AccentColor;
+                res += "Dominant Color Background : " + result.Color.DominantColorBackground;
+                res += "Dominant Color Foreground : " + result.Color.DominantColorForeground;
 
-                //if (result.Color.DominantColors != null && result.Color.DominantColors.Length > 0)
-                //{
-                //    //res += "Dominant Colors : ";
-                //    foreach (var color in result.Color.DominantColors)
-                //    {
-                //        res += "color ";
-                //    }
-                //}
+                if (result.Color.DominantColors != null && result.Color.DominantColors.Length > 0)
+                {
+                    res += "Dominant Colors : ";
+                    foreach (var color in result.Color.DominantColors)
+                    {
+                        res += "color ";
+                    }
+                }
             }
 
             //Console.ResetColor();
@@ -751,7 +746,7 @@ namespace WeixinServer.Controllers
 
                         // Save
                         imageFactory
-                            .Watermark(this.GetTextLayer(captionText, result.Metadata.Width, result.Metadata.Height, result.Color))
+                            .Watermark(GetTextLayer(captionText, result.Metadata.Width, result.Metadata.Height))
                             .Format(new JpegFormat())
                             .Save(outStream);
                     }

@@ -35,7 +35,7 @@ namespace Microsoft.ProjectOxford.Vision
         /// The subscription key name
         /// </summary>
         private const string SubscriptionKeyName = "subscription-key";
-      
+
         /// <summary>
         /// The default resolver
         /// </summary>
@@ -323,7 +323,7 @@ namespace Microsoft.ProjectOxford.Vision
                         {
                             if (stream != null)
                             {
-                                if (webResponse.ContentType == "image/jpeg" || 
+                                if (webResponse.ContentType == "image/jpeg" ||
                                     webResponse.ContentType == "image/png")
                                 {
                                     using (MemoryStream ms = new MemoryStream())
