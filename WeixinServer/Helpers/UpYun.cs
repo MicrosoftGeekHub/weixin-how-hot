@@ -1,14 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Collections;
-using System.Net;
-using System.IO;
-using System.Security.Cryptography;
 using System.Globalization;
-using System.Threading;
-using System.Reflection;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace WeixinServer.Helpers
 {

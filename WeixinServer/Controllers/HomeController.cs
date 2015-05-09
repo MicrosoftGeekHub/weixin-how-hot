@@ -1,23 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Configuration;
+using System.IO;
 using System.Linq;
 using System.Text;
-using System.IO;
-using System.Xml;
-using System.Web;
+using System.Threading.Tasks;
 using System.Web.Mvc;
 using System.Web.Security;
-using System.Configuration;
-using Microsoft.ProjectOxford.Vision;
-using System.Threading.Tasks;
-using System.Drawing;
-using System.Drawing.Text;
-using ImageProcessor;
-using ImageProcessor.Common.Exceptions;
-using ImageProcessor.Imaging;
-using ImageProcessor.Imaging.Formats;
-using ImageProcessor.Processors;
-using System.Net;
 using WeixinServer.Helpers;
 
 //using UpYunLibrary;
