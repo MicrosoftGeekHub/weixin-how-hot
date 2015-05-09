@@ -7,15 +7,18 @@ using System.Threading.Tasks;
 using System.Web.Mvc;
 using System.Web.Security;
 using WeixinServer.Helpers;
+using WeixinServer.Models;
 
 //using UpYunLibrary;
 namespace WeixinServer.Controllers
 {
     public class HomeController : Controller
     {
+
         
         public ActionResult Index()
         {
+            
             if (Request.HttpMethod.ToUpper() == "POST")
             {
                 //send response
@@ -118,18 +121,20 @@ namespace WeixinServer.Controllers
             //string imagePathorUrl = msg.PicUrl;
             //string imagePathorUrl = msg.PicUrl.Replace("https://", "").Replace("http://", "");
             //var ret = vision.AnalyzeImage(msg.PicUrl);
-            string ret = null;
+            RichResult ret = null;
             //ret = vision.AnalyzeImage(msg.PicUrl);            
             Task.Run(async () =>
             {
                 ret = await vision.AnalyzeImage(msg.PicUrl);
 
             }).Wait();
-            //string res = string.Format("来图:\n{0}\n归图:\n{1}", msg.PicUrl, ret);            
-            string res = string.Format("{0}", ret);            
-            Response.Write(string.Format("<xml><ToUserName><![CDATA[{0}]]></ToUserName><FromUserName><![CDATA[{1}]]></FromUserName><CreateTime>12345678</CreateTime><MsgType><![CDATA[text]]></MsgType><Content><![CDATA[{2}]]></Content></xml>",
-                msg.FromUserName, msg.ToUserName, res));
-                //msg.FromUserName, msg.ToUserName, msg.PicUrl));
+            
+            // Debug mode
+            Response.Write(string.Format("<xml><ToUserName><![CDATA[{0}]]></ToUserName><FromUserName><![CDATA[{1}]]></FromUserName><CreateTime>12345678</CreateTime><MsgType><![CDATA[text]]></MsgType><Content><![CDATA[{2}]]></Content><DebugInfo><![CDATA[{3}]]></DebugInfo><ErrorInfo><![CDATA[{4}]]></ErrorInfo></xml>", msg.FromUserName, msg.ToUserName, ret.analyzeImageResult, ret.timeLogs, ret.errorLogs));
+
+            // Production mode
+            //Response.Write(string.Format("<xml><ToUserName><![CDATA[{0}]]></ToUserName><FromUserName><![CDATA[{1}]]></FromUserName><CreateTime>12345678</CreateTime><MsgType><![CDATA[text]]></MsgType><Content><![CDATA[{2}]]></Content></xml>", msg.FromUserName, msg.ToUserName, ret.analyzeImageResult));
+            
             Response.End();
 
             return true;

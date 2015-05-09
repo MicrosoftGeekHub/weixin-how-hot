@@ -2,6 +2,7 @@
 using ImageProcessor.Imaging;
 using ImageProcessor.Imaging.Formats;
 using Microsoft.ProjectOxford.Vision.Contract;
+using System;
 using System.Drawing;
 using System.Drawing.Text;
 using System.IO;
@@ -61,6 +62,7 @@ namespace WeixinServer.Helpers
 
         private string RenderAnalysisResultAsImage(AnalysisResult result, string captionText)
         {
+            timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage::RenderAnalysisResultAsImage begin\n", DateTime.Now - this.startTime));
             var originalUrl = this.originalImageUrl;
             //var webClient = new WebClient();
             //var photoBytes = webClient.DownloadData(originalUrl);
@@ -84,16 +86,19 @@ namespace WeixinServer.Helpers
                             imageFactory.Overlay(this.GetFrameImageLayer(detect.FaceRectangle));
                             break;//only one
                         }
-
+                        
                         // Save
+                        timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage::RenderAnalysisResultAsImage Watermark begin\n", DateTime.Now - this.startTime));
                         imageFactory
                             .Watermark(this.GetTextLayer(captionText, result.Metadata.Width, result.Metadata.Height, result.Color))
                             .Format(new JpegFormat())
                             .Save(outStream);
+                        timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage::RenderAnalysisResultAsImage Watermark end\n", DateTime.Now - this.startTime));
                     }
-
+                    timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage::RenderAnalysisResultAsImage Upload to image CDN begin\n", DateTime.Now - this.startTime));
                     // Upload to image CDN
                     resultUrl = upyun.UploadImageStream(outStream);
+                    timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage::RenderAnalysisResultAsImage Upload to image CDN end\n", DateTime.Now - this.startTime));
                 }
             }
 
