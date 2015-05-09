@@ -1,102 +1,21 @@
-﻿/********************************************************
-*                                                        *
-*   Copyright (c) Microsoft. All rights reserved.        *
-*                                                        *
-*********************************************************/
+﻿using Microsoft.ProjectOxford.Vision;
+using Microsoft.ProjectOxford.Vision.Contract;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Net;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace WeixinServer.Controllers
+namespace WeixinServer.Helpers
 {
-    using Microsoft.ProjectOxford.Vision;
-    using Microsoft.ProjectOxford.Vision.Contract;
-    using System;
-    using System.IO;
-    using System.Text;
-    using System.Collections.Generic;
-    using System.Drawing;
-    using System.Drawing.Text;
-    using ImageProcessor;
-    using ImageProcessor.Common.Exceptions;
-    using ImageProcessor.Imaging;
-    using ImageProcessor.Imaging.Formats;
-    using ImageProcessor.Processors;
-    using System.Net;
-    using System.Threading.Tasks;
-    /// <summary>
-    /// The class is used to access vision APIs.
-    /// </summary>
-    public class VisionHelper
+    public partial class VisionHelper
     {
-        /// <summary>
-        /// The vision service client.
-        /// </summary>
-        private readonly IVisionServiceClient visionClient;
-        private Dictionary<string, string> cateMap = null;
-        private string frameImageUri;
-        private string originalImageUrl;
-        private byte[] photoBytes;
-        private ImageLayer GetFrameImageLayer(FaceRectangle detect)
-        {
-            var resizeLayer = new ResizeLayer(size: new Size(detect.Width, detect.Height), resizeMode: ResizeMode.Stretch);
-            var frameSteam = new MemoryStream();
-            var frameFactory = new ImageFactory(preserveExifData: false);
-            frameFactory.Load(this.frameImageUri).Resize(resizeLayer).Save(frameSteam);
-
-            var frameImage = Image.FromStream(frameSteam);
-            return new ImageLayer
-            {
-                Image = frameImage,
-                Position = new Point(detect.Left, detect.Top),
-            };
-        }
-
-        private TextLayer GetTextLayer(string text, int width, int height, Microsoft.ProjectOxford.Vision.Contract.Color color)
-        {
-            const int RGBMAX = 255;
-
-            System.Drawing.Color fontColor = System.Drawing.Color.DeepPink;
-            if (color != null && !string.IsNullOrWhiteSpace(color.AccentColor))
-            {
-                var accentColor = ColorTranslator.FromHtml("#" + color.AccentColor);
-                fontColor = System.Drawing.Color.FromArgb(RGBMAX - accentColor.R, RGBMAX - accentColor.G, RGBMAX - accentColor.B);
-            }
-
-            var fontSize = width < 1000 ? 24 : 36;
-
-            var x = (int)(width * 0.05);
-            var y = height - (fontSize + 5) * 5;
-
-            return new TextLayer
-            {
-                DropShadow = true,
-                FontColor = fontColor,
-                FontSize = fontSize,
-                FontFamily = new FontFamily(GenericFontFamilies.SansSerif),
-                Text = text,
-                Style = FontStyle.Bold,
-                Position = new Point(x, y),
-                Opacity = 85,
-            };
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="VisionHelper"/> class.
-        /// </summary>
-        /// <param name="subscriptionKey">The subscription key.</param>
-        public VisionHelper(string subscriptionKey, string frameImageUri)
+        private void InitializePropertiesForText(string subscriptionKey)
         {
             this.visionClient = new VisionServiceClient(subscriptionKey);
-            this.frameImageUri = frameImageUri;
 
-            //this.cateMap = new Dictionary<string, string>();
-            //var fileName = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-            //    "86.cate.scp.split.ts.scp");
-            //using (StreamReader reader = new StreamReader(System.Web.HttpContext.Current.Server.MapPath(@"~\App_Data\86.cate.scp.split.ts.scp")))
-            //{
-            //    var line = reader.ReadLine();
-            //    string[] sp = line.Split('\t');
-            //    this.cateMap.Add(sp[0], sp[1]);
-            //}
-            this.cateMap = new Dictionary<string, string>() {
+            this.categoryNameMapping = new Dictionary<string, string>() {
                 { "abstract_", "抽象" },
                 { "abstract_net", "带有网格的抽象" },
                 { "abstract_nonphoto", "不是照片的抽象东东" },
@@ -184,14 +103,11 @@ namespace WeixinServer.Controllers
                 { "trans_car", "汽车" },
                 { "trans_trainstation", "交通工具" },
 		    };
-
-
         }
 
-        private void DownloadDataCompleted(object sender,
-            DownloadDataCompletedEventArgs e)
+        private void DownloadDataCompleted(object sender, DownloadDataCompletedEventArgs e)
         {
-            photoBytes  = e.Result;
+            photoBytes = e.Result;
             //Console.WriteLine(photoBytes.Length + " bytes received");
         }
 
@@ -222,14 +138,14 @@ namespace WeixinServer.Controllers
 
                     //Task.Run(async () =>
                     //{
-                        var ret = this.visionClient.AnalyzeImageAsync(imagePathOrUrl);
-                        analysisResult = await ret;
+                    var ret = this.visionClient.AnalyzeImageAsync(imagePathOrUrl);
+                    analysisResult = await ret;
                     //}).Wait();
-                        WebClient client = new WebClient();
-                        client.DownloadDataCompleted += DownloadDataCompleted;
-                        taskb = client.DownloadDataTaskAsync(new Uri(imagePathOrUrl));
+                    WebClient client = new WebClient();
+                    client.DownloadDataCompleted += DownloadDataCompleted;
+                    taskb = client.DownloadDataTaskAsync(new Uri(imagePathOrUrl));
 
-                    
+
                 }
                 else
                 {
@@ -250,7 +166,7 @@ namespace WeixinServer.Controllers
                     return string.Format("ClientException e.Error.Message:{0}", e.Message);
                 }
 
-                
+
             }
             catch (Exception e)
             {
@@ -630,31 +546,31 @@ namespace WeixinServer.Controllers
                 //res += "Racy Score : " + result.Adult.RacyScore;
                 //map.Add("RacyScore", result.Adult.RacyScore.ToString());
 
-                ascr = (result.Adult.AdultScore +0.2)* 150.0;
+                ascr = (result.Adult.AdultScore + 0.2) * 150.0;
                 rscr = result.Adult.RacyScore * 100.0;
             }
             desStringWriter.Write(string.Format("清新度: {0:F2}%\n", rscr));//TODO 少量 or More by Score
-            desStringWriter.Write(string.Format("风骚度: {0:F2}%。\n", ascr));//TODO 少量 or More by Score
+            desStringWriter.Write(string.Format("风骚度: {0:F2}%\n", ascr));//TODO 少量 or More by Score
             if (result.Categories != null && result.Categories.Length > 0)
             {
                 //res += "Categories : ";
                 desStringWriter.Write(string.Format("画面里有"));
                 //var sb = new StringBuilder();
                 string sb = "";
-                
+
                 foreach (var category in result.Categories)
                 {
                     //res += "   Name : " + category.Name;
                     //res += "; Score : " + category.Score;
-                    //if (cateMap.ContainsKey(category.Name) && ! category.Name.EndsWith("_"))
-                    if (cateMap.ContainsKey(category.Name))
-                        sb += string.Format("{0}、", cateMap[category.Name]);
-                    
+                    //if (categoryNameMapping.ContainsKey(category.Name) && ! category.Name.EndsWith("_"))
+                    if (categoryNameMapping.ContainsKey(category.Name))
+                        sb += string.Format("{0}、", categoryNameMapping[category.Name]);
+
                 }
 
                 //if (result.Categories.Length == 1 || sb.Length < 2)
                 //{
-                //    sb += string.Format("{0}", cateMap[result.Categories[0].Name]);
+                //    sb += string.Format("{0}", categoryNameMapping[result.Categories[0].Name]);
                 //}
                 desStringWriter.Write(string.Format("{0}", sb.TrimEnd('、')));
                 if (result.Categories.Length > 1 && sb.Length > 1)
@@ -684,7 +600,7 @@ namespace WeixinServer.Controllers
                     }
                 }
 
-                
+
 
                 //里面的男人很幸福
                 //一群男or女屌丝
@@ -692,7 +608,7 @@ namespace WeixinServer.Controllers
                 else if (numFemale < numMale && numFemale > 0) desStringWriter.Write(string.Format("这{0}个女人很幸福:)", numFemale));
                 else if (numFemale == 0) desStringWriter.Write(string.Format("{0}个孤独的骚男, 颜龄在{1:F1}岁左右……", numMale, mAvgAge / numMale));
                 else if (numMale == 0) desStringWriter.Write(string.Format("{0}个寂寞的骚女, 颜龄在{1:F1}岁左右……", numFemale, fAvgAge / numFemale));
-                else 
+                else
                 {
                     //desStringWriter.Write(string.Format("里面有{0}男{1}女,", numMale, numFemale));//TODO 少量 or More by Score
                     //desStringWriter.Write(string.Format("平均年龄{0:F0}岁", avgAge / (numMale + numFemale)));//TODO 少量 or More by Score
@@ -703,7 +619,7 @@ namespace WeixinServer.Controllers
                 if (ratio > 1.2 && numFemale > 0) desStringWriter.Write(string.Format("= {0}头老驴啃{1}棵嫩草", numMale, numFemale));
                 else if (ratio < 0.8 && numMale > 0) desStringWriter.Write(string.Format("= {0}棵老草啃{1}头嫩驴", numFemale, numMale));
                 else { }
-                
+
             }
 
             if (result.Color != null)
@@ -723,48 +639,7 @@ namespace WeixinServer.Controllers
             }
 
             //Console.ResetColor();
-            return desStringWriter.ToString(); 
-                //des;
-        }
-        private string RenderAnalysisResultAsImage(AnalysisResult result, string captionText)
-        {
-            var originalUrl = this.originalImageUrl;
-            //var webClient = new WebClient();
-            //var photoBytes = webClient.DownloadData(originalUrl);
-            string resultUrl = null;
-
-            var upyun = new UpYun("wxhowoldtest", "work01", "vYiJVc7iYY33w58O");
-
-            using (var inStream = new MemoryStream(photoBytes))
-            {
-                using (var outStream = new MemoryStream())
-                {
-                    // Initialize the ImageFactory using the overload to preserve EXIF metadata.
-                    using (var imageFactory = new ImageFactory(preserveExifData: false))
-                    {
-                        // Load
-                        imageFactory.Load(inStream);
-
-                        // Add frame
-                        foreach (var detect in result.Faces)
-                        {
-                            imageFactory.Overlay(this.GetFrameImageLayer(detect.FaceRectangle));
-                            break;//only one
-                        }
-
-                        // Save
-                        imageFactory
-                            .Watermark(this.GetTextLayer(captionText, result.Metadata.Width, result.Metadata.Height, result.Color))
-                            .Format(new JpegFormat())
-                            .Save(outStream);
-                    }
-
-                    // Upload to image CDN
-                    resultUrl = upyun.UploadImageStream(outStream);
-                }
-            }
-
-            return string.Format("酷评:\n{0}\n归图:\n{1}", captionText, resultUrl);
+            return desStringWriter.ToString();
         }
     }
 }

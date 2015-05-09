@@ -125,11 +125,13 @@
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Controllers\HomeController.cs" />
-    <Compile Include="Controllers\UpYun.cs" />
-    <Compile Include="Controllers\VisionHelper.cs" />
+    <Compile Include="Helpers\UpYun.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Helpers\VisionHelper.cs" />
+    <Compile Include="Helpers\VisionHelper.Image.cs" />
+    <Compile Include="Helpers\VisionHelper.Text.cs" />
     <Compile Include="Models\MsgObject.cs" />
     <Compile Include="Models\WeixinDBContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -147,9 +149,6 @@
     <Content Include="Content\Site.css" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
-    <Content Include="App_Data\86.cate.scp.split.ts.scp">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <None Include="Properties\PublishProfiles\msftgeekblog - FTP.pubxml" />
     <None Include="Properties\PublishProfiles\msftgeekblog - Web Deploy.pubxml" />
     <None Include="Properties\PublishProfiles\msftgeekblog.pubxml" />
