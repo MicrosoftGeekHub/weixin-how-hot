@@ -121,8 +121,8 @@ namespace WeixinServer.Controllers
             MsgObject msg = new MsgObject(xml);
             if (msg.MsgType != "image")
             {
-                //Response.Write("")
-                //    Response.end
+                Response.Write("目前只支持jpg/png等图片格式");
+                Response.End();
                 return false;
             }
 
