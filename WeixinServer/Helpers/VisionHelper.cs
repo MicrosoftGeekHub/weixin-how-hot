@@ -1,4 +1,5 @@
 ﻿using Microsoft.ProjectOxford.Vision;
+using System;
 using System.Collections.Generic;
 using System.Net;
 
@@ -26,6 +27,7 @@ namespace WeixinServer.Helpers
         /// <param name="frameImageUri">The frame image URI.</param>
         public VisionHelper(string subscriptionKey, string frameImageUri)
         {
+            timeLogger.Append(string.Format("{0} VisionHelper::InitializePropertiesForText\n", DateTime.Now));
             this.InitializePropertiesForText(subscriptionKey);
             this.InitializePropertiesForImage(frameImageUri);
         }

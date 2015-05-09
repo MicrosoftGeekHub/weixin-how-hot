@@ -133,6 +133,7 @@
     <Compile Include="Helpers\VisionHelper.Image.cs" />
     <Compile Include="Helpers\VisionHelper.Text.cs" />
     <Compile Include="Models\MsgObject.cs" />
+    <Compile Include="Models\RichResult.cs" />
     <Compile Include="Models\WeixinDBContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
