@@ -10,7 +10,7 @@ using System.Globalization;
 using System.Threading;
 using System.Reflection;
 
-namespace WeixinServer.Controllers
+namespace WeixinServer.Helpers
 {
     public class UpYun
     {

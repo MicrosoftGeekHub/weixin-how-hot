@@ -1,10 +1,4 @@
-﻿/********************************************************
-*                                                        *
-*   Copyright (c) Microsoft. All rights reserved.        *
-*                                                        *
-*********************************************************/
-
-namespace WeixinServer.Controllers
+﻿namespace WeixinServer.Helpers
 {
     using Microsoft.ProjectOxford.Vision;
     using Microsoft.ProjectOxford.Vision.Contract;
@@ -24,7 +18,7 @@ namespace WeixinServer.Controllers
     /// <summary>
     /// The class is used to access vision APIs.
     /// </summary>
-    public class VisionHelper
+    public partial class VisionHelper
     {
         /// <summary>
         /// The vision service client.

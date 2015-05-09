@@ -18,6 +18,7 @@ using ImageProcessor.Imaging;
 using ImageProcessor.Imaging.Formats;
 using ImageProcessor.Processors;
 using System.Net;
+using WeixinServer.Helpers;
 
 //using UpYunLibrary;
 namespace WeixinServer.Controllers
