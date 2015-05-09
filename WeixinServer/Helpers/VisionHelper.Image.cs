@@ -10,6 +10,11 @@ namespace WeixinServer.Helpers
 {
     public partial class VisionHelper
     {
+        private void InitializePropertiesForImage(string frameImageUri)
+        {
+            this.frameImageUri = frameImageUri;
+        }
+
         private ImageLayer GetFrameImageLayer(FaceRectangle detect)
         {
             var resizeLayer = new ResizeLayer(size: new Size(detect.Width, detect.Height), resizeMode: ResizeMode.Stretch);
