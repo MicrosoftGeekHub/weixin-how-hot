@@ -23,18 +23,29 @@ namespace WeixinServer.Helpers
             using (Graphics g = Graphics.FromImage(image))
             {
                 var rectangles = new List<System.Drawing.Rectangle>();
+                var femelRectangles = new List<System.Drawing.Rectangle>();
                 foreach (var faceDetect in faceDetections)
                 {
-
-                    rectangles.Add(new System.Drawing.Rectangle(faceDetect.FaceRectangle.Left,
+                    if(faceDetect.Gender.Equals("Male")) rectangles.Add(new System.Drawing.Rectangle(faceDetect.FaceRectangle.Left,
+                        faceDetect.FaceRectangle.Top, faceDetect.FaceRectangle.Width, faceDetect.FaceRectangle.Height));
+                    else femelRectangles.Add(new System.Drawing.Rectangle(faceDetect.FaceRectangle.Left,
                         faceDetect.FaceRectangle.Top, faceDetect.FaceRectangle.Width, faceDetect.FaceRectangle.Height));
                 }
                 // Modify the image using g here... 
                 // Create a brush with an alpha value and use the g.FillRectangle function
                 var customColor = System.Drawing.Color.FromArgb(255, System.Drawing.Color.Gray);
                 TextureBrush shadowBrush = new TextureBrush(image);
-                Pen pen = new Pen(System.Drawing.Color.Red, 2);
-                g.DrawRectangles(pen, rectangles.ToArray());
+                if (femelRectangles.Count > 0)
+                {
+                    Pen pen = new Pen(System.Drawing.Color.Magenta, 2);
+                    g.DrawRectangles(pen, femelRectangles.ToArray());
+                }
+                if (rectangles.Count > 0)
+                {
+                    Pen pen = new Pen(System.Drawing.Color.Lime, 2);
+                    g.DrawRectangles(pen, rectangles.ToArray());
+                }
+                
                 //image.Save(@"d:\tmp\0510save.jpg");
             }
 
