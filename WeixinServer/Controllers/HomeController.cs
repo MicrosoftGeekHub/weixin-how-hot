@@ -107,13 +107,15 @@ namespace WeixinServer.Controllers
         }
 
         private string subscriptionKey = ConfigurationManager.AppSettings["subscriptionKey"];
-        private VisionHelper vision = new VisionHelper("8b2854891a9f436e8ecd60127ca62fd9", System.Web.HttpContext.Current.Server.MapPath(@"~\App_Data\frame.png"));
+        private VisionHelper vision = new VisionHelper("cc9e33682fcd4eeab114f9a63dc16021", System.Web.HttpContext.Current.Server.MapPath(@"~\App_Data\frame.png"));
         private bool ProcessMsg(string xml)
         {
             MsgObject msg = new MsgObject(xml);
             if (msg.MsgType != "image")
             {
-                Response.Write("目前只支持jpg/png等图片格式");
+                string resString = "请点+号输入一张人物风景照片试试";
+                Response.Write(string.Format("<xml><ToUserName><![CDATA[{0}]]></ToUserName><FromUserName><![CDATA[{1}]]></FromUserName><CreateTime>12345678</CreateTime><MsgType><![CDATA[text]]></MsgType><Content><![CDATA[{2}]]></Content></xml>",
+                    msg.FromUserName, msg.ToUserName, resString));
                 Response.End();
                 return false;
             }
