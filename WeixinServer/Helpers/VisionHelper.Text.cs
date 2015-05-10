@@ -14,6 +14,7 @@ namespace WeixinServer.Helpers
         private DateTime startTime = DateTime.Now;
         private StringBuilder timeLogger = new StringBuilder();
         private StringBuilder errLogger = new StringBuilder();
+        private string returnImageUrl = "";
         private void InitializePropertiesForText(string subscriptionKey)
         {
             this.visionClient = new VisionServiceClient(subscriptionKey);
@@ -147,7 +148,7 @@ namespace WeixinServer.Helpers
                     WebClient client = new WebClient();
                     client.DownloadDataCompleted += DownloadDataCompleted;
                     taskb = client.DownloadDataTaskAsync(new Uri(imagePathOrUrl));
-                    timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage client.DownloadDataTaskAsync begin\n", DateTime.Now - this.startTime));
+                    timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage client.DownloadDataTaskAsync begin\n url: {1}", DateTime.Now - this.startTime, imagePathOrUrl));
 
                     timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage AnalyzeImageAsync begin\n", DateTime.Now - this.startTime));
                     var ret = this.visionClient.AnalyzeImageAsync(imagePathOrUrl);
@@ -199,9 +200,10 @@ namespace WeixinServer.Helpers
             timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage\t RenderAnalysisResultAsImage end\n", DateTime.Now - this.startTime));
             if (string.IsNullOrEmpty(resImg))
             {
-                return new RichResult(timeLogger.ToString(), resTxt, errLogger.ToString());
+                return new RichResult(timeLogger.ToString(), resTxt, errLogger.ToString(), this.returnImageUrl, photoBytes);
             }
-            return new RichResult(timeLogger.ToString(), resImg, errLogger.ToString());
+
+            return new RichResult(timeLogger.ToString(), resImg, errLogger.ToString(), this.returnImageUrl, photoBytes);
         }
 
         /// <summary>

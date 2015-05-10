@@ -2,6 +2,7 @@
 using System.Configuration;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web.Mvc;
@@ -111,6 +112,7 @@ namespace WeixinServer.Controllers
         private bool ProcessMsg(string xml)
         {
             MsgObject msg = new MsgObject(xml);
+            
             if (msg.MsgType != "image")
             {
                 string resString = "请点+号输入一张人物风景照片试试";
@@ -120,6 +122,15 @@ namespace WeixinServer.Controllers
                 return false;
             }
 
+            bool isDebug = false;
+            if (isDebug)
+            {
+                string debugString = msg.PicUrl;
+                Response.Write(string.Format("<xml><ToUserName><![CDATA[{0}]]></ToUserName><FromUserName><![CDATA[{1}]]></FromUserName><CreateTime>12345678</CreateTime><MsgType><![CDATA[text]]></MsgType><Content><![CDATA[{2}]]></Content></xml>",
+                    msg.FromUserName, msg.ToUserName, msg.PicUrl));
+                Response.End();
+                return false;
+            }
             //string imagePathorUrl = msg.PicUrl;
             //string imagePathorUrl = msg.PicUrl.Replace("https://", "").Replace("http://", "");
             //var ret = vision.AnalyzeImage(msg.PicUrl);
@@ -132,12 +143,17 @@ namespace WeixinServer.Controllers
             }).Wait();
             
             // Debug mode
-            Response.Write(string.Format("<xml><ToUserName><![CDATA[{0}]]></ToUserName><FromUserName><![CDATA[{1}]]></FromUserName><CreateTime>12345678</CreateTime><MsgType><![CDATA[text]]></MsgType><Content><![CDATA[{2}]]></Content><DebugInfo><![CDATA[{3}]]></DebugInfo><ErrorInfo><![CDATA[{4}]]></ErrorInfo></xml>", msg.FromUserName, msg.ToUserName, ret.analyzeImageResult, ret.timeLogs, ret.errorLogs));
+            Response.Write(string.Format("<xml><ToUserName><![CDATA[{0}]]></ToUserName><FromUserName><![CDATA[{1}]]></FromUserName><CreateTime>12345678</CreateTime><MsgType><![CDATA[text]]></MsgType><Content><![CDATA[{2}]]></Content><DebugInfo><![CDATA[{3}]]></DebugInfo><ErrorInfo><![CDATA[{4}]]></ErrorInfo></xml>", 
+                msg.FromUserName, msg.ToUserName, ret.analyzeImageResult, ret.timeLogs, ret.errorLogs));
 
             // Production mode
             //Response.Write(string.Format("<xml><ToUserName><![CDATA[{0}]]></ToUserName><FromUserName><![CDATA[{1}]]></FromUserName><CreateTime>12345678</CreateTime><MsgType><![CDATA[text]]></MsgType><Content><![CDATA[{2}]]></Content></xml>", msg.FromUserName, msg.ToUserName, ret.analyzeImageResult));
             
             Response.End();
+
+            //write to DB
+            var webClient = new WebClient();
+            var processedImageBytes = webClient.DownloadData(ret.uploadedUrl);
 
             return true;
         }
