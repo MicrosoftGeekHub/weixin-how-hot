@@ -143,7 +143,7 @@ namespace WeixinServer.Helpers
 
                     //Task.Run(async () =>
                     //{
-                    timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage AnalyzeImageAsync end\n", DateTime.Now - this.startTime));
+                    
                     WebClient client = new WebClient();
                     client.DownloadDataCompleted += DownloadDataCompleted;
                     taskb = client.DownloadDataTaskAsync(new Uri(imagePathOrUrl));
@@ -152,6 +152,7 @@ namespace WeixinServer.Helpers
                     timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage AnalyzeImageAsync begin\n", DateTime.Now - this.startTime));
                     var ret = this.visionClient.AnalyzeImageAsync(imagePathOrUrl);
                     analysisResult = await ret;
+                    timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage AnalyzeImageAsync end\n", DateTime.Now - this.startTime));
                     //}).Wait();
                     
                 }
@@ -172,7 +173,7 @@ namespace WeixinServer.Helpers
                 }
                 else
                 {
-                    var errMsg = string.Format("ClientException e.Error.Message:{0}", e.Message);
+                    var errMsg = string.Format("ClientException e.Message:{0}", e.Message);
                     errLogger.Append(errMsg);
                     return new RichResult(timeLogger.ToString(), errMsg, errLogger.ToString());
                 }
@@ -569,8 +570,8 @@ namespace WeixinServer.Helpers
                 ascr = (result.Adult.AdultScore + 0.2) * 150.0;
                 rscr = result.Adult.RacyScore * 100.0;
             }
-            desStringWriter.Write(string.Format("清新度: {0:F2}%\n", rscr));//TODO 少量 or More by Score
-            desStringWriter.Write(string.Format("风骚度: {0:F2}%\n", ascr));//TODO 少量 or More by Score
+            desStringWriter.Write(string.Format("画面清新度: {0:F2}%\n", rscr));//TODO 少量 or More by Score
+            desStringWriter.Write(string.Format("人物风骚度: {0:F2}%\n", ascr));//TODO 少量 or More by Score
             if (result.Categories != null && result.Categories.Length > 0)
             {
                 //res += "Categories : ";
