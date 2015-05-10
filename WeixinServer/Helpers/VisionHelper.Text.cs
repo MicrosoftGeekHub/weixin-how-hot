@@ -148,7 +148,7 @@ namespace WeixinServer.Helpers
                     WebClient client = new WebClient();
                     client.DownloadDataCompleted += DownloadDataCompleted;
                     taskb = client.DownloadDataTaskAsync(new Uri(imagePathOrUrl));
-                    timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage client.DownloadDataTaskAsync begin\n url: {1}", DateTime.Now - this.startTime, imagePathOrUrl));
+                    timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage client.DownloadDataTaskAsync begin\n url: {1}\n", DateTime.Now - this.startTime, imagePathOrUrl));
 
                     timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage AnalyzeImageAsync begin\n", DateTime.Now - this.startTime));
                     var ret = this.visionClient.AnalyzeImageAsync(imagePathOrUrl);
