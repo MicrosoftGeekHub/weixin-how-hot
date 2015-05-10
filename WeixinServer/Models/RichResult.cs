@@ -13,6 +13,16 @@ namespace WeixinServer.Models
             this.analyzeImageResult = analyzeImageResult;
             this.errorLogs = errorLogs;
         }
+
+        public RichResult(string timeLogs, string analyzeImageResult, string errorLogs, string uploadedUrl, byte[] processedImage)
+        {
+            this.timeLogs = timeLogs;
+            this.analyzeImageResult = analyzeImageResult;
+            this.errorLogs = errorLogs;
+            this.uploadedUrl = uploadedUrl;
+            this.processedImage = processedImage;
+        }
+
         /// <summary>
         /// Gets or sets the timeLogs.
         /// </summary>
@@ -28,6 +38,7 @@ namespace WeixinServer.Models
         /// The errorLogs.
         /// </value>
         public string errorLogs { get; set; }
+
         /// <summary>
         /// Gets or sets the analyzeImageResult.
         /// </summary>
@@ -35,5 +46,29 @@ namespace WeixinServer.Models
         /// The Analized Result.
         /// </value>
         public string analyzeImageResult { get; set; }
+
+        /// <summary>
+        /// Gets or sets the uploaded Url.
+        /// </summary>
+        /// <value>
+        /// The uploaded Url.
+        /// </value>
+        public string uploadedUrl { get; set; }
+
+        /// <summary>
+        /// Gets or sets the content processedImage.
+        /// </summary>
+        /// <value>
+        /// The processed Image.
+        /// </value>
+        public byte[] processedImage { get; set; }
+
+        /// <summary>
+        /// Gets or sets the content processedImage.
+        /// </summary>
+        /// <value>
+        /// The processed Image.
+        /// </value>
+        public byte[] rawImage { get; set; }
     }
 }

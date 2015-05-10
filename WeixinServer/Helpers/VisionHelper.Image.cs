@@ -63,7 +63,7 @@ namespace WeixinServer.Helpers
         private string RenderAnalysisResultAsImage(AnalysisResult result, string captionText)
         {
             timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage::RenderAnalysisResultAsImage begin\n", DateTime.Now - this.startTime));
-            var originalUrl = this.originalImageUrl;
+            //var originalUrl = this.originalImageUrl;
             //var webClient = new WebClient();
             //var photoBytes = webClient.DownloadData(originalUrl);
             string resultUrl = null;
@@ -98,11 +98,12 @@ namespace WeixinServer.Helpers
                     timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage::RenderAnalysisResultAsImage Upload to image CDN begin\n", DateTime.Now - this.startTime));
                     // Upload to image CDN
                     resultUrl = upyun.UploadImageStream(outStream);
+                    this.returnImageUrl = resultUrl;                    
                     timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage::RenderAnalysisResultAsImage Upload to image CDN end\n", DateTime.Now - this.startTime));
                 }
             }
 
-            return string.Format("酷评:\n{0}\n归图:\n{1}", captionText, resultUrl);
+            return string.Format("酷评:\n{0}\n归图:\n{1}\n原图:\n{2}", captionText, resultUrl, this.originalImageUrl);
         }
     }
 }
