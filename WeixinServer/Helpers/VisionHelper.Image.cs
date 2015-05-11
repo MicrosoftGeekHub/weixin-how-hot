@@ -7,16 +7,38 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Text;
 using System.IO;
-
+using Microsoft.WindowsAzure;
+using Microsoft.WindowsAzure.Storage;
+using Microsoft.WindowsAzure.Storage.Auth;
+using Microsoft.WindowsAzure.Storage.Blob;
+using System.Configuration;
+using System.Linq;
 namespace WeixinServer.Helpers
 {
     public partial class VisionHelper
     {
+        private string storageConnectionString;
+        private CloudStorageAccount storageAccount;
+        // Create the blob client.
+        private CloudBlobClient blobClient = null;
+
+        // Retrieve reference to a previously created container.
+        private CloudBlobContainer container = null;
+
+        private void InitializePropertiesForAzure() 
+        {
+            storageConnectionString = "DefaultEndpointsProtocol=https;AccountName=geeekstore;AccountKey=gwn9gAn+Uo6YqjdRNBF/mrM0Hbb54Ns61Rq9Q+ahhSyqrq64jrLMTn834cKmMKbqSFv9BTW8NtCFbUte49EzcA==";
+            storageAccount = CloudStorageAccount.Parse(storageConnectionString);
+            blobClient = storageAccount.CreateCloudBlobClient();
+            container = blobClient.GetContainerReference("cdn");
+        }
+
         private void InitializePropertiesForImage(string frameImageUri)
         {
             this.frameImageUri = frameImageUri;
         }
-
+        
+        
         static MemoryStream DrawRects(MemoryStream inStream, Face[] faceDetections)
         {
             Image image = Image.FromStream(inStream);
@@ -97,7 +119,16 @@ namespace WeixinServer.Helpers
                 Opacity = 85,
             };
         }
+        private static string random_string(int length = 12)
+        {
+            var chars = "abcdefghijklmnopqrstuvwxyz0123456789";
+            var random = new Random();
+            return new string(
+                Enumerable.Repeat(chars, length)
+                          .Select(s => s[random.Next(s.Length)])
+                          .ToArray());
 
+        }
         private string RenderAnalysisResultAsImage(AnalysisResult result, string captionText)
         {
             timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage::RenderAnalysisResultAsImage begin\n", DateTime.Now - this.startTime));
@@ -135,7 +166,19 @@ namespace WeixinServer.Helpers
                     }
                     timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage::RenderAnalysisResultAsImage Upload to image CDN begin\n", DateTime.Now - this.startTime));
                     // Upload to image CDN
-                    resultUrl = upyun.UploadImageStream(outStream);
+                    
+                 //   return string.Format("酷评:\n{0}\n归图:\n{1}", captionText, resultUrl);
+                    
+
+                    // Retrieve reference to a blob named "myblob".
+                    string blobName = random_string(12) + ".jpg";
+                    CloudBlockBlob blockBlob = container.GetBlockBlobReference(blobName);
+
+                    // Create or overwrite the "myblob" blob with contents from a local file.
+                    blockBlob.UploadFromStream(outStream);
+                    resultUrl = "https://geeekstore.blob.core.windows.net/cdn/" + blobName;
+                    //resultUrl = upyun.UploadImageStream(outStream);
+
                     this.returnImageUrl = resultUrl;                    
                     timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage::RenderAnalysisResultAsImage Upload to image CDN end\n", DateTime.Now - this.startTime));
                 }

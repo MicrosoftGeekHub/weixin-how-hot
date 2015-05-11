@@ -28,6 +28,7 @@ namespace WeixinServer.Helpers
         public VisionHelper(string subscriptionKey, string frameImageUri)
         {
             timeLogger.Append(string.Format("{0} VisionHelper::InitializePropertiesForText\n", DateTime.Now));
+            InitializePropertiesForAzure();
             this.InitializePropertiesForText(subscriptionKey);
             this.InitializePropertiesForImage(frameImageUri);
         }
