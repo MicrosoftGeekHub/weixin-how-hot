@@ -96,8 +96,8 @@ namespace WeixinServer.Helpers
                     //    g.DrawString(info, f, new SolidBrush(System.Drawing.Color.LimeGreen), new Point(leftText, topText));
                     //}
                         // Load
-                            
-                    layers.Add(this.GetTextLayer(info, room.Width, room.Height, clr));
+
+                    layers.Add(this.GetFaceTextLayer(info, leftText, topText, clr));
 
                 }       //end of for
 
@@ -148,6 +148,34 @@ namespace WeixinServer.Helpers
                 Position = new Point(detect.Left, detect.Top),
             };
         }
+
+        private TextLayer GetFaceTextLayer(string text, int x, int y, Microsoft.ProjectOxford.Vision.Contract.Color color)
+        {
+            const int RGBMAX = 255;
+
+            System.Drawing.Color fontColor = System.Drawing.Color.DeepPink;
+            if (color != null && !string.IsNullOrWhiteSpace(color.AccentColor))
+            {
+                var accentColor = ColorTranslator.FromHtml("#" + color.AccentColor);
+                fontColor = System.Drawing.Color.FromArgb(RGBMAX - accentColor.R, RGBMAX - accentColor.G, RGBMAX - accentColor.B);
+            }
+
+            var fontSize = 30;//width < 1000 ? 24 : 36;
+
+
+            return new TextLayer
+            {
+                DropShadow = true,
+                FontColor = fontColor,
+                FontSize = fontSize,
+                FontFamily = new FontFamily(GenericFontFamilies.SansSerif),
+                Text = text,
+                Style = FontStyle.Bold,
+                Position = new Point(x, y),
+                Opacity = 85,
+            };
+        }
+
 
         private TextLayer GetTextLayer(string text, int width, int height, Microsoft.ProjectOxford.Vision.Contract.Color color)
         {
