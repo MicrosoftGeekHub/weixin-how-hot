@@ -13,6 +13,7 @@ using Microsoft.WindowsAzure.Storage.Auth;
 using Microsoft.WindowsAzure.Storage.Blob;
 using System.Configuration;
 using System.Linq;
+using WeixinServer.Models;
 namespace WeixinServer.Helpers
 {
     public partial class VisionHelper
@@ -48,9 +49,13 @@ namespace WeixinServer.Helpers
             float ScaleFontSize = PreferedFont.Size * ScaleRatio;
             return new Font(PreferedFont.FontFamily, ScaleFontSize);
         }
-        
-        private MemoryStream DrawRects(MemoryStream inStream, Face[] faceDetections)
+
+        private MemoryStream DrawRects(MemoryStream inStream, AnalysisResult analysisResult) 
         {
+            Face[] faceDetections = analysisResult.Faces;
+            var ascr = analysisResult.Adult.AdultScore * 10000.0;
+            var rscr = analysisResult.Adult.RacyScore * 20000.0;
+            var saoBility = (ascr + rscr / 2);
             Image image = Image.FromStream(inStream);
             //        Watermark
             var clr = new Microsoft.ProjectOxford.Vision.Contract.Color();
@@ -67,7 +72,7 @@ namespace WeixinServer.Helpers
                 {
                     string genderInfo = "";
 
-                    int topText = faceDetect.FaceRectangle.Top - 50;
+                    int topText = faceDetect.FaceRectangle.Top + faceDetect.FaceRectangle.Height + 5;
                     topText = topText > 0 ? topText : 0;
                     int leftText = faceDetect.FaceRectangle.Left;
 
@@ -89,9 +94,9 @@ namespace WeixinServer.Helpers
                     }
                     //draw text 
                     //float size = faceDetect.FaceRectangle.Width / 5.0f;
-                    string info = string.Format("{0}{1}", genderInfo, faceDetect.Age);
+                    string info = string.Format("{0}颜龄{1}\n骚值{2:F0}\n肾价{3:F1}万", genderInfo, faceDetect.Age, saoBility * faceDetect.Age / 25.0, ascr * 25 / faceDetect.Age);
                     Size room = new Size(faceDetect.FaceRectangle.Width, faceDetect.FaceRectangle.Top - topText);
-                    Font f =  new Font("Arial", 36, FontStyle.Regular, GraphicsUnit.Pixel);
+                    Font f =  new Font("Arial", 24, FontStyle.Regular, GraphicsUnit.Pixel);
                     //Font f = FindFont(g, info, room, new Font("Arial", 600, FontStyle.Regular, GraphicsUnit.Pixel));
                     g.DrawString(info, f, new SolidBrush(System.Drawing.Color.LimeGreen), new Point(leftText, topText));
 
@@ -214,6 +219,10 @@ namespace WeixinServer.Helpers
                           .ToArray());
 
         }
+        private string RenderAnalysisResultAsImage(AnalysisResult result, RichResult txtRichResult)
+        {
+            return RenderAnalysisResultAsImage(result, txtRichResult.analyzeImageResult);
+        }
         private string RenderAnalysisResultAsImage(AnalysisResult result, string captionText)
         {
             timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage::RenderAnalysisResultAsImage begin\n", DateTime.Now - this.startTime));
@@ -230,7 +239,8 @@ namespace WeixinServer.Helpers
                     {
                         // Load
                         timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage::RenderAnalysisResultAsImage imageFactory.Load begin\n", DateTime.Now - this.startTime));
-                        var midStream = DrawRects(inStream, result.Faces);
+                        //var midStream = DrawRects(inStream, result.Faces);
+                        var midStream = DrawRects(inStream, result);
                         timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage::RenderAnalysisResultAsImage imageFactory.Load midStream generated\n", DateTime.Now - this.startTime));
                         imageFactory.Load(midStream);
                         timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage::RenderAnalysisResultAsImage imageFactory.Load end\n", DateTime.Now - this.startTime));
