@@ -176,7 +176,7 @@ namespace WeixinServer.Helpers
 
                     // Create or overwrite the "myblob" blob with contents from a local file.
                     blockBlob.UploadFromStream(outStream);
-                    resultUrl = "https://geeekstore.blob.core.windows.net/cdn/" + blobName;
+                    resultUrl = "http://geeekstore.blob.core.windows.net/cdn/" + blobName;
                     //resultUrl = upyun.UploadImageStream(outStream);
 
                     this.returnImageUrl = resultUrl;                    
