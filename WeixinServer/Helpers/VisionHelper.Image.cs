@@ -38,42 +38,100 @@ namespace WeixinServer.Helpers
             this.frameImageUri = frameImageUri;
         }
         
+        static Font FindFont(System.Drawing.Graphics g, string longString, Size Room, Font PreferedFont)
+        {
+            //you should perform some scale functions
+            SizeF RealSize = g.MeasureString(longString, PreferedFont);
+            float HeightScaleRatio = Room.Height / RealSize.Height;
+            float WidthScaleRatio = Room.Width / RealSize.Width;
+            float ScaleRatio = (HeightScaleRatio < WidthScaleRatio) ? ScaleRatio = HeightScaleRatio : ScaleRatio = WidthScaleRatio;
+            float ScaleFontSize = PreferedFont.Size * ScaleRatio;
+            return new Font(PreferedFont.FontFamily, ScaleFontSize);
+        }
         
-        static MemoryStream DrawRects(MemoryStream inStream, Face[] faceDetections)
+        private MemoryStream DrawRects(MemoryStream inStream, Face[] faceDetections)
         {
             Image image = Image.FromStream(inStream);
+            //        Watermark
+            var clr = new Microsoft.ProjectOxford.Vision.Contract.Color();
+            clr.AccentColor = "CAA501";
+            var layers = new List<TextLayer>();
+            // Modify the image using g
+            
             using (Graphics g = Graphics.FromImage(image))
             {
-                var rectangles = new List<System.Drawing.Rectangle>();
+                var txtRectangles = new List<System.Drawing.Rectangle>();
                 var femelRectangles = new List<System.Drawing.Rectangle>();
+                var maleRectangles = new List<System.Drawing.Rectangle>();
                 foreach (var faceDetect in faceDetections)
                 {
-                    if(faceDetect.Gender.Equals("Male")) rectangles.Add(new System.Drawing.Rectangle(faceDetect.FaceRectangle.Left,
-                        faceDetect.FaceRectangle.Top, faceDetect.FaceRectangle.Width, faceDetect.FaceRectangle.Height));
-                    else femelRectangles.Add(new System.Drawing.Rectangle(faceDetect.FaceRectangle.Left,
-                        faceDetect.FaceRectangle.Top, faceDetect.FaceRectangle.Width, faceDetect.FaceRectangle.Height));
-                }
-                // Modify the image using g here... 
+                    string genderInfo = "";
+
+                    int topText = faceDetect.FaceRectangle.Top - 50;
+                    topText = topText > 0 ? topText : 0;
+                    int leftText = faceDetect.FaceRectangle.Left;
+
+                    if (faceDetect.Gender.Equals("Male"))
+                    {
+                        genderInfo += "♂";
+                        maleRectangles.Add(new System.Drawing.Rectangle(faceDetect.FaceRectangle.Left,
+                            faceDetect.FaceRectangle.Top, faceDetect.FaceRectangle.Width, faceDetect.FaceRectangle.Height));
+                        //maleRectangles.Add(new System.Drawing.Rectangle(leftText,
+                        //    topText, faceDetect.FaceRectangle.Width, faceDetect.FaceRectangle.Top - topText));
+                    }
+                    else
+                    {
+                        genderInfo += "♀";
+                        femelRectangles.Add(new System.Drawing.Rectangle(faceDetect.FaceRectangle.Left,
+                            faceDetect.FaceRectangle.Top, faceDetect.FaceRectangle.Width, faceDetect.FaceRectangle.Height));
+                        //femelRectangles.Add(new System.Drawing.Rectangle(leftText,
+                        //    topText, faceDetect.FaceRectangle.Width, faceDetect.FaceRectangle.Top - topText));
+                    }
+                    //draw text 
+                    //float size = faceDetect.FaceRectangle.Width / 5.0f;
+                    string info = string.Format("{0}{1}岁", genderInfo, faceDetect.Age);
+                    Size room = new Size(faceDetect.FaceRectangle.Width, faceDetect.FaceRectangle.Top - topText);
+                    //using (Font f = FindFont(g, info, room, new Font("Arial", 600, FontStyle.Regular, GraphicsUnit.Pixel)))
+                    //{
+                    //    g.DrawString(info, f, new SolidBrush(System.Drawing.Color.LimeGreen), new Point(leftText, topText));
+                    //}
+                        // Load
+                            
+                    layers.Add(this.GetTextLayer(info, room.Width, room.Height, clr));
+
+                }       //end of for
+
                 // Create a brush with an alpha value and use the g.FillRectangle function
-                var customColor = System.Drawing.Color.FromArgb(255, System.Drawing.Color.Gray);
-                TextureBrush shadowBrush = new TextureBrush(image);
+                //var customColor = System.Drawing.Color.FromArgb(255, System.Drawing.Color.Gray);
+                //TextureBrush shadowBrush = new TextureBrush(image);
                 if (femelRectangles.Count > 0)
                 {
                     Pen pen = new Pen(System.Drawing.Color.Magenta, 2);
                     g.DrawRectangles(pen, femelRectangles.ToArray());
                 }
-                if (rectangles.Count > 0)
+                if (maleRectangles.Count > 0)
                 {
                     Pen pen = new Pen(System.Drawing.Color.Lime, 2);
-                    g.DrawRectangles(pen, rectangles.ToArray());
+                    g.DrawRectangles(pen, maleRectangles.ToArray());
                 }
-                
-                //image.Save(@"d:\tmp\0510save.jpg");
             }
 
-            MemoryStream ms = new MemoryStream();
+            var outStream = new MemoryStream();
+            var ms = new MemoryStream();
             image.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
-            return ms;
+            timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage::RenderAnalysisResultAsImage imageFactory.Load begin\n", DateTime.Now - this.startTime));
+            using (var imageFactory = new ImageFactory(preserveExifData: false))
+            {
+                imageFactory.Load(ms);
+                foreach(var layer in layers)
+                {
+                    imageFactory.Watermark(layer);
+                                
+                }
+                imageFactory.Format(new JpegFormat()).Save(outStream);
+            }
+            timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage::RenderAnalysisResultAsImage imageFactory.Load midStream generated\n", DateTime.Now - this.startTime));
+            return outStream;
         }
 
         private ImageLayer GetFrameImageLayer(FaceRectangle detect)
@@ -172,7 +230,9 @@ namespace WeixinServer.Helpers
 
                     // Retrieve reference to a blob named "myblob".
                     //string blobName = string.Format("{0}_{1}.jpg", this.curUserName, random_string(12));
-                    string blobName = string.Format("{0}_{1}.jpg", this.curUserName.Substring(this.curUserName.LastIndexOf('_') - 1), random_string(12));
+                    int idx = this.curUserName.LastIndexOf('_');
+                    idx = idx > -1? idx : 0;
+                    string blobName = string.Format("{0}{1}.jpg", random_string(12), this.curUserName.Substring(idx));
                     CloudBlockBlob blockBlob = container.GetBlockBlobReference(blobName);
 
                     // Create or overwrite the "myblob" blob with contents from a local file.
