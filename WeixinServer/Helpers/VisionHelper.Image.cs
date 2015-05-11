@@ -53,9 +53,9 @@ namespace WeixinServer.Helpers
         private MemoryStream DrawRects(MemoryStream inStream, AnalysisResult analysisResult) 
         {
             Face[] faceDetections = analysisResult.Faces;
-            int ascr = (int)(analysisResult.Adult.AdultScore * 25);
-            int rscr = (int)(analysisResult.Adult.RacyScore * 50);
-            int saoBility = (ascr + rscr) * 400;
+            int ascr = (int)(analysisResult.Adult.AdultScore * 250000);
+            int rscr = (int)(analysisResult.Adult.RacyScore * 500000);
+            int saoBility = ascr + rscr;
             Image image = Image.FromStream(inStream);
             //        Watermark
             var clr = new Microsoft.ProjectOxford.Vision.Contract.Color();
@@ -97,7 +97,7 @@ namespace WeixinServer.Helpers
                     string info = string.Format("{0}颜龄{1}\n骚值{2:F0}\n肾价{3:F1}万", genderInfo, faceDetect.Age, 
                         saoBility * faceDetect.Age, ascr / faceDetect.Age);
                     Size room = new Size(faceDetect.FaceRectangle.Width, faceDetect.FaceRectangle.Top - topText);
-                    Font f =  new Font("Arial", 24, FontStyle.Regular, GraphicsUnit.Pixel);
+                    Font f =  new Font("Arial", 20, FontStyle.Regular, GraphicsUnit.Pixel);
                     //Font f = FindFont(g, info, room, new Font("Arial", 600, FontStyle.Regular, GraphicsUnit.Pixel));
                     g.DrawString(info, f, new SolidBrush(System.Drawing.Color.LimeGreen), new Point(leftText, topText));
 
@@ -242,6 +242,7 @@ namespace WeixinServer.Helpers
                         var midStream = DrawRects(inStream, result);
                         //var midStream = 
                         timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage::RenderAnalysisResultAsImage imageFactory.Load midStream generated\n", DateTime.Now - this.startTime));
+                        
                         imageFactory.Load(midStream);
                         timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage::RenderAnalysisResultAsImage imageFactory.Load end\n", DateTime.Now - this.startTime));
                         //// Add frame
