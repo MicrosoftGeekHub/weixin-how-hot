@@ -41,6 +41,7 @@ namespace WeixinServer
         public string ParsedUrl { get; set; }
         public byte[] ParsedContent { get; set; }
         public string ParsedDescription { get; set; }
+        public string TimeLog { get; set; }
     }
 
     public sealed class Token

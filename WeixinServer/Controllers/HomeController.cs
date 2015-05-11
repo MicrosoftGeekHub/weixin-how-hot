@@ -165,6 +165,7 @@ namespace WeixinServer.Controllers
                 image.ParsedUrl = ret.uploadedUrl;
                 image.ParsedContent = ret.processedImage;
                 image.ParsedDescription = ret.analyzeImageResult;
+                image.TimeLog = ret.timeLogs;
                 dbContext.ImageStorages.Add(image);
                 dbContext.SaveChanges();
             }
