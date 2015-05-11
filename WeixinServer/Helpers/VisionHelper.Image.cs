@@ -91,13 +91,11 @@ namespace WeixinServer.Helpers
                     //float size = faceDetect.FaceRectangle.Width / 5.0f;
                     string info = string.Format("{0}{1}", genderInfo, faceDetect.Age);
                     Size room = new Size(faceDetect.FaceRectangle.Width, faceDetect.FaceRectangle.Top - topText);
-                    //using (Font f = FindFont(g, info, room, new Font("Arial", 600, FontStyle.Regular, GraphicsUnit.Pixel)))
-                    //{
-                    //    g.DrawString(info, f, new SolidBrush(System.Drawing.Color.LimeGreen), new Point(leftText, topText));
-                    //}
-                        // Load
+                    Font f =  new Font("Arial", 36, FontStyle.Regular, GraphicsUnit.Pixel);
+                    //Font f = FindFont(g, info, room, new Font("Arial", 600, FontStyle.Regular, GraphicsUnit.Pixel));
+                    g.DrawString(info, f, new SolidBrush(System.Drawing.Color.LimeGreen), new Point(leftText, topText));
 
-                    layers.Add(this.GetFaceTextLayer(info, leftText, topText, clr));
+                    //layers.Add(this.GetFaceTextLayer(info, leftText, topText, clr));
 
                 }       //end of for
 
@@ -119,19 +117,20 @@ namespace WeixinServer.Helpers
             var outStream = new MemoryStream();
             var ms = new MemoryStream();
             image.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
-            timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage::RenderAnalysisResultAsImage imageFactory.Load begin\n", DateTime.Now - this.startTime));
-            using (var imageFactory = new ImageFactory(preserveExifData: false))
-            {
-                imageFactory.Load(ms);
-                foreach(var layer in layers)
-                {
-                    imageFactory.Watermark(layer);
+            return ms;
+            //timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage::RenderAnalysisResultAsImage imageFactory.Load begin\n", DateTime.Now - this.startTime));
+            //using (var imageFactory = new ImageFactory(preserveExifData: false))
+            //{
+            //    imageFactory.Load(ms);
+            //    foreach(var layer in layers)
+            //    {
+            //        imageFactory.Watermark(layer);
                                 
-                }
-                imageFactory.Format(new JpegFormat()).Save(outStream);
-            }
-            timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage::RenderAnalysisResultAsImage imageFactory.Load midStream generated\n", DateTime.Now - this.startTime));
-            return outStream;
+            //    }
+            //    imageFactory.Format(new JpegFormat()).Save(outStream);
+            //}
+            //timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage::RenderAnalysisResultAsImage imageFactory.Load midStream generated\n", DateTime.Now - this.startTime));
+            //return outStream;
         }
 
         private ImageLayer GetFrameImageLayer(FaceRectangle detect)
