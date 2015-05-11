@@ -89,7 +89,7 @@ namespace WeixinServer.Helpers
                     }
                     //draw text 
                     //float size = faceDetect.FaceRectangle.Width / 5.0f;
-                    string info = string.Format("{0}{1}岁", genderInfo, faceDetect.Age);
+                    string info = string.Format("{0}{1}", genderInfo, faceDetect.Age);
                     Size room = new Size(faceDetect.FaceRectangle.Width, faceDetect.FaceRectangle.Top - topText);
                     //using (Font f = FindFont(g, info, room, new Font("Arial", 600, FontStyle.Regular, GraphicsUnit.Pixel)))
                     //{
