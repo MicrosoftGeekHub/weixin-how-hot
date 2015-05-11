@@ -112,7 +112,7 @@ namespace WeixinServer.Controllers
         private bool ProcessMsg(string xml)
         {
             MsgObject msg = new MsgObject(xml);
-
+            
             if (msg.MsgType != "image")
             {
                 string resString = "请点+号输入一张人物风景照片试试";
@@ -141,33 +141,19 @@ namespace WeixinServer.Controllers
                 ret = await vision.AnalyzeImage(msg.PicUrl);
 
             }).Wait();
-
+            
             // Debug mode
-            Response.Write(string.Format("<xml><ToUserName><![CDATA[{0}]]></ToUserName><FromUserName><![CDATA[{1}]]></FromUserName><CreateTime>12345678</CreateTime><MsgType><![CDATA[text]]></MsgType><Content><![CDATA[{2}]]></Content><DebugInfo><![CDATA[{3}]]></DebugInfo><ErrorInfo><![CDATA[{4}]]></ErrorInfo></xml>",
+            Response.Write(string.Format("<xml><ToUserName><![CDATA[{0}]]></ToUserName><FromUserName><![CDATA[{1}]]></FromUserName><CreateTime>12345678</CreateTime><MsgType><![CDATA[text]]></MsgType><Content><![CDATA[{2}]]></Content><DebugInfo><![CDATA[{3}]]></DebugInfo><ErrorInfo><![CDATA[{4}]]></ErrorInfo></xml>", 
                 msg.FromUserName, msg.ToUserName, ret.analyzeImageResult, ret.timeLogs, ret.errorLogs));
 
             // Production mode
             //Response.Write(string.Format("<xml><ToUserName><![CDATA[{0}]]></ToUserName><FromUserName><![CDATA[{1}]]></FromUserName><CreateTime>12345678</CreateTime><MsgType><![CDATA[text]]></MsgType><Content><![CDATA[{2}]]></Content></xml>", msg.FromUserName, msg.ToUserName, ret.analyzeImageResult));
-
+            
             Response.End();
 
             //write to DB
             var webClient = new WebClient();
             var processedImageBytes = webClient.DownloadData(ret.uploadedUrl);
-
-            using (var dbContext = new WeixinDBContext())
-            {
-                ImageStorage image = new ImageStorage();
-                image.OpenId = msg.FromUserName;
-                image.CreateTime = msg.CreateTime;
-                image.PicUrl = msg.PicUrl;
-                image.PicContent = processedImageBytes;
-                image.ParsedUrl = ret.uploadedUrl;
-                image.ParsedContent = ret.processedImage;
-                image.ParsedDescription = ret.analyzeImageResult;
-                dbContext.ImageStorages.Add(image);
-                dbContext.SaveChanges();
-            }
 
             return true;
         }
