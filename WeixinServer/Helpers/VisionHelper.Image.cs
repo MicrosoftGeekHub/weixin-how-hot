@@ -171,7 +171,8 @@ namespace WeixinServer.Helpers
                     
 
                     // Retrieve reference to a blob named "myblob".
-                    string blobName = random_string(12) + ".jpg";
+                    //string blobName = string.Format("{0}_{1}.jpg", this.curUserName, random_string(12));
+                    string blobName = string.Format("{0}_{1}.jpg", this.curUserName.Substring(this.curUserName.LastIndexOf('_') - 1), random_string(12));
                     CloudBlockBlob blockBlob = container.GetBlockBlobReference(blobName);
 
                     // Create or overwrite the "myblob" blob with contents from a local file.

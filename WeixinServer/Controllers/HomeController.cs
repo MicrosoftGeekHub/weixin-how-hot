@@ -138,7 +138,7 @@ namespace WeixinServer.Controllers
             //ret = vision.AnalyzeImage(msg.PicUrl);            
             Task.Run(async () =>
             {
-                ret = await vision.AnalyzeImage(msg.PicUrl);
+                ret = await vision.AnalyzeImage(msg.PicUrl, msg.FromUserName);
 
             }).Wait();
             
