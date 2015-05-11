@@ -15,6 +15,7 @@ namespace WeixinServer.Helpers
         private StringBuilder timeLogger = new StringBuilder();
         private StringBuilder errLogger = new StringBuilder();
         private string returnImageUrl = "";
+        private string curUserName = "";
         private void InitializePropertiesForText(string subscriptionKey)
         {
             this.visionClient = new VisionServiceClient(subscriptionKey);
@@ -116,6 +117,16 @@ namespace WeixinServer.Helpers
         }
 
         
+        /// <summary>
+        /// Analyze the given image.
+        /// </summary>
+        /// <param name="imagePathOrUrl">The image path or url.</param>
+        public async Task<RichResult> AnalyzeImage(string imagePathOrUrl, string curUserName) 
+        {
+            this.curUserName = curUserName;
+            return await AnalyzeImage(imagePathOrUrl);
+        }
+
         /// <summary>
         /// Analyze the given image.
         /// </summary>
