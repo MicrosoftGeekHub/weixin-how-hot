@@ -584,7 +584,7 @@ namespace WeixinServer.Helpers
                 ascr = result.Adult.AdultScore * 10000.0;
                 rscr = result.Adult.RacyScore * 20000.0;
             }
-            desStringWriter.Write(string.Format("小鲜肉指数: {0:F0}", rscr));//TODO 少量 or More by Score
+            desStringWriter.Write(string.Format("小鲜肉指数: {0:F0}\n", rscr));//TODO 少量 or More by Score
             
             //desStringWriter.Write(string.Format("综合肾价: M${0:F0}\n", (rscr + ascr) * result.Faces.Length));//TODO 少量 or More by Score
             //desStringWriter.Write(string.Format(": {0:F2}%\n", ascr));//TODO 少量 or More by Score

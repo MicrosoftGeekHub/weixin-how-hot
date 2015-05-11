@@ -53,9 +53,9 @@ namespace WeixinServer.Helpers
         private MemoryStream DrawRects(MemoryStream inStream, AnalysisResult analysisResult) 
         {
             Face[] faceDetections = analysisResult.Faces;
-            var ascr = analysisResult.Adult.AdultScore * 10000.0;
-            var rscr = analysisResult.Adult.RacyScore * 20000.0;
-            var saoBility = (ascr + rscr / 2);
+            int ascr = (int)(analysisResult.Adult.AdultScore * 25);
+            int rscr = (int)(analysisResult.Adult.RacyScore * 50);
+            int saoBility = (ascr + rscr) * 400;
             Image image = Image.FromStream(inStream);
             //        Watermark
             var clr = new Microsoft.ProjectOxford.Vision.Contract.Color();
@@ -94,7 +94,8 @@ namespace WeixinServer.Helpers
                     }
                     //draw text 
                     //float size = faceDetect.FaceRectangle.Width / 5.0f;
-                    string info = string.Format("{0}颜龄{1}\n骚值{2:F0}\n肾价{3:F1}万", genderInfo, faceDetect.Age, saoBility * faceDetect.Age / 25.0, ascr * 25 / faceDetect.Age);
+                    string info = string.Format("{0}颜龄{1}\n骚值{2:F0}\n肾价{3:F1}万", genderInfo, faceDetect.Age, 
+                        saoBility * faceDetect.Age, ascr / faceDetect.Age);
                     Size room = new Size(faceDetect.FaceRectangle.Width, faceDetect.FaceRectangle.Top - topText);
                     Font f =  new Font("Arial", 24, FontStyle.Regular, GraphicsUnit.Pixel);
                     //Font f = FindFont(g, info, room, new Font("Arial", 600, FontStyle.Regular, GraphicsUnit.Pixel));
@@ -119,7 +120,6 @@ namespace WeixinServer.Helpers
                 }
             }
 
-            var outStream = new MemoryStream();
             var ms = new MemoryStream();
             image.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
             return ms;
@@ -239,8 +239,8 @@ namespace WeixinServer.Helpers
                     {
                         // Load
                         timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage::RenderAnalysisResultAsImage imageFactory.Load begin\n", DateTime.Now - this.startTime));
-                        //var midStream = DrawRects(inStream, result.Faces);
                         var midStream = DrawRects(inStream, result);
+                        //var midStream = 
                         timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage::RenderAnalysisResultAsImage imageFactory.Load midStream generated\n", DateTime.Now - this.startTime));
                         imageFactory.Load(midStream);
                         timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage::RenderAnalysisResultAsImage imageFactory.Load end\n", DateTime.Now - this.startTime));
@@ -254,7 +254,7 @@ namespace WeixinServer.Helpers
                         // Save
                         timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage::RenderAnalysisResultAsImage Watermark begin\n", DateTime.Now - this.startTime));
                         imageFactory
-                            .Watermark(this.GetTextLayer(captionText, result.Metadata.Width, result.Metadata.Height, result.Color))
+                           // .Watermark(this.GetTextLayer(captionText, result.Metadata.Width, result.Metadata.Height, result.Color))
                             .Format(new JpegFormat())
                             .Save(outStream);
                         timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage::RenderAnalysisResultAsImage Watermark end\n", DateTime.Now - this.startTime));
