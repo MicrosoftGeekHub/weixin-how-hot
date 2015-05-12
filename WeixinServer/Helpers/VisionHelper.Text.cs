@@ -2,6 +2,7 @@
 using Microsoft.ProjectOxford.Vision.Contract;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Net;
 using System.Text;
@@ -138,84 +139,127 @@ namespace WeixinServer.Helpers
             this.ShowInfo("Analyzing");
             AnalysisResult analysisResult = null;
             Task<Byte[]> taskb = null;
+            Task<AnalysisResult> taskAnalyzeImageAsync;
             string resultStr = string.Empty;
-            try
+            using (WebClient client = new WebClient())
             {
-                if (File.Exists(imagePathOrUrl))
+                try
                 {
-                    using (FileStream stream = File.Open(imagePathOrUrl, FileMode.Open))
+                    if (File.Exists(imagePathOrUrl))
                     {
-                        analysisResult = this.visionClient.AnalyzeImageAsync(stream).Result;
+                        using (FileStream stream = File.Open(imagePathOrUrl, FileMode.Open))
+                        {
+                            analysisResult = this.visionClient.AnalyzeImageAsync(stream).Result;
+                        }
+                    }
+                    else if (Uri.IsWellFormedUriString(imagePathOrUrl, UriKind.Absolute))
+                    {
+                        //var visualFeatures = new string[]{"faceId", "age", "gender", "faceRectangle", "faceLandmarks", "attributes"};
+                        //analysisResult = this.visionClient.AnalyzeImageAsync(imagePathOrUrl, visualFeatures).Result;
+
+                        //Task.Run(async () =>
+                        //{
+
+
+                        client.DownloadDataCompleted += DownloadDataCompleted;
+                        taskb = client.DownloadDataTaskAsync(new Uri(imagePathOrUrl));
+                        //timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage client.DownloadDataTaskAsync begin\n url: {1}\n", DateTime.Now - this.startTime, imagePathOrUrl));
+                        //var ret = this.visionClient.AnalyzeImageAsync(imagePathOrUrl);
+                        timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage AnalyzeImageAsync url begin\n", DateTime.Now - this.startTime));
+                        var request = System.Net.WebRequest.Create(new Uri(imagePathOrUrl));
+                        request.Timeout = int.MaxValue;
+                        var response = request.GetResponse();
+                        var streamToUpload = response.GetResponseStream();
+
+
+
+                        using (var ms = new MemoryStream())
+                        {
+                            streamToUpload.CopyTo(ms);
+                            Image image = Image.FromStream(ms);
+                            timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage AnalyzeImageAsync stream begin\n", DateTime.Now - this.startTime));
+                            if (image.Width > 800)
+                            {
+                                timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage AnalyzeImageAsync Resize begin\n", DateTime.Now - this.startTime));
+                                int width = 300;
+                                int height = (int)((float)width * image.Height / image.Width);
+                                Image resizedImg = Resize(image, new Size(width, height));
+                                resizedImg.Save(ms, image.RawFormat);
+                                ms.Seek(0, SeekOrigin.Begin);
+                                timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage AnalyzeImageAsync Resize end\n", DateTime.Now - this.startTime));
+                                analysisResult = await this.visionClient.AnalyzeImageAsync(ms);
+                                timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage AnalyzeImageAsync stream end\n", DateTime.Now - this.startTime));
+                            }
+                            else
+                            {
+                                ms.Seek(0, SeekOrigin.Begin);
+                                analysisResult = await this.visionClient.AnalyzeImageAsync(ms); ;
+                                timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage AnalyzeImageAsync stream end\n", DateTime.Now - this.startTime));
+                            }
+
+                            //analysisResult = await ret;
+                            //timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage AnalyzeImageAsync url end\n", DateTime.Now - this.startTime));
+                        }
+                        response.Close();
+
+
+                        //}).Wait();
+
+                    }
+                    else
+                    {
+                        var errMsg = string.Format("Invalid image path or Url:{0}\n" + imagePathOrUrl);
+                        errLogger.Append(errMsg);
+                        return new RichResult(timeLogger.ToString(), errMsg, errLogger.ToString());
                     }
                 }
-                else if (Uri.IsWellFormedUriString(imagePathOrUrl, UriKind.Absolute))
+                catch (ClientException e)
                 {
-                    //var visualFeatures = new string[]{"faceId", "age", "gender", "faceRectangle", "faceLandmarks", "attributes"};
-                    //analysisResult = this.visionClient.AnalyzeImageAsync(imagePathOrUrl, visualFeatures).Result;
+                    if (e.Error != null)
+                    {
+                        var errMsg = string.Format("ClientException e.Error.Message:{0}", e.Error.Message);
+                        errLogger.Append(errMsg);
+                        return new RichResult(timeLogger.ToString(), errMsg, errLogger.ToString());
+                    }
+                    else
+                    {
+                        var errMsg = string.Format("ClientException e.Message:{0}", e.Message);
+                        errLogger.Append(errMsg);
+                        return new RichResult(timeLogger.ToString(), errMsg, errLogger.ToString());
+                    }
 
-                    //Task.Run(async () =>
-                    //{
-                    
-                    WebClient client = new WebClient();
-                    client.DownloadDataCompleted += DownloadDataCompleted;
-                    taskb = client.DownloadDataTaskAsync(new Uri(imagePathOrUrl));
-                    timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage client.DownloadDataTaskAsync begin\n url: {1}\n", DateTime.Now - this.startTime, imagePathOrUrl));
 
-                    timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage AnalyzeImageAsync begin\n", DateTime.Now - this.startTime));
-                    var ret = this.visionClient.AnalyzeImageAsync(imagePathOrUrl);
-                    analysisResult = await ret;
-                    timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage AnalyzeImageAsync end\n", DateTime.Now - this.startTime));
-                    //}).Wait();
-                    
                 }
-                else
+                catch (Exception e)
                 {
-                    var errMsg = string.Format("Invalid image path or Url:{0}\n" + imagePathOrUrl);
+                    timeLogger.Append(string.Format("Exception Time: {0}\n ", DateTime.Now));
+                    var errMsg = string.Format("Exception e.Message:{0}", e.Message);
                     errLogger.Append(errMsg);
                     return new RichResult(timeLogger.ToString(), errMsg, errLogger.ToString());
+
                 }
-            }
-            catch (ClientException e)
-            {
-                if (e.Error != null)
+                finally
                 {
-                    var errMsg = string.Format("ClientException e.Error.Message:{0}", e.Error.Message);
-                    errLogger.Append(errMsg);
-                    return new RichResult(timeLogger.ToString(), errMsg, errLogger.ToString());
                 }
-                else
+                //return this.ShowRichAnalysisResult(analysisResult);
+
+                var resTxt = this.ShowRichAnalysisResult(analysisResult);
+                var txtRichResult = new RichResult(timeLogger.ToString(), resTxt, errLogger.ToString());
+                if (string.IsNullOrEmpty(resTxt)) return txtRichResult;
+
+                photoBytes = await taskb;
+
+                timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage client.DownloadDataTaskAsync end\n", DateTime.Now - this.startTime));
+
+                var resImg = this.RenderAnalysisResultAsImage(analysisResult, resTxt);
+                timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage\t RenderAnalysisResultAsImage end\n", DateTime.Now - this.startTime));
+                if (string.IsNullOrEmpty(resImg))
                 {
-                    var errMsg = string.Format("ClientException e.Message:{0}", e.Message);
-                    errLogger.Append(errMsg);
-                    return new RichResult(timeLogger.ToString(), errMsg, errLogger.ToString());
+                    return new RichResult(timeLogger.ToString(), resTxt, errLogger.ToString(), this.returnImageUrl, photoBytes);
                 }
 
-
+                return new RichResult(timeLogger.ToString(), resImg, errLogger.ToString(), this.returnImageUrl, photoBytes);
             }
-            catch (Exception e)
-            {
-                timeLogger.Append(string.Format("Exception Time: {0}\n ", DateTime.Now));
-                var errMsg = string.Format("Exception e.Message:{0}", e.Message);
-                errLogger.Append(errMsg);
-                return new RichResult(timeLogger.ToString(), errMsg, errLogger.ToString());
-
-            }
-            //return this.ShowRichAnalysisResult(analysisResult);
-            
-            var resTxt = this.ShowRichAnalysisResult(analysisResult);
-            var txtRichResult = new RichResult(timeLogger.ToString(), resTxt, errLogger.ToString());
-            if (string.IsNullOrEmpty(resTxt)) return txtRichResult; 
-            
-            photoBytes = await taskb;
-            timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage\t client.DownloadDataTaskAsync end\n", DateTime.Now - this.startTime));
-            var resImg = this.RenderAnalysisResultAsImage(analysisResult, resTxt);
-            timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage\t RenderAnalysisResultAsImage end\n", DateTime.Now - this.startTime));
-            if (string.IsNullOrEmpty(resImg))
-            {
-                return new RichResult(timeLogger.ToString(), resTxt, errLogger.ToString(), this.returnImageUrl, photoBytes);
-            }
-
-            return new RichResult(timeLogger.ToString(), resImg, errLogger.ToString(), this.returnImageUrl, photoBytes);
         }
 
         /// <summary>

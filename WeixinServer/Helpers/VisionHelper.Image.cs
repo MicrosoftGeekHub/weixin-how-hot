@@ -1,7 +1,4 @@
-﻿using ImageProcessor;
-using ImageProcessor.Imaging;
-using ImageProcessor.Imaging.Formats;
-using Microsoft.ProjectOxford.Vision.Contract;
+﻿using Microsoft.ProjectOxford.Vision.Contract;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -14,6 +11,7 @@ using Microsoft.WindowsAzure.Storage.Blob;
 using System.Configuration;
 using System.Linq;
 using WeixinServer.Models;
+using System.Drawing.Drawing2D;
 namespace WeixinServer.Helpers
 {
     public partial class VisionHelper
@@ -52,6 +50,19 @@ namespace WeixinServer.Helpers
             return new Font(PreferedFont.FontFamily, ScaleFontSize);
         }
 
+        static Image Resize(Image imgToResize, Size size)
+        {
+            Bitmap newImage = new Bitmap(size.Width, size.Height, imgToResize.PixelFormat);
+            using (Graphics gr = Graphics.FromImage(newImage))
+            {
+                gr.SmoothingMode = SmoothingMode.HighQuality;
+                gr.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                gr.PixelOffsetMode = PixelOffsetMode.HighQuality;
+                gr.DrawImage(imgToResize, new System.Drawing.Rectangle(0, 0, size.Width, size.Height));
+            }
+            return (Image)newImage;
+        }
+
         private MemoryStream DrawRects(MemoryStream inStream, AnalysisResult analysisResult) 
         {
             Face[] faceDetections = analysisResult.Faces;
@@ -62,7 +73,6 @@ namespace WeixinServer.Helpers
             //        Watermark
             var clr = new Microsoft.ProjectOxford.Vision.Contract.Color();
             clr.AccentColor = "CAA501";
-            var layers = new List<TextLayer>();
             var ms = new MemoryStream();
             // Modify the image using g
 
@@ -150,77 +160,77 @@ namespace WeixinServer.Helpers
             //return outStream;
         }
 
-        private ImageLayer GetFrameImageLayer(FaceRectangle detect)
-        {
-            var resizeLayer = new ResizeLayer(size: new Size(detect.Width, detect.Height), resizeMode: ResizeMode.Stretch);
-            var frameSteam = new MemoryStream();
-            var frameFactory = new ImageFactory(preserveExifData: false);
-            //frameFactory.Load(this.frameImageUri).Resize(resizeLayer).Save(frameSteam);
+        //private ImageLayer GetFrameImageLayer(FaceRectangle detect)
+        //{
+        //    var resizeLayer = new ResizeLayer(size: new Size(detect.Width, detect.Height), resizeMode: ResizeMode.Stretch);
+        //    var frameSteam = new MemoryStream();
+        //    var frameFactory = new ImageFactory(preserveExifData: false);
+        //    //frameFactory.Load(this.frameImageUri).Resize(resizeLayer).Save(frameSteam);
 
-            var frameImage = Image.FromStream(frameSteam);
-            return new ImageLayer
-            {
-                Image = frameImage,
-                Position = new Point(detect.Left, detect.Top),
-            };
-        }
+        //    var frameImage = Image.FromStream(frameSteam);
+        //    return new ImageLayer
+        //    {
+        //        Image = frameImage,
+        //        Position = new Point(detect.Left, detect.Top),
+        //    };
+        //}
 
-        private TextLayer GetFaceTextLayer(string text, int x, int y, Microsoft.ProjectOxford.Vision.Contract.Color color)
-        {
-            const int RGBMAX = 255;
+        //private TextLayer GetFaceTextLayer(string text, int x, int y, Microsoft.ProjectOxford.Vision.Contract.Color color)
+        //{
+        //    const int RGBMAX = 255;
 
-            System.Drawing.Color fontColor = System.Drawing.Color.DeepPink;
-            if (color != null && !string.IsNullOrWhiteSpace(color.AccentColor))
-            {
-                var accentColor = ColorTranslator.FromHtml("#" + color.AccentColor);
-                fontColor = System.Drawing.Color.FromArgb(RGBMAX - accentColor.R, RGBMAX - accentColor.G, RGBMAX - accentColor.B);
-            }
+        //    System.Drawing.Color fontColor = System.Drawing.Color.DeepPink;
+        //    if (color != null && !string.IsNullOrWhiteSpace(color.AccentColor))
+        //    {
+        //        var accentColor = ColorTranslator.FromHtml("#" + color.AccentColor);
+        //        fontColor = System.Drawing.Color.FromArgb(RGBMAX - accentColor.R, RGBMAX - accentColor.G, RGBMAX - accentColor.B);
+        //    }
 
-            var fontSize = 30;//width < 1000 ? 24 : 36;
-
-
-            return new TextLayer
-            {
-                DropShadow = true,
-                FontColor = fontColor,
-                FontSize = fontSize,
-                FontFamily = new FontFamily(GenericFontFamilies.SansSerif),
-                Text = text,
-                Style = FontStyle.Bold,
-                Position = new Point(x, y),
-                Opacity = 85,
-            };
-        }
+        //    var fontSize = 30;//width < 1000 ? 24 : 36;
 
 
-        private TextLayer GetTextLayer(string text, int width, int height, Microsoft.ProjectOxford.Vision.Contract.Color color)
-        {
-            const int RGBMAX = 255;
+        //    return new TextLayer
+        //    {
+        //        DropShadow = true,
+        //        FontColor = fontColor,
+        //        FontSize = fontSize,
+        //        FontFamily = new FontFamily(GenericFontFamilies.SansSerif),
+        //        Text = text,
+        //        Style = FontStyle.Bold,
+        //        Position = new Point(x, y),
+        //        Opacity = 85,
+        //    };
+        //}
 
-            System.Drawing.Color fontColor = System.Drawing.Color.DeepPink;
-            if (color != null && !string.IsNullOrWhiteSpace(color.AccentColor))
-            {
-                var accentColor = ColorTranslator.FromHtml("#" + color.AccentColor);
-                fontColor = System.Drawing.Color.FromArgb(RGBMAX - accentColor.R, RGBMAX - accentColor.G, RGBMAX - accentColor.B);
-            }
 
-            var fontSize = width < 1000 ? 24 : 36;
+        //private TextLayer GetTextLayer(string text, int width, int height, Microsoft.ProjectOxford.Vision.Contract.Color color)
+        //{
+        //    const int RGBMAX = 255;
 
-            var x = (int)(width * 0.05);
-            var y = height - (fontSize + 5) * 5;
+        //    System.Drawing.Color fontColor = System.Drawing.Color.DeepPink;
+        //    if (color != null && !string.IsNullOrWhiteSpace(color.AccentColor))
+        //    {
+        //        var accentColor = ColorTranslator.FromHtml("#" + color.AccentColor);
+        //        fontColor = System.Drawing.Color.FromArgb(RGBMAX - accentColor.R, RGBMAX - accentColor.G, RGBMAX - accentColor.B);
+        //    }
 
-            return new TextLayer
-            {
-                DropShadow = true,
-                FontColor = fontColor,
-                FontSize = fontSize,
-                FontFamily = new FontFamily(GenericFontFamilies.SansSerif),
-                Text = text,
-                Style = FontStyle.Bold,
-                Position = new Point(x, y),
-                Opacity = 85,
-            };
-        }
+        //    var fontSize = width < 1000 ? 24 : 36;
+
+        //    var x = (int)(width * 0.05);
+        //    var y = height - (fontSize + 5) * 5;
+
+        //    return new TextLayer
+        //    {
+        //        DropShadow = true,
+        //        FontColor = fontColor,
+        //        FontSize = fontSize,
+        //        FontFamily = new FontFamily(GenericFontFamilies.SansSerif),
+        //        Text = text,
+        //        Style = FontStyle.Bold,
+        //        Position = new Point(x, y),
+        //        Opacity = 85,
+        //    };
+        //}
 
         private MemoryStream DrawText(string text, int width, int height, Microsoft.ProjectOxford.Vision.Contract.Color color)
         {
@@ -298,8 +308,8 @@ namespace WeixinServer.Helpers
                 using (var outStream = new MemoryStream())
                 {
                     // Initialize the ImageFactory using the overload to preserve EXIF metadata.
-                    using (var imageFactory = new ImageFactory(preserveExifData: false))
-                    {
+                    //using (var imageFactory = new ImageFactory(preserveExifData: false))
+                    //{
                         // Load
                         timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage::RenderAnalysisResultAsImage imageFactory.Load begin\n", DateTime.Now - this.startTime));
                         midStream = DrawRects(inStream, result);
@@ -324,7 +334,7 @@ namespace WeixinServer.Helpers
                         //    .Format(new JpegFormat())
                         //    .Save(outStream);
                         //timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage::RenderAnalysisResultAsImage Watermark end\n", DateTime.Now - this.startTime));
-                    }
+                    //}
                     timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage::RenderAnalysisResultAsImage Upload to image CDN begin\n", DateTime.Now - this.startTime));
                     // Upload to image CDN
                     
