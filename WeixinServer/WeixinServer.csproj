@@ -172,6 +172,7 @@
     <Content Include="Content\Site.css" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
+    <Content Include="App_Data\xujl-font.ttf" />
     <None Include="Properties\PublishProfiles\msftgeekblog - FTP.pubxml" />
     <None Include="Properties\PublishProfiles\msftgeekblog - Web Deploy.pubxml" />
     <None Include="Properties\PublishProfiles\msftgeekblog.pubxml" />

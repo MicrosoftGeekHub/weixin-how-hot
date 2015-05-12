@@ -36,9 +36,9 @@ namespace WeixinServer.Helpers
             container = blobClient.GetContainerReference("cdn");
         }
 
-        private void InitializePropertiesForImage(string frameImageUri)
+        private void InitializePropertiesForImage(string frontImageUri)
         {
-            this.frameImageUri = frameImageUri;
+            this.frontImageUri = frontImageUri;
         }
         
         static Font FindFont(System.Drawing.Graphics g, string longString, Size Room, Font PreferedFont)
@@ -65,7 +65,13 @@ namespace WeixinServer.Helpers
             var layers = new List<TextLayer>();
             var ms = new MemoryStream();
             // Modify the image using g
-            
+
+            //string fontName = "YourFont.ttf";
+            PrivateFontCollection pfcoll = new PrivateFontCollection();
+            //put a font file under a Fonts directory within your application root
+            pfcoll.AddFontFile(this.frontImageUri);
+            FontFamily ff = pfcoll.Families[0];
+
             using (Graphics g = Graphics.FromImage(image))
             {
                 var txtRectangles = new List<System.Drawing.Rectangle>();
@@ -76,6 +82,7 @@ namespace WeixinServer.Helpers
                     string genderInfo = "";
 
                     int topText = faceDetect.FaceRectangle.Top + faceDetect.FaceRectangle.Height + 5;
+                    //int topText = faceDetect.FaceRectangle.Top - 150;
                     topText = topText > 0 ? topText : 0;
                     int leftText = faceDetect.FaceRectangle.Left;
 
@@ -100,7 +107,7 @@ namespace WeixinServer.Helpers
                     string info = string.Format("{0}颜龄{1}\n骚值{2:F0}\n肾价{3:F2}万", genderInfo, faceDetect.Age, 
                         saoBility * faceDetect.Age, ascr / faceDetect.Age);
                     Size room = new Size(faceDetect.FaceRectangle.Width, faceDetect.FaceRectangle.Top - topText);
-                    Font f =  new Font("Arial", 20, FontStyle.Regular, GraphicsUnit.Pixel);
+                    Font f = new Font(ff, 24, FontStyle.Bold, GraphicsUnit.Pixel);
                     //Font f = FindFont(g, info, room, new Font("Arial", 600, FontStyle.Regular, GraphicsUnit.Pixel));
                     g.DrawString(info, f, new SolidBrush(System.Drawing.Color.LimeGreen), new Point(leftText, topText));
 
@@ -148,7 +155,7 @@ namespace WeixinServer.Helpers
             var resizeLayer = new ResizeLayer(size: new Size(detect.Width, detect.Height), resizeMode: ResizeMode.Stretch);
             var frameSteam = new MemoryStream();
             var frameFactory = new ImageFactory(preserveExifData: false);
-            frameFactory.Load(this.frameImageUri).Resize(resizeLayer).Save(frameSteam);
+            //frameFactory.Load(this.frameImageUri).Resize(resizeLayer).Save(frameSteam);
 
             var frameImage = Image.FromStream(frameSteam);
             return new ImageLayer
@@ -218,7 +225,10 @@ namespace WeixinServer.Helpers
         private MemoryStream DrawText(string text, int width, int height, Microsoft.ProjectOxford.Vision.Contract.Color color)
         {
             const int RGBMAX = 255;
-
+            PrivateFontCollection pfcoll = new PrivateFontCollection();
+            //put a font file under a Fonts directory within your application root
+            pfcoll.AddFontFile(this.frontImageUri);
+            FontFamily ff = pfcoll.Families[0];
             System.Drawing.Color fontColor = System.Drawing.Color.DeepPink;
             if (color != null && !string.IsNullOrWhiteSpace(color.AccentColor))
             {
@@ -226,7 +236,8 @@ namespace WeixinServer.Helpers
                 fontColor = System.Drawing.Color.FromArgb(RGBMAX - accentColor.R, RGBMAX - accentColor.G, RGBMAX - accentColor.B);
             }
 
-            var fontSize = width < 1000 ? 24 : 36;
+            //var fontSize = width < 1000 ? 24 : 36;
+            var fontSize = 36;
 
             var x = (int)(width * 0.05);
             var y = height - (fontSize + 5) * 5;
@@ -252,10 +263,10 @@ namespace WeixinServer.Helpers
             {
                     //draw text 
                     //Size room = new Size(faceDetect.FaceRectangle.Width, faceDetect.FaceRectangle.Top - topText);
-                    Font f = new Font("Arial", fontSize, FontStyle.Regular, GraphicsUnit.Pixel);
+                Font f = new Font(ff, fontSize, FontStyle.Bold, GraphicsUnit.Pixel);
                     //Font f = FindFont(g, info, room, new Font("Arial", 600, FontStyle.Regular, GraphicsUnit.Pixel));
-                    g.DrawString(text, f, new SolidBrush(System.Drawing.Color.LimeGreen), new Point(x, y));
-                    image.Save(ms, System.Drawing.Imaging.ImageFormat.Jpeg);
+                g.DrawString(text, f, new SolidBrush(System.Drawing.Color.LimeGreen), new Point(x, y));
+                image.Save(ms, System.Drawing.Imaging.ImageFormat.Jpeg);
             }
 
             return ms;
