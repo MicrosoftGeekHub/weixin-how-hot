@@ -81,8 +81,8 @@ namespace WeixinServer.Helpers
                 {
                     string genderInfo = "";
 
-                    //int topText = faceDetect.FaceRectangle.Top + faceDetect.FaceRectangle.Height + 5;
-                    int topText = faceDetect.FaceRectangle.Top - 150;
+                    int topText = faceDetect.FaceRectangle.Top + faceDetect.FaceRectangle.Height + 5;
+                    //int topText = faceDetect.FaceRectangle.Top - 150;
                     topText = topText > 0 ? topText : 0;
                     int leftText = faceDetect.FaceRectangle.Left;
 
