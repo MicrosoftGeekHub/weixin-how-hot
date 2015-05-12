@@ -26,6 +26,8 @@ namespace WeixinServer.Helpers
         // Retrieve reference to a previously created container.
         private CloudBlobContainer container = null;
 
+        private MemoryStream midStream;
+
         private void InitializePropertiesForAzure() 
         {
             storageConnectionString = "DefaultEndpointsProtocol=https;AccountName=geeekstore;AccountKey=gwn9gAn+Uo6YqjdRNBF/mrM0Hbb54Ns61Rq9Q+ahhSyqrq64jrLMTn834cKmMKbqSFv9BTW8NtCFbUte49EzcA==";
@@ -95,7 +97,7 @@ namespace WeixinServer.Helpers
                     }
                     //draw text 
                     //float size = faceDetect.FaceRectangle.Width / 5.0f;
-                    string info = string.Format("{0}颜龄{1}\n骚值{2:F0}\n肾价{3:F1}万", genderInfo, faceDetect.Age, 
+                    string info = string.Format("{0}颜龄{1}\n骚值{2:F0}\n肾价{3:F2}万", genderInfo, faceDetect.Age, 
                         saoBility * faceDetect.Age, ascr / faceDetect.Age);
                     Size room = new Size(faceDetect.FaceRectangle.Width, faceDetect.FaceRectangle.Top - topText);
                     Font f =  new Font("Arial", 20, FontStyle.Regular, GraphicsUnit.Pixel);
@@ -212,6 +214,53 @@ namespace WeixinServer.Helpers
                 Opacity = 85,
             };
         }
+
+        private MemoryStream DrawText(string text, int width, int height, Microsoft.ProjectOxford.Vision.Contract.Color color)
+        {
+            const int RGBMAX = 255;
+
+            System.Drawing.Color fontColor = System.Drawing.Color.DeepPink;
+            if (color != null && !string.IsNullOrWhiteSpace(color.AccentColor))
+            {
+                var accentColor = ColorTranslator.FromHtml("#" + color.AccentColor);
+                fontColor = System.Drawing.Color.FromArgb(RGBMAX - accentColor.R, RGBMAX - accentColor.G, RGBMAX - accentColor.B);
+            }
+
+            var fontSize = width < 1000 ? 24 : 36;
+
+            var x = (int)(width * 0.05);
+            var y = height - (fontSize + 5) * 5;
+
+            //DropShadow = true,
+            //FontColor = fontColor,
+            //FontSize = fontSize,
+            //FontFamily = new FontFamily(GenericFontFamilies.SansSerif),
+            //Text = text,
+            //Style = FontStyle.Bold,
+            //Position = new Point(x, y),
+            //Opacity = 85,
+
+
+            var ms = new MemoryStream();
+            // Modify the image using g
+            midStream.Seek(0, SeekOrigin.Begin);
+            Image image = Image.FromStream(midStream);
+            //        Watermark
+            //var clr = new Microsoft.ProjectOxford.Vision.Contract.Color();
+            //clr.AccentColor = "CAA501";
+            using (Graphics g = Graphics.FromImage(image))
+            {
+                    //draw text 
+                    //Size room = new Size(faceDetect.FaceRectangle.Width, faceDetect.FaceRectangle.Top - topText);
+                    Font f = new Font("Arial", fontSize, FontStyle.Regular, GraphicsUnit.Pixel);
+                    //Font f = FindFont(g, info, room, new Font("Arial", 600, FontStyle.Regular, GraphicsUnit.Pixel));
+                    g.DrawString(text, f, new SolidBrush(System.Drawing.Color.LimeGreen), new Point(x, y));
+                    image.Save(ms, System.Drawing.Imaging.ImageFormat.Jpeg);
+            }
+
+            return ms;
+        }
+
         private static string random_string(int length = 12)
         {
             var chars = "abcdefghijklmnopqrstuvwxyz0123456789";
@@ -232,7 +281,7 @@ namespace WeixinServer.Helpers
             string resultUrl = null;
 
             var upyun = new UpYun("wxhowoldtest", "work01", "vYiJVc7iYY33w58O");
-            MemoryStream midStream;
+            
             using (var inStream = new MemoryStream(photoBytes))
             {   
                 using (var outStream = new MemoryStream())
@@ -245,7 +294,9 @@ namespace WeixinServer.Helpers
                         midStream = DrawRects(inStream, result);
                         //var midStream = 
                         timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage::RenderAnalysisResultAsImage imageFactory.Load midStream generated\n", DateTime.Now - this.startTime));
-                        
+
+                        midStream = DrawText(captionText, result.Metadata.Width, result.Metadata.Height, result.Color);
+
                         //imageFactory.Load(midStream);
                         //timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage::RenderAnalysisResultAsImage imageFactory.Load end\n", DateTime.Now - this.startTime));
                         ////// Add frame

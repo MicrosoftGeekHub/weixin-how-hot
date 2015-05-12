@@ -617,7 +617,7 @@ namespace WeixinServer.Helpers
 
             if (result.Faces != null && result.Faces.Length > 0)
             {
-                var shenPrice = (result.Adult.AdultScore + 2 * result.Adult.RacyScore) * result.Faces.Length * 10000.0;
+                var shenPrice = (result.Adult.AdultScore + 2 * result.Adult.RacyScore) * result.Faces.Length * 2500;
                 desStringWriter.Write(string.Format("集体肾价: M${0:F0}万, 打八折只要998!\n", shenPrice));//TODO 少量 or More by Score
                 res += "Faces : ";
                 int numFemale = 0, numMale = 0;
