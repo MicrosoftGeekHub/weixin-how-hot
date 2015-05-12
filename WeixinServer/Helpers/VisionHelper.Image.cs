@@ -61,6 +61,7 @@ namespace WeixinServer.Helpers
             var clr = new Microsoft.ProjectOxford.Vision.Contract.Color();
             clr.AccentColor = "CAA501";
             var layers = new List<TextLayer>();
+            var ms = new MemoryStream();
             // Modify the image using g
             
             using (Graphics g = Graphics.FromImage(image))
@@ -118,10 +119,12 @@ namespace WeixinServer.Helpers
                     Pen pen = new Pen(System.Drawing.Color.Lime, 2);
                     g.DrawRectangles(pen, maleRectangles.ToArray());
                 }
+
+                image.Save(ms, System.Drawing.Imaging.ImageFormat.Jpeg);
             }
 
-            var ms = new MemoryStream();
-            image.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+            
+            
             return ms;
             //timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage::RenderAnalysisResultAsImage imageFactory.Load begin\n", DateTime.Now - this.startTime));
             //using (var imageFactory = new ImageFactory(preserveExifData: false))
@@ -229,9 +232,9 @@ namespace WeixinServer.Helpers
             string resultUrl = null;
 
             var upyun = new UpYun("wxhowoldtest", "work01", "vYiJVc7iYY33w58O");
-
+            MemoryStream midStream;
             using (var inStream = new MemoryStream(photoBytes))
-            {
+            {   
                 using (var outStream = new MemoryStream())
                 {
                     // Initialize the ImageFactory using the overload to preserve EXIF metadata.
@@ -239,26 +242,26 @@ namespace WeixinServer.Helpers
                     {
                         // Load
                         timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage::RenderAnalysisResultAsImage imageFactory.Load begin\n", DateTime.Now - this.startTime));
-                        var midStream = DrawRects(inStream, result);
+                        midStream = DrawRects(inStream, result);
                         //var midStream = 
                         timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage::RenderAnalysisResultAsImage imageFactory.Load midStream generated\n", DateTime.Now - this.startTime));
                         
-                        imageFactory.Load(midStream);
-                        timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage::RenderAnalysisResultAsImage imageFactory.Load end\n", DateTime.Now - this.startTime));
-                        //// Add frame
-                        //foreach (var detect in result.Faces)
-                        //{
-                        //    imageFactory.Overlay(this.GetFrameImageLayer(detect.FaceRectangle));
-                        //    //break;//only one
-                        //}
+                        //imageFactory.Load(midStream);
+                        //timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage::RenderAnalysisResultAsImage imageFactory.Load end\n", DateTime.Now - this.startTime));
+                        ////// Add frame
+                        ////foreach (var detect in result.Faces)
+                        ////{
+                        ////    imageFactory.Overlay(this.GetFrameImageLayer(detect.FaceRectangle));
+                        ////    //break;//only one
+                        ////}
                         
-                        // Save
-                        timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage::RenderAnalysisResultAsImage Watermark begin\n", DateTime.Now - this.startTime));
-                        imageFactory
-                           // .Watermark(this.GetTextLayer(captionText, result.Metadata.Width, result.Metadata.Height, result.Color))
-                            .Format(new JpegFormat())
-                            .Save(outStream);
-                        timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage::RenderAnalysisResultAsImage Watermark end\n", DateTime.Now - this.startTime));
+                        //// Save
+                        //timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage::RenderAnalysisResultAsImage Watermark begin\n", DateTime.Now - this.startTime));
+                        //imageFactory
+                        //   // .Watermark(this.GetTextLayer(captionText, result.Metadata.Width, result.Metadata.Height, result.Color))
+                        //    .Format(new JpegFormat())
+                        //    .Save(outStream);
+                        //timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage::RenderAnalysisResultAsImage Watermark end\n", DateTime.Now - this.startTime));
                     }
                     timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage::RenderAnalysisResultAsImage Upload to image CDN begin\n", DateTime.Now - this.startTime));
                     // Upload to image CDN
@@ -274,7 +277,8 @@ namespace WeixinServer.Helpers
                     CloudBlockBlob blockBlob = container.GetBlockBlobReference(blobName);
 
                     // Create or overwrite the "myblob" blob with contents from a local file.
-                    blockBlob.UploadFromStream(outStream);
+                    midStream.Seek(0, SeekOrigin.Begin);
+                    blockBlob.UploadFromStream(midStream);
                     resultUrl = "http://geeekstore.blob.core.windows.net/cdn/" + blobName;
                     //resultUrl = upyun.UploadImageStream(outStream);
 
