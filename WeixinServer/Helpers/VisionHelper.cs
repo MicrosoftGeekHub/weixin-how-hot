@@ -14,7 +14,7 @@ namespace WeixinServer.Helpers
 
         private Dictionary<string, string> categoryNameMapping = null;
         
-        private string frameImageUri;
+        private string frontImageUri;
         
         private string originalImageUrl;
         
@@ -25,12 +25,12 @@ namespace WeixinServer.Helpers
         /// </summary>
         /// <param name="subscriptionKey">The subscription key.</param>
         /// <param name="frameImageUri">The frame image URI.</param>
-        public VisionHelper(string subscriptionKey, string frameImageUri)
+        public VisionHelper(string subscriptionKey, string frontImageUri)
         {
             timeLogger.Append(string.Format("{0} VisionHelper::InitializePropertiesForText\n", DateTime.Now));
             InitializePropertiesForAzure();
             this.InitializePropertiesForText(subscriptionKey);
-            this.InitializePropertiesForImage(frameImageUri);
+            this.InitializePropertiesForImage(frontImageUri);
         }
     }
 }

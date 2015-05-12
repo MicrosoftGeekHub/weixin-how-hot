@@ -108,7 +108,7 @@ namespace WeixinServer.Controllers
         }
 
         private string subscriptionKey = ConfigurationManager.AppSettings["subscriptionKey"];
-        private VisionHelper vision = new VisionHelper("cc9e33682fcd4eeab114f9a63dc16021", System.Web.HttpContext.Current.Server.MapPath(@"~\App_Data\frame.png"));
+        private VisionHelper vision = new VisionHelper("cc9e33682fcd4eeab114f9a63dc16021", System.Web.HttpContext.Current.Server.MapPath(@"~\App_Data\xujl-font.ttf"));
         private bool ProcessMsg(string xml)
         {
             MsgObject msg = new MsgObject(xml);
