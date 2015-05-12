@@ -53,8 +53,8 @@ namespace WeixinServer.Helpers
         private MemoryStream DrawRects(MemoryStream inStream, AnalysisResult analysisResult) 
         {
             Face[] faceDetections = analysisResult.Faces;
-            int ascr = (int)(analysisResult.Adult.AdultScore * 250000);
-            int rscr = (int)(analysisResult.Adult.RacyScore * 500000);
+            int ascr = (int)(analysisResult.Adult.AdultScore * 2500);
+            int rscr = (int)(analysisResult.Adult.RacyScore * 5000);
             int saoBility = ascr + rscr;
             Image image = Image.FromStream(inStream);
             //        Watermark

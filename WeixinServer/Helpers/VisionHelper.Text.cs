@@ -659,7 +659,7 @@ namespace WeixinServer.Helpers
                 else if (ratio < 0.8 && numMale > 0) desStringWriter.Write(string.Format("= {0}棵老草啃{1}头嫩驴", numFemale, numMale));
                 else 
                 { 
-                    desStringWriter.Write(string.Format("{0}红男{1}绿女, 年轻的朋友在一起, 比热火都惹火", numMale, numFemale)); 
+                   // desStringWriter.Write(string.Format("{0}红男{1}绿女, 年轻的朋友在一起, 比热火都惹火", numMale, numFemale)); 
                 }
 
             }
