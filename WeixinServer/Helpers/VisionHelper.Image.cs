@@ -233,7 +233,7 @@ namespace WeixinServer.Helpers
         //    };
         //}
 
-        private MemoryStream DrawText(string text, int width, int height, Microsoft.ProjectOxford.Vision.Contract.Color color)
+        private MemoryStream DrawText(Stream inStream, string text, int width, int height, Microsoft.ProjectOxford.Vision.Contract.Color color)
         {
             const int RGBMAX = 255;
             PrivateFontCollection pfcoll = new PrivateFontCollection();
@@ -265,8 +265,8 @@ namespace WeixinServer.Helpers
 
             var ms = new MemoryStream();
             // Modify the image using g
-            midStream.Seek(0, SeekOrigin.Begin);
-            Image image = Image.FromStream(midStream);
+
+            Image image = Image.FromStream(inStream);
             //        Watermark
             //var clr = new Microsoft.ProjectOxford.Vision.Contract.Color();
             //clr.AccentColor = "CAA501";
@@ -313,11 +313,13 @@ namespace WeixinServer.Helpers
                     //{
                         // Load
                         timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage::RenderAnalysisResultAsImage imageFactory.Load begin\n", DateTime.Now - this.startTime));
-                        midStream = DrawRects(inStream, result);
+                       // midStream = DrawRects(inStream, result);
+                        //midStream.Seek(0, SeekOrigin.Begin);
+
                         //var midStream = 
                         timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage::RenderAnalysisResultAsImage imageFactory.Load midStream generated\n", DateTime.Now - this.startTime));
 
-                        midStream = DrawText(captionText, result.Metadata.Width, result.Metadata.Height, result.Color);
+                        midStream = DrawText(inStream, captionText, result.Metadata.Width, result.Metadata.Height, result.Color);
 
                         //imageFactory.Load(midStream);
                         //timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage::RenderAnalysisResultAsImage imageFactory.Load end\n", DateTime.Now - this.startTime));

@@ -12,7 +12,7 @@ namespace WeixinServer.Helpers
 {
     public partial class VisionHelper
     {
-        private DateTime startTime = DateTime.Now;
+        private DateTime startTime;
         private StringBuilder timeLogger = new StringBuilder();
         private StringBuilder errLogger = new StringBuilder();
         private string returnImageUrl = "";
@@ -160,18 +160,17 @@ namespace WeixinServer.Helpers
                         //Task.Run(async () =>
                         //{
 
-                        var visualFeatures = new string[] { "Faces", "Adult", "Color" };  //no ImageType , "Categories"
+                        var visualFeatures = new string[] { "Categories", "Adult", "Color" };  //no ImageType , "Categories"
                         client.DownloadDataCompleted += DownloadDataCompleted;
                         taskb = client.DownloadDataTaskAsync(new Uri(imagePathOrUrl));
                         //timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage client.DownloadDataTaskAsync begin\n url: {1}\n", DateTime.Now - this.startTime, imagePathOrUrl));
                         timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage AnalyzeImageAsync url begin\n", DateTime.Now - this.startTime));
-                        //var ret = this.visionClient.AnalyzeImageAsync(imagePathOrUrl);
                         var request = System.Net.WebRequest.Create(new Uri(imagePathOrUrl));
                         request.Timeout = int.MaxValue;
                         var response = request.GetResponse();
                         var streamToUpload = response.GetResponseStream();
 
-                        var taskAnalyzeUrl = this.visionClient.AnalyzeImageAsync(imagePathOrUrl, visualFeatures);
+                        //var taskAnalyzeUrl = this.visionClient.AnalyzeImageAsync(imagePathOrUrl, visualFeatures);
 
                         int minNumPixs = 50;
                         using (var ms = new MemoryStream())
@@ -193,18 +192,18 @@ namespace WeixinServer.Helpers
                                 resizedImg.Save(ms, image.RawFormat);
                                 ms.Seek(0, SeekOrigin.Begin);
                                 timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage AnalyzeImageAsync Resize end\n", DateTime.Now - this.startTime));
-                                //analysisResult = await this.visionClient.AnalyzeImageAsync(ms, visualFeatures);
+                                analysisResult = await this.visionClient.AnalyzeImageAsync(ms, visualFeatures);
                                 timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage AnalyzeImageAsync stream end\n", DateTime.Now - this.startTime));
                             }
                             else
                             {
                                 ms.Seek(0, SeekOrigin.Begin);
-                               // analysisResult = await this.visionClient.AnalyzeImageAsync(ms, visualFeatures); ;
+                                analysisResult = await this.visionClient.AnalyzeImageAsync(ms, visualFeatures); ;
                                 timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage AnalyzeImageAsync stream end\n", DateTime.Now - this.startTime));
                             }
-                            analysisResult = await taskAnalyzeUrl;
+                            //analysisResult = await taskAnalyzeUrl;
 
-                            timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage AnalyzeImageAsync url end\n", DateTime.Now - this.startTime));
+                           // timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage AnalyzeImageAsync url end\n", DateTime.Now - this.startTime));
                         }
                         response.Close();
 
