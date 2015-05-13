@@ -44,7 +44,7 @@
     <Compile Include="Contract\AnalysisResult.cs" />
     <Compile Include="Contract\Color.cs" />
     <Compile Include="Contract\Category.cs" />
-    <Compile Include="Contract\Face.cs" />
+    <Compile Include="Contract\VisionFace.cs" />
     <Compile Include="Contract\FaceRectangle.cs" />
     <Compile Include="Contract\ImageType.cs" />
     <Compile Include="Contract\Line.cs" />
@@ -65,6 +65,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\FaceApiClientLibrary\ClientLibrary.csproj">
+      <Project>{25d58ba5-660f-407b-803c-22b4547c09dc}</Project>
+      <Name>ClientLibrary</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

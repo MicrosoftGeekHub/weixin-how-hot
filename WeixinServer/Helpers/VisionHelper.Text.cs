@@ -1,5 +1,7 @@
 ﻿using Microsoft.ProjectOxford.Vision;
 using Microsoft.ProjectOxford.Vision.Contract;
+using Microsoft.ProjectOxford.Face;
+using Microsoft.ProjectOxford.Face.Contract;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -12,7 +14,7 @@ namespace WeixinServer.Helpers
 {
     public partial class VisionHelper
     {
-        private DateTime startTime = DateTime.Now;
+        private DateTime startTime;
         private StringBuilder timeLogger = new StringBuilder();
         private StringBuilder errLogger = new StringBuilder();
         private string returnImageUrl = "";
@@ -139,7 +141,8 @@ namespace WeixinServer.Helpers
             this.ShowInfo("Analyzing");
             AnalysisResult analysisResult = null;
             Task<Byte[]> taskb = null;
-            Task<AnalysisResult> taskAnalyzeImageAsync;
+            Task<AnalysisResult> taskAnalyzeImageAsync = null;
+            Task<Microsoft.ProjectOxford.Face.Contract.Face[]> taskGetFaces = null;
             string resultStr = string.Empty;
             using (WebClient client = new WebClient())
             {
@@ -160,47 +163,64 @@ namespace WeixinServer.Helpers
                         //Task.Run(async () =>
                         //{
 
-
+                        var visualFeatures = new string[] { "Categories", "Adult", "Color" };  //no ImageType , "Categories"
                         client.DownloadDataCompleted += DownloadDataCompleted;
                         taskb = client.DownloadDataTaskAsync(new Uri(imagePathOrUrl));
                         //timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage client.DownloadDataTaskAsync begin\n url: {1}\n", DateTime.Now - this.startTime, imagePathOrUrl));
-                        //var ret = this.visionClient.AnalyzeImageAsync(imagePathOrUrl);
                         timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage AnalyzeImageAsync url begin\n", DateTime.Now - this.startTime));
                         var request = System.Net.WebRequest.Create(new Uri(imagePathOrUrl));
                         request.Timeout = int.MaxValue;
                         var response = request.GetResponse();
                         var streamToUpload = response.GetResponseStream();
 
+                        //call FaceApi
+
+                        //string testImg = @"C:\Users\yimlin\Pictures\supgk\91girl.jpg";
+                        // Do any async anything you need here without worry
+                        
+                        
 
 
+                        //var taskAnalyzeUrl = this.visionClient.AnalyzeImageAsync(imagePathOrUrl, visualFeatures);
+
+                        int minNumPixs = 50;
                         using (var ms = new MemoryStream())
                         {
                             streamToUpload.CopyTo(ms);
                             Image image = Image.FromStream(ms);
                             timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage AnalyzeImageAsync stream begin\n", DateTime.Now - this.startTime));
-                            if (image.Width > 800)
+                            if (image.Width > minNumPixs)
                             {
                                 timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage AnalyzeImageAsync Resize begin\n", DateTime.Now - this.startTime));
-                                int width = 300;
-                                int height = (int)((float)width * image.Height / image.Width);
+                                int height = minNumPixs;
+                                int width = (int)((float)height * image.Width / image.Height);
+                                if (width < minNumPixs) 
+                                {
+                                    width = minNumPixs;
+                                    height = (int)((float)width * image.Height / image.Width);
+                                }
                                 Image resizedImg = Resize(image, new Size(width, height));
                                 resizedImg.Save(ms, image.RawFormat);
                                 ms.Seek(0, SeekOrigin.Begin);
                                 timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage AnalyzeImageAsync Resize end\n", DateTime.Now - this.startTime));
-                                analysisResult = await this.visionClient.AnalyzeImageAsync(ms);
+                                analysisResult = await this.visionClient.AnalyzeImageAsync(ms, visualFeatures);
                                 timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage AnalyzeImageAsync stream end\n", DateTime.Now - this.startTime));
                             }
                             else
                             {
                                 ms.Seek(0, SeekOrigin.Begin);
-                                analysisResult = await this.visionClient.AnalyzeImageAsync(ms); ;
+                                analysisResult = await this.visionClient.AnalyzeImageAsync(ms, visualFeatures); ;
                                 timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage AnalyzeImageAsync stream end\n", DateTime.Now - this.startTime));
                             }
+                            //analysisResult = await taskAnalyzeUrl;
 
-                            //analysisResult = await ret;
-                            //timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage AnalyzeImageAsync url end\n", DateTime.Now - this.startTime));
+                           // timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage AnalyzeImageAsync url end\n", DateTime.Now - this.startTime));
                         }
-                        response.Close();
+
+                        faceAgent fa = new faceAgent();
+                        taskGetFaces = fa.UploadStreamAndDetectFaces(streamToUpload);
+
+                        //response.Close();
 
 
                         //}).Wait();
@@ -213,7 +233,7 @@ namespace WeixinServer.Helpers
                         return new RichResult(timeLogger.ToString(), errMsg, errLogger.ToString());
                     }
                 }
-                catch (ClientException e)
+                catch (Microsoft.ProjectOxford.Vision.ClientException e)
                 {
                     if (e.Error != null)
                     {
@@ -242,7 +262,8 @@ namespace WeixinServer.Helpers
                 {
                 }
                 //return this.ShowRichAnalysisResult(analysisResult);
-
+                //Microsoft.ProjectOxford.Face.Contract.Face[] faces = await taskGetFaces;
+                analysisResult.RichFaces = await taskGetFaces;
                 var resTxt = this.ShowRichAnalysisResult(analysisResult);
                 var txtRichResult = new RichResult(timeLogger.ToString(), resTxt, errLogger.ToString());
                 if (string.IsNullOrEmpty(resTxt)) return txtRichResult;
@@ -292,7 +313,7 @@ namespace WeixinServer.Helpers
                     this.ShowError("Invalid image path or Url");
                 }
             }
-            catch (ClientException e)
+            catch (Microsoft.ProjectOxford.Vision.ClientException e)
             {
                 if (e.Error != null)
                 {
@@ -346,7 +367,7 @@ namespace WeixinServer.Helpers
                     this.ShowError("Invalid image path or Url");
                 }
             }
-            catch (ClientException e)
+            catch (Microsoft.ProjectOxford.Vision.ClientException e)
             {
                 if (e.Error != null)
                 {
@@ -659,7 +680,7 @@ namespace WeixinServer.Helpers
                 desStringWriter.Write(string.Format("。\n"));
             }
 
-            if (result.Faces != null && result.Faces.Length > 0)
+            if (result.RichFaces != null && result.RichFaces.Length > 0)
             {
                 var shenPrice = (result.Adult.AdultScore + 2 * result.Adult.RacyScore) * result.Faces.Length * 2500;
                 desStringWriter.Write(string.Format("集体肾价: M${0:F0}万, 打八折只要998!\n", shenPrice));//TODO 少量 or More by Score

@@ -9,7 +9,7 @@ namespace Microsoft.ProjectOxford.Vision.Contract
     /// <summary>
     /// The class for face.
     /// </summary>
-    public class Face
+    public class VisionFace
     {
         /// <summary>
         /// Gets or sets the age.

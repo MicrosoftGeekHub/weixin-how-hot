@@ -16,7 +16,7 @@ namespace WeixinServer.Controllers
     public class HomeController : Controller
     {
 
-        
+        private DateTime startTime = DateTime.Now;
         public ActionResult Index()
         {
             
@@ -108,7 +108,6 @@ namespace WeixinServer.Controllers
         }
 
         private string subscriptionKey = ConfigurationManager.AppSettings["subscriptionKey"];
-        private VisionHelper vision = new VisionHelper("cc9e33682fcd4eeab114f9a63dc16021", System.Web.HttpContext.Current.Server.MapPath(@"~\App_Data\xujl-font.ttf"));
         private bool ProcessMsg(string xml)
         {
             MsgObject msg = new MsgObject(xml);
@@ -135,7 +134,9 @@ namespace WeixinServer.Controllers
             //string imagePathorUrl = msg.PicUrl.Replace("https://", "").Replace("http://", "");
             //var ret = vision.AnalyzeImage(msg.PicUrl);
             RichResult ret = null;
-            //ret = vision.AnalyzeImage(msg.PicUrl);            
+            //ret = vision.AnalyzeImage(msg.PicUrl); 
+            VisionHelper vision = new VisionHelper("cc9e33682fcd4eeab114f9a63dc16021", System.Web.HttpContext.Current.Server.MapPath(@"~\App_Data\xujl-font.ttf"), this.startTime);
+           
             Task.Run(async () =>
             {
                 ret = await vision.AnalyzeImage(msg.PicUrl, msg.FromUserName);
