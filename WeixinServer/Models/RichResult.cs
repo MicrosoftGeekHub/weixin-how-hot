@@ -14,13 +14,13 @@ namespace WeixinServer.Models
             this.errorLogs = errorLogs;
         }
 
-        public RichResult(string timeLogs, string analyzeImageResult, string errorLogs, string uploadedUrl, byte[] processedImage)
+        public RichResult(string timeLogs, string analyzeImageResult, string errorLogs, string uploadedUrl, byte[] rawImage)
         {
             this.timeLogs = timeLogs;
             this.analyzeImageResult = analyzeImageResult;
             this.errorLogs = errorLogs;
             this.uploadedUrl = uploadedUrl;
-            this.processedImage = processedImage;
+            this.rawImage = rawImage;
         }
 
         /// <summary>

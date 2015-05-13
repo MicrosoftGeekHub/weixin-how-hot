@@ -130,6 +130,20 @@ namespace WeixinServer.Controllers
                 Response.End();
                 return false;
             }
+
+            //check data from db
+            using (var dbContext = new WeixinDBContext())
+            {
+                ImageStorage image = dbContext.ImageStorages.FirstOrDefault(p => p.OpenId == msg.FromUserName && p.PicUrl == msg.PicUrl && p.CreateTime == msg.CreateTime);
+                if (image != null)
+                {
+                    Response.Write(string.Format("<xml><ToUserName><![CDATA[{0}]]></ToUserName><FromUserName><![CDATA[{1}]]></FromUserName><CreateTime>12345678</CreateTime><MsgType><![CDATA[text]]></MsgType><Content><![CDATA[{2}]]></Content><DebugInfo><![CDATA[{3}]]></DebugInfo><ErrorInfo><![CDATA[{4}]]></ErrorInfo></xml>",
+                        msg.FromUserName, msg.ToUserName, image.ParsedDescription, image.TimeLog, string.Empty));
+                    Response.End();
+                    return true;
+                }
+            }
+
             //string imagePathorUrl = msg.PicUrl;
             //string imagePathorUrl = msg.PicUrl.Replace("https://", "").Replace("http://", "");
             //var ret = vision.AnalyzeImage(msg.PicUrl);
@@ -142,6 +156,24 @@ namespace WeixinServer.Controllers
                 ret = await vision.AnalyzeImage(msg.PicUrl, msg.FromUserName);
 
             }).Wait();
+
+            //save db first without parsedContent
+            int id = -1;
+            using (var dbContext = new WeixinDBContext())
+            {
+                ImageStorage image = new ImageStorage();
+                image.OpenId = msg.FromUserName;
+                image.CreateTime = msg.CreateTime;
+                image.PicUrl = msg.PicUrl;
+                image.PicContent = ret.rawImage;
+                image.ParsedUrl = ret.uploadedUrl;
+                image.ParsedContent = null;
+                image.ParsedDescription = ret.analyzeImageResult;
+                image.TimeLog = ret.timeLogs;
+                dbContext.ImageStorages.Add(image);
+                dbContext.SaveChanges();
+                id = image.Id;
+            }
 
             // Debug mode
             Response.Write(string.Format("<xml><ToUserName><![CDATA[{0}]]></ToUserName><FromUserName><![CDATA[{1}]]></FromUserName><CreateTime>12345678</CreateTime><MsgType><![CDATA[text]]></MsgType><Content><![CDATA[{2}]]></Content><DebugInfo><![CDATA[{3}]]></DebugInfo><ErrorInfo><![CDATA[{4}]]></ErrorInfo></xml>",
@@ -158,17 +190,12 @@ namespace WeixinServer.Controllers
 
             using (var dbContext = new WeixinDBContext())
             {
-                ImageStorage image = new ImageStorage();
-                image.OpenId = msg.FromUserName;
-                image.CreateTime = msg.CreateTime;
-                image.PicUrl = msg.PicUrl;
-                image.PicContent = processedImageBytes;
-                image.ParsedUrl = ret.uploadedUrl;
-                image.ParsedContent = ret.processedImage;
-                image.ParsedDescription = ret.analyzeImageResult;
-                image.TimeLog = ret.timeLogs;
-                dbContext.ImageStorages.Add(image);
-                dbContext.SaveChanges();
+                ImageStorage image = dbContext.ImageStorages.FirstOrDefault(p => p.Id == id);
+                if (image != null)
+                {
+                    image.ParsedContent = processedImageBytes;
+                    dbContext.SaveChanges();   
+                }
             }
 
             return true;
