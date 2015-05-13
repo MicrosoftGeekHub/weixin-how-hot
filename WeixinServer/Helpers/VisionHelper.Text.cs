@@ -1,5 +1,7 @@
 ﻿using Microsoft.ProjectOxford.Vision;
 using Microsoft.ProjectOxford.Vision.Contract;
+using Microsoft.ProjectOxford.Face;
+using Microsoft.ProjectOxford.Face.Contract;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -139,7 +141,8 @@ namespace WeixinServer.Helpers
             this.ShowInfo("Analyzing");
             AnalysisResult analysisResult = null;
             Task<Byte[]> taskb = null;
-            Task<AnalysisResult> taskAnalyzeImageAsync;
+            Task<AnalysisResult> taskAnalyzeImageAsync = null;
+            Task<Microsoft.ProjectOxford.Face.Contract.Face[]> taskGetFaces = null;
             string resultStr = string.Empty;
             using (WebClient client = new WebClient())
             {
@@ -169,6 +172,14 @@ namespace WeixinServer.Helpers
                         request.Timeout = int.MaxValue;
                         var response = request.GetResponse();
                         var streamToUpload = response.GetResponseStream();
+
+                        //call FaceApi
+
+                        //string testImg = @"C:\Users\yimlin\Pictures\supgk\91girl.jpg";
+                        // Do any async anything you need here without worry
+                        
+                        
+
 
                         //var taskAnalyzeUrl = this.visionClient.AnalyzeImageAsync(imagePathOrUrl, visualFeatures);
 
@@ -205,7 +216,11 @@ namespace WeixinServer.Helpers
 
                            // timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage AnalyzeImageAsync url end\n", DateTime.Now - this.startTime));
                         }
-                        response.Close();
+
+                        faceAgent fa = new faceAgent();
+                        taskGetFaces = fa.UploadStreamAndDetectFaces(streamToUpload);
+
+                        //response.Close();
 
 
                         //}).Wait();
@@ -218,7 +233,7 @@ namespace WeixinServer.Helpers
                         return new RichResult(timeLogger.ToString(), errMsg, errLogger.ToString());
                     }
                 }
-                catch (ClientException e)
+                catch (Microsoft.ProjectOxford.Vision.ClientException e)
                 {
                     if (e.Error != null)
                     {
@@ -247,7 +262,8 @@ namespace WeixinServer.Helpers
                 {
                 }
                 //return this.ShowRichAnalysisResult(analysisResult);
-
+                //Microsoft.ProjectOxford.Face.Contract.Face[] faces = await taskGetFaces;
+                analysisResult.RichFaces = await taskGetFaces;
                 var resTxt = this.ShowRichAnalysisResult(analysisResult);
                 var txtRichResult = new RichResult(timeLogger.ToString(), resTxt, errLogger.ToString());
                 if (string.IsNullOrEmpty(resTxt)) return txtRichResult;
@@ -297,7 +313,7 @@ namespace WeixinServer.Helpers
                     this.ShowError("Invalid image path or Url");
                 }
             }
-            catch (ClientException e)
+            catch (Microsoft.ProjectOxford.Vision.ClientException e)
             {
                 if (e.Error != null)
                 {
@@ -351,7 +367,7 @@ namespace WeixinServer.Helpers
                     this.ShowError("Invalid image path or Url");
                 }
             }
-            catch (ClientException e)
+            catch (Microsoft.ProjectOxford.Vision.ClientException e)
             {
                 if (e.Error != null)
                 {
@@ -664,7 +680,7 @@ namespace WeixinServer.Helpers
                 desStringWriter.Write(string.Format("。\n"));
             }
 
-            if (result.Faces != null && result.Faces.Length > 0)
+            if (result.RichFaces != null && result.RichFaces.Length > 0)
             {
                 var shenPrice = (result.Adult.AdultScore + 2 * result.Adult.RacyScore) * result.Faces.Length * 2500;
                 desStringWriter.Write(string.Format("集体肾价: M${0:F0}万, 打八折只要998!\n", shenPrice));//TODO 少量 or More by Score

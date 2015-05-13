@@ -7,7 +7,7 @@
 namespace Microsoft.ProjectOxford.Vision.Contract
 {
     using System;
-
+    using Microsoft.ProjectOxford.Face.Contract;
     /// <summary>
     /// The class for analysis result.
     /// </summary>
@@ -67,6 +67,14 @@ namespace Microsoft.ProjectOxford.Vision.Contract
         /// <value>
         /// The faces.
         /// </value>
-        public Face[] Faces { get; set; }
+        public VisionFace[] Faces { get; set; }
+
+        /// <summary>
+        /// Gets or sets the faces.
+        /// </summary>
+        /// <value>
+        /// The faces.
+        /// </value>
+        public Face[] RichFaces { get; set; }
     }
 }
