@@ -213,12 +213,13 @@ namespace WeixinServer.Helpers
                                 timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage AnalyzeImageAsync stream end\n", DateTime.Now - this.startTime));
                             }
                             //analysisResult = await taskAnalyzeUrl;
-
+                            faceAgent fa = new faceAgent();
+                            ms.Seek(0, SeekOrigin.Begin);
+                            taskGetFaces = fa.UploadStreamAndDetectFaces(ms);
                            // timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage AnalyzeImageAsync url end\n", DateTime.Now - this.startTime));
                         }
 
-                        faceAgent fa = new faceAgent();
-                        taskGetFaces = fa.UploadStreamAndDetectFaces(streamToUpload);
+                        
 
                         //response.Close();
 
@@ -263,7 +264,9 @@ namespace WeixinServer.Helpers
                 }
                 //return this.ShowRichAnalysisResult(analysisResult);
                 //Microsoft.ProjectOxford.Face.Contract.Face[] faces = await taskGetFaces;
+                timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage client.DownloadDataTaskAsync end\n", DateTime.Now - this.startTime));
                 analysisResult.RichFaces = await taskGetFaces;
+                timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage client.DownloadDataTaskAsync end {1}\n analysisResult.RichFaces.Length\n", DateTime.Now - this.startTime, analysisResult.RichFaces.Length));
                 var resTxt = this.ShowRichAnalysisResult(analysisResult);
                 var txtRichResult = new RichResult(timeLogger.ToString(), resTxt, errLogger.ToString());
                 if (string.IsNullOrEmpty(resTxt)) return txtRichResult;
@@ -682,25 +685,25 @@ namespace WeixinServer.Helpers
 
             if (result.RichFaces != null && result.RichFaces.Length > 0)
             {
-                var shenPrice = (result.Adult.AdultScore + 2 * result.Adult.RacyScore) * result.Faces.Length * 2500;
+                var shenPrice = (result.Adult.AdultScore + 2 * result.Adult.RacyScore) * result.RichFaces.Length * 2500;
                 desStringWriter.Write(string.Format("集体肾价: M${0:F0}万, 打八折只要998!\n", shenPrice));//TODO 少量 or More by Score
                 res += "Faces : ";
                 int numFemale = 0, numMale = 0;
                 float avgAge = 0.0f, mAvgAge = 0.01f, fAvgAge = 0.01f;
-                foreach (var face in result.Faces)
+                foreach (var face in result.RichFaces)
                 {
-                    res += "   Age : " + face.Age;
-                    avgAge += face.Age;
-                    res += " Gender : " + face.Gender;
-                    if (face.Gender.ToLower().Equals("male"))
+                    res += "   Age : " + face.Attributes.Age;
+                    avgAge += (float)face.Attributes.Age;
+                    res += " Gender : " + face.Attributes.Gender;
+                    if (face.Attributes.Gender.ToLower().Equals("male"))
                     {
                         ++numMale;
-                        mAvgAge += face.Age;
+                        mAvgAge += (float)face.Attributes.Age;
                     }
                     else
                     {
                         ++numFemale;
-                        fAvgAge += face.Age;
+                        fAvgAge += (float)face.Attributes.Age;
                     }
                 }
 

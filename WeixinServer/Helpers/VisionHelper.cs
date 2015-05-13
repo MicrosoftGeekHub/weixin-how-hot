@@ -94,9 +94,9 @@ namespace WeixinServer.Helpers
 
                 try
                 {
-                    if (stream == null) return null;
-                    stream.Seek(0, SeekOrigin.Begin);
-                    var faces = await faceServiceClient.DetectAsync(stream);
+                    //if (stream == null) return null;
+                    //stream.Seek(0, SeekOrigin.Begin);
+                    var faces = await faceServiceClient.DetectAsync(stream, false, true, true, false);
                     return faces.ToArray();
                 }
 
