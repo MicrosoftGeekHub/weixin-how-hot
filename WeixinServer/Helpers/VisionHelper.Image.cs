@@ -94,10 +94,10 @@ namespace WeixinServer.Helpers
                 {
                     string genderInfo = "";
 
-                    int topText = faceDetect.FaceRectangle.Top + faceDetect.FaceRectangle.Height + 5;
-                    //int topText = faceDetect.FaceRectangle.Top - 150;
+                    //int topText = faceDetect.FaceRectangle.Top + faceDetect.FaceRectangle.Height + 5;
+                    int topText = faceDetect.FaceRectangle.Top - 30;
                     topText = topText > 0 ? topText : 0;
-                    int leftText = faceDetect.FaceRectangle.Left;
+                    int leftText = faceDetect.FaceRectangle.Left - 5;
 
                     if (faceDetect.Attributes.Gender.Equals("Male"))
                     {
@@ -117,12 +117,13 @@ namespace WeixinServer.Helpers
                     }
                     //draw text 
                     //float size = faceDetect.FaceRectangle.Width / 5.0f;
-                    string info = string.Format("{0}颜龄{1}\n骚值{2:F0}\n肾价{3:F2}万", genderInfo, faceDetect.Attributes.Age,
-                        saoBility * faceDetect.Attributes.Age, ascr / faceDetect.Attributes.Age);
+                    //string info = string.Format("{0}颜龄{1}\n骚值{2:F0}\n肾价{3:F2}万", genderInfo, faceDetect.Attributes.Age,
+                    //    saoBility * faceDetect.Attributes.Age, ascr / faceDetect.Attributes.Age);
+                    string info = string.Format("{0}颜龄{1}\n", genderInfo, faceDetect.Attributes.Age);
                     Size room = new Size(faceDetect.FaceRectangle.Width, faceDetect.FaceRectangle.Top - topText);
                     Font f = new Font(ff, 24, FontStyle.Bold, GraphicsUnit.Pixel);
                     //Font f = FindFont(g, info, room, new Font("Arial", 600, FontStyle.Regular, GraphicsUnit.Pixel));
-                    g.DrawString(info, f, new SolidBrush(System.Drawing.Color.LimeGreen), new Point(leftText, topText));
+                    g.DrawString(info, f, new SolidBrush(System.Drawing.Color.BlueViolet), new Point(leftText, topText));
 
                     //layers.Add(this.GetFaceTextLayer(info, leftText, topText, clr));
 
