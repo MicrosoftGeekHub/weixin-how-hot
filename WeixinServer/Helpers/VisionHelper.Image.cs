@@ -65,7 +65,8 @@ namespace WeixinServer.Helpers
 
         private MemoryStream DrawRects(MemoryStream inStream, AnalysisResult analysisResult) 
         {
-            Face[] faceDetections = analysisResult.Faces;
+            var faceDetections = analysisResult.Faces;
+            //if(faceDetections == null || faceDetections.Length == 0) return null;
             int ascr = (int)(analysisResult.Adult.AdultScore * 2500);
             int rscr = (int)(analysisResult.Adult.RacyScore * 5000);
             int saoBility = ascr + rscr;
