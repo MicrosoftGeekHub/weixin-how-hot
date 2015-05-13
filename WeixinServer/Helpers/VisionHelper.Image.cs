@@ -283,7 +283,7 @@ namespace WeixinServer.Helpers
                 //Font f = new Font(ff, fontSize, FontStyle.Bold, GraphicsUnit.Pixel);
                 var fontSize = width < 1000 ? 24 : 36;
                 //Font f = new Font(ff, fontSize, FontStyle.Bold, GraphicsUnit.Pixel);
-                var ret = FindFont(g, text, new Size(image.Width, image.Height / 3), new Font(ff, fontSize, FontStyle.Bold, GraphicsUnit.Pixel));
+                var ret = FindFont(g, text, new Size(image.Width / 3, image.Height / 3), new Font(ff, fontSize, FontStyle.Bold, GraphicsUnit.Pixel));
                 //Font f = ret.Item1;
                 fontSize = (int)ret.Item2;
                 Font f = new Font(ff, fontSize, FontStyle.Bold, GraphicsUnit.Pixel);
@@ -291,7 +291,7 @@ namespace WeixinServer.Helpers
                 //var fontSize = 36;
                 var x = (int)(image.Width * 0.05);
                 var y = image.Height - (fontSize + 5) * 5;
-                g.DrawString(text, f, new SolidBrush(System.Drawing.Color.LimeGreen), new Point(x, y));
+                g.DrawString(text, f, new SolidBrush(fontColor), new Point(x, y));
                 image.Save(ms, System.Drawing.Imaging.ImageFormat.Jpeg);
             }
 
