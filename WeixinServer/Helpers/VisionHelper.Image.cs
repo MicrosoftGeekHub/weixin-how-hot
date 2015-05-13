@@ -47,7 +47,9 @@ namespace WeixinServer.Helpers
             float WidthScaleRatio = Room.Width / RealSize.Width;
             float ScaleRatio = (HeightScaleRatio < WidthScaleRatio) ? ScaleRatio = HeightScaleRatio : ScaleRatio = WidthScaleRatio;
             float ScaleFontSize = PreferedFont.Size * ScaleRatio;
-            return new Tuple<Font, float>(new Font(PreferedFont.FontFamily, ScaleFontSize), ScaleFontSize);
+            var intFontSize = ((int)ScaleFontSize / 4) * 4;
+            if(intFontSize < 24) intFontSize = 24;
+            return new Tuple<Font, float>(new Font(PreferedFont.FontFamily, intFontSize), intFontSize);
         }
 
 
@@ -121,8 +123,10 @@ namespace WeixinServer.Helpers
                     //    saoBility * faceDetect.Attributes.Age, ascr / faceDetect.Attributes.Age);
                     string info = string.Format("{0}颜龄{1}\n", genderInfo, faceDetect.Attributes.Age);
                     Size room = new Size(faceDetect.FaceRectangle.Width, faceDetect.FaceRectangle.Top - topText);
-                    Font f = new Font(ff, 36, FontStyle.Bold, GraphicsUnit.Pixel);
-                    //Font f = FindFont(g, info, room, new Font("Arial", 600, FontStyle.Regular, GraphicsUnit.Pixel));
+                    var ret = FindFont(g, info, room, new Font(ff, 36, FontStyle.Bold, GraphicsUnit.Pixel));
+                    var size = ret.Item2;
+                    Font f = new Font(ff, size, FontStyle.Bold, GraphicsUnit.Pixel);
+                    
                     g.DrawString(info, f, new SolidBrush(System.Drawing.Color.BlueViolet), new Point(leftText, topText));
 
                     //layers.Add(this.GetFaceTextLayer(info, leftText, topText, clr));
@@ -139,8 +143,8 @@ namespace WeixinServer.Helpers
                 }
                 if (maleRectangles.Count > 0)
                 {
-                    Pen pen = new Pen(System.Drawing.Color.Lime, 2);
-                    g.DrawRectangles(pen, maleRectangles.ToArray());
+                    Pen pen2 = new Pen(System.Drawing.Color.Lime, 2);
+                    g.DrawRectangles(pen2, maleRectangles.ToArray());
                 }
 
                 image.Save(ms, System.Drawing.Imaging.ImageFormat.Jpeg);
@@ -275,10 +279,11 @@ namespace WeixinServer.Helpers
                     //Size room = new Size(faceDetect.FaceRectangle.Width, faceDetect.FaceRectangle.Top - topText);
                 //Font f = new Font(ff, fontSize, FontStyle.Bold, GraphicsUnit.Pixel);
                 var fontSize = width < 1000 ? 24 : 36;
-                Font f = new Font(ff, fontSize, FontStyle.Bold, GraphicsUnit.Pixel);
-                //var ret = FindFont(g, text, new Size(image.Width, image.Height / 3), new Font(ff, fontSize, FontStyle.Bold, GraphicsUnit.Pixel));
+                //Font f = new Font(ff, fontSize, FontStyle.Bold, GraphicsUnit.Pixel);
+                var ret = FindFont(g, text, new Size(image.Width, image.Height / 3), new Font(ff, fontSize, FontStyle.Bold, GraphicsUnit.Pixel));
                 //Font f = ret.Item1;
-                //fontSize = (int)ret.Item2;
+                fontSize = (int)ret.Item2;
+                Font f = new Font(ff, fontSize, FontStyle.Bold, GraphicsUnit.Pixel);
                 //if (fontSize < 24) fontSize = 24;
                 //var fontSize = 36;
                 var x = (int)(image.Width * 0.05);
