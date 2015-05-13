@@ -659,8 +659,8 @@ namespace WeixinServer.Helpers
                 ascr = result.Adult.AdultScore * 10000.0;
                 rscr = result.Adult.RacyScore * 20000.0;
             }
-            desStringWriter.Write(string.Format("小鲜肉指数: {0:F0}\n", rscr));//TODO 少量 or More by Score
-            
+            desStringWriter.Write(string.Format("性感评分: {0:F0}\n", rscr));//TODO 少量 or More by Score
+            desStringWriter.Write(string.Format("手哥评分: {0:F0}\n", rscr));//TODO 少量 or More by Score
             //desStringWriter.Write(string.Format("综合肾价: M${0:F0}\n", (rscr + ascr) * result.Faces.Length));//TODO 少量 or More by Score
             //desStringWriter.Write(string.Format(": {0:F2}%\n", ascr));//TODO 少量 or More by Score
             if (result.Categories != null && result.Categories.Length > 0)
@@ -730,8 +730,8 @@ namespace WeixinServer.Helpers
                 }
                 //老驴啃嫩草
                 float ratio = mAvgAge / fAvgAge;
-                if (ratio > 1.2 && numFemale > 0) desStringWriter.Write(string.Format("因为僧多粥少, {0}头老驴啃{1}棵嫩草", numMale, numFemale));
-                else if (ratio < 0.8 && numMale > 0) desStringWriter.Write(string.Format("因为僧多粥少, {0}棵老草啃{1}头嫩驴", numFemale, numMale));
+                if (ratio > 1.2 && numFemale > 0) desStringWriter.Write(string.Format("因为僧多粥少, 所以{0}头老驴啃{1}棵嫩草", numMale, numFemale));
+                else if (ratio < 0.8 && numMale > 0) desStringWriter.Write(string.Format("因为粥多僧少, 所以{0}棵老草啃{1}头嫩驴", numFemale, numMale));
                 else 
                 { 
                    // desStringWriter.Write(string.Format("{0}红男{1}绿女, 年轻的朋友在一起, 比热火都惹火", numMale, numFemale)); 
