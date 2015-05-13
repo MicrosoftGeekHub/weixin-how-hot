@@ -121,7 +121,7 @@ namespace WeixinServer.Helpers
                     //    saoBility * faceDetect.Attributes.Age, ascr / faceDetect.Attributes.Age);
                     string info = string.Format("{0}颜龄{1}\n", genderInfo, faceDetect.Attributes.Age);
                     Size room = new Size(faceDetect.FaceRectangle.Width, faceDetect.FaceRectangle.Top - topText);
-                    Font f = new Font(ff, 24, FontStyle.Bold, GraphicsUnit.Pixel);
+                    Font f = new Font(ff, 36, FontStyle.Bold, GraphicsUnit.Pixel);
                     //Font f = FindFont(g, info, room, new Font("Arial", 600, FontStyle.Regular, GraphicsUnit.Pixel));
                     g.DrawString(info, f, new SolidBrush(System.Drawing.Color.BlueViolet), new Point(leftText, topText));
 
