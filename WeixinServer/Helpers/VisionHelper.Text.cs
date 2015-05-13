@@ -182,61 +182,47 @@ namespace WeixinServer.Helpers
 
 
                         //var taskAnalyzeUrl = this.visionClient.AnalyzeImageAsync(imagePathOrUrl, visualFeatures);
-                                    
+
                         int minNumPixs = 50;
-                        
-                        using (var ms4Face = new MemoryStream())
+                        using (var ms = new MemoryStream())
                         {
+                            streamToUpload.CopyTo(ms);
+                            Image image = Image.FromStream(ms);
+
                             faceAgent fa = new faceAgent();
-                            streamToUpload.CopyTo(ms4Face);
-                            Image image = Image.FromStream(ms4Face);
-                            taskGetFaces = fa.UploadStreamAndDetectFaces(ms4Face);
-                            timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage AnalyzeImageAsync taskGetFaces begin\n", DateTime.Now - this.startTime));
-                            analysisResult.RichFaces = await taskGetFaces;
-                            timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage AnalyzeImageAsync taskGetFaces end\n", DateTime.Now - this.startTime));
-                            using (var ms = new MemoryStream())
+                            ms.Seek(0, SeekOrigin.Begin);
+                            taskGetFaces = fa.UploadStreamAndDetectFaces(ms);
+                            timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage taskGetFaces begin\n", DateTime.Now - this.startTime));
+
+                            timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage AnalyzeImageAsync stream begin\n", DateTime.Now - this.startTime));
+                            if (image.Width > minNumPixs)
                             {
-                                ms4Face.Seek(0, SeekOrigin.Begin);
-                                ms4Face.CopyTo(ms);
+                                timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage AnalyzeImageAsync Resize begin\n", DateTime.Now - this.startTime));
+                                int height = minNumPixs;
+                                int width = (int)((float)height * image.Width / image.Height);
+                                if (width < minNumPixs) 
+                                {
+                                    width = minNumPixs;
+                                    height = (int)((float)width * image.Height / image.Width);
+                                }
+                                Image resizedImg = Resize(image, new Size(width, height));
+                                var resizedMemoryStream = new MemoryStream();
+                                resizedImg.Save(resizedMemoryStream, image.RawFormat);
+                                timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage AnalyzeImageAsync Resize end\n", DateTime.Now - this.startTime));
                                 
                                 
-                                timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage AnalyzeImageAsync stream begin\n", DateTime.Now - this.startTime));
-                                if (image.Width > minNumPixs)
-                                {
-                                    timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage AnalyzeImageAsync Resize begin\n", DateTime.Now - this.startTime));
-                                    int height = minNumPixs;
-                                    int width = (int)((float)height * image.Width / image.Height);
-                                    if (width < minNumPixs)
-                                    {
-                                        width = minNumPixs;
-                                        height = (int)((float)width * image.Height / image.Width);
-                                    }
-                                    Image resizedImg = Resize(image, new Size(width, height));
-                                    resizedImg.Save(ms, image.RawFormat);
-                                    ms.Seek(0, SeekOrigin.Begin);
-                                    timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage AnalyzeImageAsync Resize end\n", DateTime.Now - this.startTime));
-
-                                    taskAnalyzeImageAsync = this.visionClient.AnalyzeImageAsync(ms, visualFeatures);
-                                    timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage AnalyzeImageAsync taskAnalyzeImageAsync begin\n", DateTime.Now - this.startTime));
-                                    analysisResult = await taskAnalyzeImageAsync;
-                                    timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage AnalyzeImageAsync taskAnalyzeImageAsync end\n", DateTime.Now - this.startTime));
-                                    timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage AnalyzeImageAsync stream end\n", DateTime.Now - this.startTime));
-
-
-                                }
-                                else
-                                {
-
-                                    //taskAnalyzeImageAsync = this.visionClient.AnalyzeImageAsync(ms, visualFeatures);
-                                    //ms4Face.Seek(0, SeekOrigin.Begin);
-                                    //taskGetFaces = fa.UploadStreamAndDetectFaces(ms4Face);
-                                    ms.Seek(0, SeekOrigin.Begin);
-                                    analysisResult = await taskAnalyzeImageAsync;
-                                    timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage AnalyzeImageAsync stream end\n", DateTime.Now - this.startTime));
-                                }
-                                //analysisResult = await taskAnalyzeUrl;
+                                resizedMemoryStream.Seek(0, SeekOrigin.Begin);
+                                analysisResult = await this.visionClient.AnalyzeImageAsync(resizedMemoryStream, visualFeatures);
+                                timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage AnalyzeImageAsync stream end\n", DateTime.Now - this.startTime));
                             }
-                           
+                            else
+                            {
+                                ms.Seek(0, SeekOrigin.Begin);
+                                analysisResult = await this.visionClient.AnalyzeImageAsync(ms, visualFeatures); ;
+                                timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage AnalyzeImageAsync stream end\n", DateTime.Now - this.startTime));
+                            }
+                            //analysisResult = await taskAnalyzeUrl;
+                            
                            // timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage AnalyzeImageAsync url end\n", DateTime.Now - this.startTime));
                         }
 
@@ -248,7 +234,6 @@ namespace WeixinServer.Helpers
                         //}).Wait();
 
                     }
-
                     else
                     {
                         var errMsg = string.Format("Invalid image path or Url:{0}\n" + imagePathOrUrl);
@@ -286,16 +271,15 @@ namespace WeixinServer.Helpers
                 }
                 //return this.ShowRichAnalysisResult(analysisResult);
                 //Microsoft.ProjectOxford.Face.Contract.Face[] faces = await taskGetFaces;
-                //analysisResult.RichFaces = await taskGetFaces;
-                timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage AnalyzeImageAsync taskGetFaces end\n{1}\n analysisResult.RichFaces.Length", 
-                    DateTime.Now - this.startTime, analysisResult.RichFaces.Length));
-                
+                timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage client.DownloadDataTaskAsync end\n", DateTime.Now - this.startTime));
+                analysisResult.RichFaces = await taskGetFaces;
+                timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage client.DownloadDataTaskAsync end {1}\n analysisResult.RichFaces.Length\n", DateTime.Now - this.startTime, analysisResult.RichFaces.Length));
                 var resTxt = this.ShowRichAnalysisResult(analysisResult);
                 var txtRichResult = new RichResult(timeLogger.ToString(), resTxt, errLogger.ToString());
                 if (string.IsNullOrEmpty(resTxt)) return txtRichResult;
 
                 photoBytes = await taskb;
-                timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage client.DownloadDataTaskAsync end\n", DateTime.Now - this.startTime));
+
                 timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage client.DownloadDataTaskAsync end\n", DateTime.Now - this.startTime));
 
                 var resImg = this.RenderAnalysisResultAsImage(analysisResult, resTxt);

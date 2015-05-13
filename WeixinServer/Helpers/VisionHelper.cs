@@ -29,7 +29,7 @@ namespace WeixinServer.Helpers
         class faceAgent
         {
 
-            private readonly IFaceServiceClient faceServiceClient = new FaceServiceClient("8c00452ccad0465baa695f7779fbf4a9");
+            private readonly IFaceServiceClient faceServiceClient = new FaceServiceClient("f0a551fcd16a461a89f29647817399c1");
             public async Task<Microsoft.ProjectOxford.Face.Contract.FaceRectangle[]> UploadAndDetectFaces(string imageFilePath)
             {
 

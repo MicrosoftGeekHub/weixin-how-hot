@@ -247,8 +247,8 @@ namespace WeixinServer.Helpers
                 fontColor = System.Drawing.Color.FromArgb(RGBMAX - accentColor.R, RGBMAX - accentColor.G, RGBMAX - accentColor.B);
             }
 
-            //var fontSize = width < 1000 ? 24 : 36;
-            var fontSize = 36;
+            var fontSize = width < 1000 ? 24 : 36;
+            //var fontSize = 36;
 
             var x = (int)(width * 0.05);
             var y = height - (fontSize + 5) * 5;
@@ -314,7 +314,7 @@ namespace WeixinServer.Helpers
                         // Load
                         timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage::RenderAnalysisResultAsImage imageFactory.Load begin\n", DateTime.Now - this.startTime));
                         midStream = DrawRects(inStream, result);
-                        //midStream.Seek(0, SeekOrigin.Begin);
+                        midStream.Seek(0, SeekOrigin.Begin);
 
                         //var midStream = 
                         timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage::RenderAnalysisResultAsImage imageFactory.Load midStream generated\n", DateTime.Now - this.startTime));
