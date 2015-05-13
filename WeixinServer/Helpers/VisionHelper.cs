@@ -29,7 +29,7 @@ namespace WeixinServer.Helpers
         class faceAgent
         {
 
-            private readonly IFaceServiceClient faceServiceClient = new FaceServiceClient("8c00452ccad0465baa695f7779fbf4a9");
+            private readonly IFaceServiceClient faceServiceClient = new FaceServiceClient("f0a551fcd16a461a89f29647817399c1");
             public async Task<Microsoft.ProjectOxford.Face.Contract.FaceRectangle[]> UploadAndDetectFaces(string imageFilePath)
             {
 
@@ -94,9 +94,9 @@ namespace WeixinServer.Helpers
 
                 try
                 {
-                    if (stream == null) return null;
-                    stream.Seek(0, SeekOrigin.Begin);
-                    var faces = await faceServiceClient.DetectAsync(stream);
+                    //if (stream == null) return null;
+                    //stream.Seek(0, SeekOrigin.Begin);
+                    var faces = await faceServiceClient.DetectAsync(stream, false, true, true, false);
                     return faces.ToArray();
                 }
 
