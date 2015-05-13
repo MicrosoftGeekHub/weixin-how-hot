@@ -38,8 +38,8 @@ namespace WeixinServer.Helpers
         {
             this.frontImageUri = frontImageUri;
         }
-        
-        static Font FindFont(System.Drawing.Graphics g, string longString, Size Room, Font PreferedFont)
+
+        static Tuple<Font, float> FindFont(System.Drawing.Graphics g, string longString, Size Room, Font PreferedFont)
         {
             //you should perform some scale functions
             SizeF RealSize = g.MeasureString(longString, PreferedFont);
@@ -47,8 +47,10 @@ namespace WeixinServer.Helpers
             float WidthScaleRatio = Room.Width / RealSize.Width;
             float ScaleRatio = (HeightScaleRatio < WidthScaleRatio) ? ScaleRatio = HeightScaleRatio : ScaleRatio = WidthScaleRatio;
             float ScaleFontSize = PreferedFont.Size * ScaleRatio;
-            return new Font(PreferedFont.FontFamily, ScaleFontSize);
+            return new Tuple<Font, float>(new Font(PreferedFont.FontFamily, ScaleFontSize), ScaleFontSize);
         }
+
+
 
         static Image Resize(Image imgToResize, Size size)
         {
@@ -247,11 +249,7 @@ namespace WeixinServer.Helpers
                 fontColor = System.Drawing.Color.FromArgb(RGBMAX - accentColor.R, RGBMAX - accentColor.G, RGBMAX - accentColor.B);
             }
 
-            var fontSize = width < 1000 ? 24 : 36;
-            //var fontSize = 36;
-
-            var x = (int)(width * 0.05);
-            var y = height - (fontSize + 5) * 5;
+            
 
             //DropShadow = true,
             //FontColor = fontColor,
@@ -274,8 +272,16 @@ namespace WeixinServer.Helpers
             {
                     //draw text 
                     //Size room = new Size(faceDetect.FaceRectangle.Width, faceDetect.FaceRectangle.Top - topText);
+                //Font f = new Font(ff, fontSize, FontStyle.Bold, GraphicsUnit.Pixel);
+                var fontSize = width < 1000 ? 24 : 36;
                 Font f = new Font(ff, fontSize, FontStyle.Bold, GraphicsUnit.Pixel);
-                    //Font f = FindFont(g, info, room, new Font("Arial", 600, FontStyle.Regular, GraphicsUnit.Pixel));
+                //var ret = FindFont(g, text, new Size(image.Width, image.Height / 3), new Font(ff, fontSize, FontStyle.Bold, GraphicsUnit.Pixel));
+                //Font f = ret.Item1;
+                //fontSize = (int)ret.Item2;
+                //if (fontSize < 24) fontSize = 24;
+                //var fontSize = 36;
+                var x = (int)(image.Width * 0.05);
+                var y = image.Height - (fontSize + 5) * 5;
                 g.DrawString(text, f, new SolidBrush(System.Drawing.Color.LimeGreen), new Point(x, y));
                 image.Save(ms, System.Drawing.Imaging.ImageFormat.Jpeg);
             }
