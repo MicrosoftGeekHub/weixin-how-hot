@@ -48,7 +48,7 @@ namespace WeixinServer.Helpers
             float ScaleRatio = (HeightScaleRatio < WidthScaleRatio) ? ScaleRatio = HeightScaleRatio : ScaleRatio = WidthScaleRatio;
             float ScaleFontSize = PreferedFont.Size * ScaleRatio;
             var intFontSize = ((int)ScaleFontSize / 4) * 4;
-            if(intFontSize < 24) intFontSize = 24;
+            if(intFontSize < 36) intFontSize = 36;
             return new Tuple<Font, float>(new Font(PreferedFont.FontFamily, intFontSize), intFontSize);
         }
 
@@ -97,15 +97,17 @@ namespace WeixinServer.Helpers
                     string genderInfo = "";
 
                     //int topText = faceDetect.FaceRectangle.Top + faceDetect.FaceRectangle.Height + 5;
-                    int topText = faceDetect.FaceRectangle.Top - 30;
+                    int topText = faceDetect.FaceRectangle.Top - 50;
                     topText = topText > 0 ? topText : 0;
                     int leftText = faceDetect.FaceRectangle.Left - 5;
 
-                    if (faceDetect.Attributes.Gender.Equals("Male"))
+                    var colour = System.Drawing.Color.Magenta;
+                    if (faceDetect.Attributes.Gender.ToLower().Equals("male"))
                     {
                         genderInfo += "♂";
                         maleRectangles.Add(new System.Drawing.Rectangle(faceDetect.FaceRectangle.Left,
                             faceDetect.FaceRectangle.Top, faceDetect.FaceRectangle.Width, faceDetect.FaceRectangle.Height));
+                        colour = System.Drawing.Color.Lime;
                         //maleRectangles.Add(new System.Drawing.Rectangle(leftText,
                         //    topText, faceDetect.FaceRectangle.Width, faceDetect.FaceRectangle.Top - topText));
                     }
@@ -121,13 +123,14 @@ namespace WeixinServer.Helpers
                     //float size = faceDetect.FaceRectangle.Width / 5.0f;
                     //string info = string.Format("{0}颜龄{1}\n骚值{2:F0}\n肾价{3:F2}万", genderInfo, faceDetect.Attributes.Age,
                     //    saoBility * faceDetect.Attributes.Age, ascr / faceDetect.Attributes.Age);
-                    string info = string.Format("{0}颜龄{1}\n", genderInfo, faceDetect.Attributes.Age);
+                    //string info = string.Format("{0}{1}\n", genderInfo, faceDetect.Attributes.Age);
+                    string info = string.Format("{0}{1}\n", genderInfo, faceDetect.Attributes.Age);
                     Size room = new Size(faceDetect.FaceRectangle.Width, faceDetect.FaceRectangle.Top - topText);
-                    var ret = FindFont(g, info, room, new Font(ff, 36, FontStyle.Bold, GraphicsUnit.Pixel));
+                    var ret = FindFont(g, info, room, new Font("Ariel", 36, FontStyle.Bold, GraphicsUnit.Pixel));
                     var size = ret.Item2;
-                    Font f = new Font(ff, size, FontStyle.Bold, GraphicsUnit.Pixel);
-                    
-                    g.DrawString(info, f, new SolidBrush(System.Drawing.Color.BlueViolet), new Point(leftText, topText));
+                    Font f = new Font("Ariel", size, FontStyle.Bold, GraphicsUnit.Pixel);
+
+                    g.DrawString(info, f, new SolidBrush(colour), new Point(leftText, topText));
 
                     //layers.Add(this.GetFaceTextLayer(info, leftText, topText, clr));
 
