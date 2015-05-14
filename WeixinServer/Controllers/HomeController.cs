@@ -108,6 +108,14 @@ namespace WeixinServer.Controllers
         }
 
         private string subscriptionKey = ConfigurationManager.AppSettings["subscriptionKey"];
+        private static string GetMd5(string str)
+        {
+            var m = new System.Security.Cryptography.MD5CryptoServiceProvider();
+            byte[] s = m.ComputeHash(UnicodeEncoding.UTF8.GetBytes(str));
+            string resule = BitConverter.ToString(s);
+            resule = resule.Replace("-", "");
+            return resule.ToLower();
+        }
         private bool ProcessMsg(string xml)
         {
             MsgObject msg = new MsgObject(xml);
@@ -135,8 +143,10 @@ namespace WeixinServer.Controllers
             using (var dbContext = new WeixinDBContext())
             {
                 //ImageStorage image = dbContext.ImageStorages.FirstOrDefault(p => p.OpenId == msg.FromUserName && p.PicUrl == msg.PicUrl && p.CreateTime == msg.CreateTime);
-                ImageStorage image = dbContext.ImageStorages.FirstOrDefault(p => p.PicUrl == msg.PicUrl);
+                //ImageStorage image = dbContext.ImageStorages.FirstOrDefault(p => p.PicUrl == msg.PicUrl);
                 //ImageStorage image = dbContext.ImageStorages.FirstOrDefault(p => p.PicUrl == msg.PicUrl && p.CreateTime == msg.CreateTime);
+                var md5 = GetMd5(msg.PicUrl);
+                ImageStorage image = dbContext.ImageStorages.FirstOrDefault(p => p.Md5 == md5);
                 if (image != null)
                 {
                     Response.Write(string.Format("<xml><ToUserName><![CDATA[{0}]]></ToUserName><FromUserName><![CDATA[{1}]]></FromUserName><CreateTime>12345678</CreateTime><MsgType><![CDATA[text]]></MsgType><Content><![CDATA[{2}]]></Content><DebugInfo><![CDATA[{3}]]></DebugInfo><ErrorInfo><![CDATA[{4}]]></ErrorInfo></xml>",
@@ -169,14 +179,15 @@ namespace WeixinServer.Controllers
                 image.OpenId = msg.FromUserName;
                 image.CreateTime = msg.CreateTime;
                 image.PicUrl = msg.PicUrl;
+                image.Md5 = GetMd5(msg.PicUrl);
                 //image.PicContent = ret.rawImage;
                 image.ParsedUrl = ret.uploadedUrl;
-                image.ParsedContent = null;
                 image.ParsedDescription = ret.analyzeImageResult;
                 image.TimeLog = ret.timeLogs;
                 dbContext.ImageStorages.Add(image);
                 dbContext.SaveChanges();
                 id = image.Id;
+                dbContext.Dispose();
             }
 
             // Debug mode
