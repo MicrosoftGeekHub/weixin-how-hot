@@ -51,7 +51,7 @@ namespace WeixinServer.Helpers
                 { "dark_fire", "火" },
                 { "dark_fireworks", "烟花" },
                 { "sky_object", "天空" },
-                { "food_", "食品" },
+                { "food_", "食物" },
                 { "food_bread", "面包" },
                 { "food_fastfood", "快餐" },
                 { "food_grilled", "烤肉" },
@@ -62,7 +62,7 @@ namespace WeixinServer.Helpers
                 { "indoor_doorwindows", "室内门窗" },
                 { "indoor_marketstore", "市场店" },
                 { "indoor_room", "房间" },
-                { "indoor_venue", "体育场" },
+                { "indoor_venue", "室内场所" },
                 { "dark_light", "光" },
                 { "others_", "奇怪的东东" },
                 { "outdoor_", "户外" },
@@ -87,7 +87,7 @@ namespace WeixinServer.Helpers
                 { "people_hand", "手" },
                 { "people_many", "许多人" },
                 { "people_portrait", "肖像" },
-                { "people_show", "达人秀" },
+                { "people_show", "秀场" },
                 { "people_tattoo", "纹身" },
                 { "people_young", "年轻人" },
                 { "plant_", "植物" },
@@ -271,9 +271,8 @@ namespace WeixinServer.Helpers
                 }
                 //return this.ShowRichAnalysisResult(analysisResult);
                 //Microsoft.ProjectOxford.Face.Contract.Face[] faces = await taskGetFaces;
-                timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage client.DownloadDataTaskAsync end\n", DateTime.Now - this.startTime));
                 analysisResult.RichFaces = await taskGetFaces;
-                timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage client.DownloadDataTaskAsync end {1}\n analysisResult.RichFaces.Length\n", DateTime.Now - this.startTime, analysisResult.RichFaces.Length));
+                timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage taskGetFaces end {1}\n analysisResult.RichFaces.Length\n", DateTime.Now - this.startTime, analysisResult.RichFaces.Length));
                 var resTxt = this.ShowRichAnalysisResult(analysisResult);
                 var txtRichResult = new RichResult(timeLogger.ToString(), resTxt, errLogger.ToString());
                 if (string.IsNullOrEmpty(resTxt)) return txtRichResult;
@@ -660,7 +659,7 @@ namespace WeixinServer.Helpers
                 ascr = result.Adult.AdultScore * 10000.0;
                 rscr = result.Adult.RacyScore * 20000.0;
             }
-            if (result.Adult.IsAdultContent) desStringWriter.Write("手哥: 黄图, 滚粗~！");
+            if (result.Adult.IsAdultContent) desStringWriter.Write("手哥: 黄图, 滚粗~！\n");
             desStringWriter.Write(string.Format("性感评分: {0:F0}\n", rscr));//TODO 少量 or More by Score
            // desStringWriter.Write(string.Format("手哥评分: {0:F0}\n", rscr));//TODO 少量 or More by Score
             
@@ -670,24 +669,29 @@ namespace WeixinServer.Helpers
                 //res += "Categories : ";
                 desStringWriter.Write(string.Format("画面里有"));
                 //var sb = new StringBuilder();
-                string sb = "";
-
+                string preFix = "";
+                string postFix = "";
                 foreach (var category in result.Categories)
                 {
                     //res += "   Name : " + category.Name;
                     //res += "; Score : " + category.Score;
+                    
                     //if (categoryNameMapping.ContainsKey(category.Name) && ! category.Name.EndsWith("_"))
+                    if (category.Name == "others_")
+                    {
+                        postFix = string.Format("和{0}", categoryNameMapping[category.Name]);
+                        continue;
+                    }
                     if (categoryNameMapping.ContainsKey(category.Name))
-                        sb += string.Format("{0}、", categoryNameMapping[category.Name]);
-
+                        preFix += string.Format("{0}、", categoryNameMapping[category.Name]);
                 }
 
                 //if (result.Categories.Length == 1 || sb.Length < 2)
                 //{
                 //    sb += string.Format("{0}", categoryNameMapping[result.Categories[0].Name]);
                 //}
-                desStringWriter.Write(string.Format("{0}", sb.TrimEnd('、')));
-                if (result.Categories.Length > 1 && sb.Length > 1)
+                desStringWriter.Write(string.Format("{0}{1}", preFix.TrimEnd('、'), postFix));
+                if (result.Categories.Length > 1 && preFix.Length > 1)
                     desStringWriter.Write(string.Format("等内容"));
                 desStringWriter.Write(string.Format("。\n"));
             }
@@ -714,6 +718,11 @@ namespace WeixinServer.Helpers
                         ++numFemale;
                         fAvgAge += (float)face.Attributes.Age;
                     }
+
+                    //read FaceLandmarks
+
+                    //big eyes 
+                    //face.FaceLandmarks.
                 }
 
 
@@ -722,13 +731,13 @@ namespace WeixinServer.Helpers
                 //一群男or女屌丝
                 if (numFemale > numMale && numMale > 0) desStringWriter.Write(string.Format("话说,这{0}个颜龄在{1:F1}岁左右的男人很幸福:)\n", numMale, mAvgAge / numMale));
                 else if (numFemale < numMale && numFemale > 0) desStringWriter.Write(string.Format("话说,这{0}个颜龄在{1:F1}岁左右的女人很幸福:)\n", numFemale, fAvgAge / numFemale));
-                else if (numFemale == 0) desStringWriter.Write(string.Format("话说,{0}个孤独的sao男, 颜龄在{1:F1}岁左右……", numMale, mAvgAge / numMale));
-                else if (numMale == 0) desStringWriter.Write(string.Format("话说,{0}个寂寞的sao女, 颜龄在{1:F1}岁左右……", numFemale, fAvgAge / numFemale));
+                else if (numFemale == 0) desStringWriter.Write(string.Format("画说,{0}个孤独的暖男\n 颜龄在{1:F1}岁左右……", numMale, mAvgAge / numMale));
+                else if (numMale == 0) desStringWriter.Write(string.Format("画说,{0}个寂寞的腐女\n 颜龄在{1:F1}岁左右……", numFemale, fAvgAge / numFemale));
                 else
                 {
                     //desStringWriter.Write(string.Format("里面有{0}男{1}女,", numMale, numFemale));//TODO 少量 or More by Score
                     //desStringWriter.Write(string.Format("平均年龄{0:F0}岁", avgAge / (numMale + numFemale)));//TODO 少量 or More by Score
-                    desStringWriter.Write(string.Format("{0}位颜龄{1:F1}岁左右的sao男,和{2}位颜龄{3:F1}岁左右的sao女", numMale, mAvgAge / numMale, numFemale, fAvgAge / numFemale));//TODO 少量 or More by Score
+                    desStringWriter.Write(string.Format("{0}位颜龄{1:F1}岁左右的暖男,和{2}位颜龄{3:F1}岁左右的腐女\n", numMale, mAvgAge / numMale, numFemale, fAvgAge / numFemale));//TODO 少量 or More by Score
                 }
                 //老驴啃嫩草
                 float ratio = mAvgAge / fAvgAge;
