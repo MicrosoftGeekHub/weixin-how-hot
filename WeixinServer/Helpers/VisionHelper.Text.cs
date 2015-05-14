@@ -661,7 +661,7 @@ namespace WeixinServer.Helpers
                 saoBility = ascr + rscr;
             }
             if (result.Adult.IsAdultContent) desStringWriter.Write("手哥：黄图, 滚粗~！\n");
-            desStringWriter.Write(string.Format("风情热度：{0:F0}%\n", saoBility / 1000));//TODO 少量 or More by Score
+            desStringWriter.Write(string.Format("风情热度：{0:F2}%\n", saoBility / 10.0));//TODO 少量 or More by Score
            // desStringWriter.Write(string.Format("手哥评分: {0:F0}\n", rscr));//TODO 少量 or More by Score
 
             //desStringWriter.Write(string.Format(": {0:F2}%\n", ascr));//TODO 少量 or More by Score
@@ -741,7 +741,7 @@ namespace WeixinServer.Helpers
 
 
                 //这个大叔很幸福
-                if (numFemale > numMale && numMale > 0)
+                if (numFemale >= numMale && numMale > 0)
                 {
                     desStringWriter.Write(string.Format("画说，"));
                     foreach (var key in maleAgeMap.Keys)
@@ -749,8 +749,12 @@ namespace WeixinServer.Helpers
                         desStringWriter.Write(string.Format("这{0}个{1}，",
                             NumberToChineseChar(maleAgeMap[key]), key));
                     }
-                    desStringWriter.Write(string.Format("看起来很幸福 :)"));
-
+                    desStringWriter.Write(string.Format("看起来很幸福 :) 因为身边有"));
+                    foreach (var key in femaleAgeMap.Keys)
+                    {
+                        desStringWriter.Write(string.Format("{0}个{1}，",
+                            NumberToChineseChar(femaleAgeMap[key]), key));
+                    }
                 }
                 else if (numFemale < numMale && numFemale > 0)
                 {
@@ -760,8 +764,12 @@ namespace WeixinServer.Helpers
                         desStringWriter.Write(string.Format("这{0}个{1}，",
                             NumberToChineseChar(femaleAgeMap[key]), key));
                     }
-                    desStringWriter.Write(string.Format("看起来很满足 :)"));
-
+                    desStringWriter.Write(string.Format("看起来很满足:) 因为身边有"));
+                    foreach (var key in maleAgeMap.Keys)
+                    {
+                        desStringWriter.Write(string.Format("{0}个{1}，",
+                            NumberToChineseChar(maleAgeMap[key]), key));
+                    }
                 }
                 else if (numFemale == 0 && numMale == 1)
                 {
@@ -782,20 +790,33 @@ namespace WeixinServer.Helpers
                         desStringWriter.Write(string.Format("这{0}个{1}，",
                             NumberToChineseChar(maleAgeMap[key]), key));
                     }
-                    desStringWriter.Write(string.Format("看起来很孤独 :)"));
+                    desStringWriter.Write(string.Format("看起来很无辜 :)"));
                 }
-                else
+                else if (numMale > 1 || numFemale > 1)
                 {
+                    desStringWriter.Write(string.Format("画说，"));
+                    foreach (var key in maleAgeMap.Keys)
+                    {
+                        desStringWriter.Write(string.Format("这{0}个{1}，",
+                            NumberToChineseChar(maleAgeMap[key]), key));
+                    }
+                    foreach (var key in femaleAgeMap.Keys)
+                    {
+                        desStringWriter.Write(string.Format("这{0}个{1}，",
+                            NumberToChineseChar(femaleAgeMap[key]), key));
+                    }
+                    desStringWriter.Write(string.Format("在一起很开心:)"));
                 }
+                else { }
 
                 //老驴啃嫩草
                 float ratio = mAvgAge / fAvgAge;
                 if (ratio > 1.2 && numFemale > 0) desStringWriter.Write(string.Format("因为僧多粥少，所以{0}头老驴啃{1}棵嫩草", NumberToChineseChar(numMale), NumberToChineseChar(numFemale)));
                 else if (ratio < 0.8 && numMale > 0) desStringWriter.Write(string.Format("因为粥多僧少，所以{0}棵老草啃{1}头嫩驴", NumberToChineseChar(numFemale), NumberToChineseChar(numMale)));
-                else if (numFemale > 0 && numMale > 0)
-                {
-                    desStringWriter.Write(string.Format("{0}男{1}女，年轻的朋友们，今天来相会，荡起小船儿暖风轻轻吹", NumberToChineseChar(numMale), NumberToChineseChar(numFemale)));
-                }
+                //else if (numFemale > 0 && numMale > 0)
+                //{
+                //    desStringWriter.Write(string.Format("{0}男{1}女，年轻的朋友们，今天来相会，荡起小船儿暖风轻轻吹", NumberToChineseChar(numMale), NumberToChineseChar(numFemale)));
+                //}
                 else
                 {
                 }
@@ -827,13 +848,13 @@ namespace WeixinServer.Helpers
 
             if (age <= 4) title = "学前女婴";
             else if (age <= 10) title = "学龄萝莉";
-            else if (age <= 16) title = "情窦初开的花季少女";
-            else if (age <= 17) title = "情窦初开的雨季少女";
-            else if (age <= 24) title = "红颜祸水";
+            else if (age <= 16) title = "花季少女";
+            else if (age <= 17) title = "雨季少女";
+            else if (age <= 24) title = "软妹子";
             else if (age <= 32) title = "轻熟女";
             else if (age <= 42) title = "熟女";
-            else if (age <= 55) title = "阿姨";
-            else if (age <= 65) title = "大妈";
+            else if (age <= 55) title = "大姐";
+            else if (age <= 75) title = "广场舞大妈";
             else title = "奶奶";
             
             return title;
@@ -844,10 +865,10 @@ namespace WeixinServer.Helpers
             string title;
 
             if (age <= 4) title = "学前灵童";
-            else if (age <= 10) title = "学龄神童";
-            else if (age <= 16) title = "情窦初开的花季少年";
-            else if (age <= 17) title = "情窦初开的雨季少年";
-            else if (age <= 24) title = "弱冠";
+            else if (age <= 10) title = "正太";
+            else if (age <= 16) title = "花季少年";
+            else if (age <= 17) title = "雨季少年";
+            else if (age <= 24) title = "小鲜肉";
             else if (age <= 30) title = "为买房而奋斗的青年";
             else if (age <= 35) title = "刚过而立之年的男神";
             else if (age <= 40) title = "闯荡一番事业的大哥";
