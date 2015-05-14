@@ -48,7 +48,7 @@ namespace WeixinServer.Helpers
             float ScaleRatio = (HeightScaleRatio < WidthScaleRatio) ? ScaleRatio = HeightScaleRatio : ScaleRatio = WidthScaleRatio;
             float ScaleFontSize = PreferedFont.Size * ScaleRatio;
             var intFontSize = ((int)ScaleFontSize / 4) * 4;
-            if(intFontSize < 12) intFontSize = 12;
+            if(intFontSize < 24) intFontSize = 24;
             return new Tuple<Font, float>(new Font(PreferedFont.FontFamily, intFontSize), intFontSize);
         }
 
@@ -124,7 +124,7 @@ namespace WeixinServer.Helpers
                     //float size = faceDetect.FaceRectangle.Width / 5.0f;
                     var hotivity = saoBility * faceDetect.Attributes.Age;
                     //string info = string.Format("{0}{1}\n", genderInfo, faceDetect.Attributes.Age);
-                    string info = string.Format("{0}{1}\nHot度:\n{2}\n肾价:M${3:F2}万", genderInfo, faceDetect.Attributes.Age,
+                    string info = string.Format("{0}{1}\nHot度:\n{2}\n肾价:￥{3:F2}万", genderInfo, faceDetect.Attributes.Age,
                         saoBility * faceDetect.Attributes.Age, ascr / faceDetect.Attributes.Age);
                     //string info = string.Format("{0}颜龄{1}\n骚值{2:F0}\n肾价{3:F2}万", genderInfo, faceDetect.Attributes.Age,
                     //    saoBility * faceDetect.Attributes.Age, ascr / faceDetect.Attributes.Age);
