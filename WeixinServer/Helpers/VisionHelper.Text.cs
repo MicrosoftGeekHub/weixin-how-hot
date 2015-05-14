@@ -726,13 +726,14 @@ namespace WeixinServer.Helpers
                 }
 
 
-
                 //里面的男人很幸福
                 //一群男or女屌丝
-                if (numFemale > numMale && numMale > 0) desStringWriter.Write(string.Format("画说，这{0}个颜龄在{1:F1}岁左右的男人很幸福 :)\n", numMale, mAvgAge / numMale));
-                else if (numFemale < numMale && numFemale > 0) desStringWriter.Write(string.Format("画说，这{0}个颜龄在{1:F1}岁左右的女人很幸福 :)\n", numFemale, fAvgAge / numFemale));
-                else if (numFemale == 0) desStringWriter.Write(string.Format("画说，{0}个孤独的暖男\n 颜龄在{1:F1}岁左右……", numMale, mAvgAge / numMale));
-                else if (numMale == 0) desStringWriter.Write(string.Format("画说，{0}个寂寞的腐女\n 颜龄在{1:F1}岁左右……", numFemale, fAvgAge / numFemale));
+                if (numFemale > numMale && numMale > 0) desStringWriter.Write(string.Format("画说，这{0}个颜龄在{1:F1}岁左右的男人很幸福 :)\n", numberToChineseChar(numMale), mAvgAge / numMale));
+                else if (numFemale < numMale && numFemale > 0) desStringWriter.Write(string.Format("画说，这{0}个颜龄在{1:F1}岁左右的女人很幸福 :)\n", numberToChineseChar(numFemale), fAvgAge / numFemale));
+                else if (numFemale == 0 && numMale == 1) desStringWriter.Write(string.Format("画说，{0}枚孤独的暖男\n 颜龄在{1:F0}岁左右……", numberToChineseChar(numMale), mAvgAge));
+                else if (numFemale == 0) desStringWriter.Write(string.Format("画说，{0}位孤独的暖男\n 颜龄在{1:F1}岁左右……", numberToChineseChar(numMale), mAvgAge / numMale));
+                else if (numMale == 0 && numFemale == 1) desStringWriter.Write(string.Format("画说，{0}枚寂寞的腐女\n 颜龄在{1:F0}岁左右……", numberToChineseChar(numFemale), fAvgAge));
+                else if (numMale == 0) desStringWriter.Write(string.Format("画说，{0}位寂寞的腐女\n 颜龄在{1:F1}岁左右……", numberToChineseChar(numFemale), fAvgAge / numFemale));
                 else
                 {
                     //desStringWriter.Write(string.Format("里面有{0}男{1}女,", numMale, numFemale));//TODO 少量 or More by Score
@@ -768,7 +769,12 @@ namespace WeixinServer.Helpers
             timeLogger.Append(string.Format("{0} VisionHelper::ShowRichAnalysisResult end\n", DateTime.Now - this.startTime));
             //Console.ResetColor();
             return desStringWriter.ToString();
-            
+        }
+
+        private static string numberToChineseChar(int number)
+        {
+            var chineseCharStr = "零一二三四五六七八九";
+            return (number < chineseCharStr.Length ? chineseCharStr[number] : number).ToString();
         }
     }
 }
