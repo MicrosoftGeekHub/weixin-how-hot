@@ -717,7 +717,7 @@ namespace WeixinServer.Helpers
                         mAvgAge += (float)face.Attributes.Age;
                         var title = MaleTitleAsPerAge(face.Attributes.Age);
                         if (maleAgeMap.ContainsKey(title))
-                            maleAgeMap.Add(title, maleAgeMap[title] + 1);
+                            maleAgeMap[title] += 1;
                         else maleAgeMap.Add(title, 1);
                     }
                     else
@@ -726,7 +726,7 @@ namespace WeixinServer.Helpers
                         fAvgAge += (float)face.Attributes.Age;
                         var title = FemaleTitleAsPerAge(face.Attributes.Age);
                         if (femaleAgeMap.ContainsKey(title))
-                            femaleAgeMap.Add(title, femaleAgeMap[title] + 1);
+                            femaleAgeMap[title] += 1;
                         else femaleAgeMap.Add(title, 1);
                     }
 
