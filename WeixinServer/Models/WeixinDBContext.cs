@@ -28,18 +28,19 @@ namespace WeixinServer
         public int CreateTime { get; set; }
     }
 
-    [Table("ImageStorages")]
+    [Table("ReleaseImageStorages")]
     public sealed class ImageStorage
     {
         [Key]
         public int Id { get; set; }
         public string UserName { get; set; }
+        public string Md5 { get; set; }
         public string OpenId { get; set; }
         public int CreateTime { get; set; }
         public string PicUrl { get; set; }
         //public byte[] PicContent { get; set; }
         public string ParsedUrl { get; set; }
-        public byte[] ParsedContent { get; set; }
+        //public byte[] ParsedContent { get; set; }
         public string ParsedDescription { get; set; }
         public string TimeLog { get; set; }
     }

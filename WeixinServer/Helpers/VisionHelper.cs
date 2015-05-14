@@ -20,6 +20,8 @@ namespace WeixinServer.Helpers
         private Dictionary<string, string> categoryNameMapping = null;
         
         private string frontImageUri;
+
+        private string meoWuFontUri;
         
         private string originalImageUrl;
         
@@ -147,6 +149,16 @@ namespace WeixinServer.Helpers
         public VisionHelper(string subscriptionKey, string frontImageUri, DateTime startTime)
         {
             this.startTime = startTime;
+            timeLogger.Append(string.Format("{0} VisionHelper::InitializePropertiesForText\n", DateTime.Now));
+            InitializePropertiesForAzure();
+            this.InitializePropertiesForText(subscriptionKey);
+            this.InitializePropertiesForImage(frontImageUri);
+        }
+
+        public VisionHelper(string subscriptionKey, string frontImageUri, DateTime startTime, string meoWuFontUri)
+        {
+            this.startTime = startTime;
+            this.meoWuFontUri = meoWuFontUri;
             timeLogger.Append(string.Format("{0} VisionHelper::InitializePropertiesForText\n", DateTime.Now));
             InitializePropertiesForAzure();
             this.InitializePropertiesForText(subscriptionKey);

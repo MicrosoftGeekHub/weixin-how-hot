@@ -37,6 +37,7 @@ namespace WeixinServer.Helpers
         private void InitializePropertiesForImage(string frontImageUri)
         {
             this.frontImageUri = frontImageUri;
+            
         }
 
         static Tuple<Font, float> FindFont(System.Drawing.Graphics g, string longString, Size Room, Font PreferedFont)
@@ -47,9 +48,9 @@ namespace WeixinServer.Helpers
             float WidthScaleRatio = Room.Width / RealSize.Width;
             float ScaleRatio = (HeightScaleRatio < WidthScaleRatio) ? ScaleRatio = HeightScaleRatio : ScaleRatio = WidthScaleRatio;
             float ScaleFontSize = PreferedFont.Size * ScaleRatio;
-            var intFontSize = ((int)ScaleFontSize / 4) * 4;
-            if(intFontSize < 24) intFontSize = 24;
-            return new Tuple<Font, float>(new Font(PreferedFont.FontFamily, intFontSize), intFontSize);
+            //var intFontSize = ((int)ScaleFontSize / 4) * 4;
+            //if(intFontSize < 24) intFontSize = 24;
+            return new Tuple<Font, float>(new Font(PreferedFont.FontFamily, ScaleFontSize), ScaleFontSize);
         }
 
 
@@ -77,8 +78,8 @@ namespace WeixinServer.Helpers
             //var hotivity = saoBility;
             Image image = Image.FromStream(inStream);
             //        Watermark
-            var clr = new Microsoft.ProjectOxford.Vision.Contract.Color();
-            clr.AccentColor = "CAA501";
+            //var clr = new Microsoft.ProjectOxford.Vision.Contract.Color();
+            //clr.AccentColor = "CAA501";
             var ms = new MemoryStream();
             // Modify the image using g
 
@@ -86,7 +87,10 @@ namespace WeixinServer.Helpers
             PrivateFontCollection pfcoll = new PrivateFontCollection();
             //put a font file under a Fonts directory within your application root
             pfcoll.AddFontFile(this.frontImageUri);
+            //pfcoll.AddFontFile(this.meoWuFontUri);
+
             FontFamily ff = pfcoll.Families[0];
+            FontFamily ffMeo = pfcoll.Families[0];
 
             using (Graphics g = Graphics.FromImage(image))
             {
@@ -100,7 +104,7 @@ namespace WeixinServer.Helpers
                     int topText = faceDetect.FaceRectangle.Top + faceDetect.FaceRectangle.Height + 5;
                     //int topText = faceDetect.FaceRectangle.Top - faceDetect.FaceRectangle.Height - 10;
                     topText = topText > 0 ? topText : 0;
-                    int leftText = faceDetect.FaceRectangle.Left - 5;
+                    
 
                     var colour = System.Drawing.Color.Magenta;
                     if (faceDetect.Attributes.Gender.ToLower().Equals("male"))
@@ -121,20 +125,79 @@ namespace WeixinServer.Helpers
                         //    topText, faceDetect.FaceRectangle.Width, faceDetect.FaceRectangle.Top - topText));
                     }
                     //draw text 
-                    //float size = faceDetect.FaceRectangle.Width / 5.0f;
                     var hotivity = saoBility * faceDetect.Attributes.Age;
-                    //string info = string.Format("{0}{1}\n", genderInfo, faceDetect.Attributes.Age);
-                    string info = string.Format("{0}{1}\nHot度:\n{2}\n肾价:￥{3:F2}万", genderInfo, faceDetect.Attributes.Age,
-                        saoBility * faceDetect.Attributes.Age, ascr / faceDetect.Attributes.Age);
-                    //string info = string.Format("{0}颜龄{1}\n骚值{2:F0}\n肾价{3:F2}万", genderInfo, faceDetect.Attributes.Age,
-                    //    saoBility * faceDetect.Attributes.Age, ascr / faceDetect.Attributes.Age);
+                    string info = string.Format("{0:F1}万\nHots\n", saoBility / faceDetect.Attributes.Age);
                     
-                    Size room = new Size(faceDetect.FaceRectangle.Width, faceDetect.FaceRectangle.Top - topText);
-                    var ret = FindFont(g, info, room, new Font("Ariel", 36, FontStyle.Bold, GraphicsUnit.Pixel));
-                    var size = ret.Item2;
-                    Font f = new Font("Ariel", size, FontStyle.Bold, GraphicsUnit.Pixel);
+                    Size room = new Size((int) (faceDetect.FaceRectangle.Width) , (int)(faceDetect.FaceRectangle.Height));
+                    var ret = FindFont(g, info, room, new Font(ff, 36, FontStyle.Bold, GraphicsUnit.Pixel));
+                    var fontSize = ret.Item2;
+                    Font f = new Font(ff, fontSize, FontStyle.Bold, GraphicsUnit.Pixel);
+                    //int leftText = faceDetect.FaceRectangle.Left - faceDetect.FaceRectangle.Width;
+                    int leftText = faceDetect.FaceRectangle.Left;
+                    leftText = leftText > 0 ? leftText : 0;
+                   // g.DrawString(info, f, new SolidBrush(colour), new Point(leftText, topText));
 
-                    g.DrawString(info, f, new SolidBrush(colour), new Point(leftText, topText));
+                    var fHead = new Font(ffMeo, (int)(fontSize * 1.3), FontStyle.Bold, GraphicsUnit.Pixel);
+                    g.DrawString(string.Format("{0}{1}", genderInfo, faceDetect.Attributes.Age), fHead, new SolidBrush(colour),
+                        new Point(faceDetect.FaceRectangle.Left, faceDetect.FaceRectangle.Top - f.Height - 5));
+                    //some test image for this demo
+                    Bitmap bmp = (Bitmap)image;
+                    // Graphics g = Graphics.FromImage(bmp);
+
+                    //this will center align our text at the bottom of the image
+                    StringFormat sf = new StringFormat();
+                    sf.Alignment = StringAlignment.Center;
+                    sf.LineAlignment = StringAlignment.Far;
+
+                    //define a font to use.
+                    f = new Font(ff, fontSize, FontStyle.Bold, GraphicsUnit.Pixel);
+
+                    //pen for outline - set width parameter
+                    //Pen p = new Pen(ColorTranslator.FromHtml("#77090C"), 8);
+                    //Pen p = new Pen(fontColor, 8);
+                    Pen p = new Pen(System.Drawing.Color.White, 8);
+
+                    p.LineJoin = LineJoin.Round; //prevent "spikes" at the path
+
+                    //this makes the gradient repeat for each text line
+                    System.Drawing.Rectangle fr = new System.Drawing.Rectangle(faceDetect.FaceRectangle.Left,
+                        faceDetect.FaceRectangle.Top, faceDetect.FaceRectangle.Width * 2, f.Height);
+
+                    LinearGradientBrush b = new LinearGradientBrush(fr,
+                                                                    ColorTranslator.FromHtml("#FF6493"),
+                                                                    ColorTranslator.FromHtml("#D00F14"),
+                                                                    90);
+
+                    //this will be the rectangle used to draw and auto-wrap the text.
+                    //basically = image size
+                    System.Drawing.Rectangle r = new System.Drawing.Rectangle(faceDetect.FaceRectangle.Left,
+                            faceDetect.FaceRectangle.Top + faceDetect.FaceRectangle.Height,
+                            faceDetect.FaceRectangle.Width ,
+                            faceDetect.FaceRectangle.Height);
+
+                    GraphicsPath gp = new GraphicsPath();
+
+                    //look mom! no pre-wrapping!
+                    gp.AddString(info, ff, (int)FontStyle.Bold, fontSize, r, sf);
+                    //gp.DrawString(info, f, new SolidBrush(colour), new Point(leftText, topText));
+                    //gp.AddString(string.Format("{0}{1}", genderInfo, faceDetect.Attributes.Age), ff, (int)FontStyle.Bold, fontSize, r, sf);
+                    //    new Point(faceDetect.FaceRectangle.Left, faceDetect.FaceRectangle.Top - f.Height - 5));
+                    
+                    //these affect lines such as those in paths. Textrenderhint doesn't affect
+                    //text in a path as it is converted to ..well, a path.    
+                    g.SmoothingMode = SmoothingMode.AntiAlias;
+                    g.PixelOffsetMode = PixelOffsetMode.HighQuality;
+
+                    //TODO: shadow -> g.translate, fillpath once, remove translate
+                    g.DrawPath(p, gp);
+                    g.FillPath(b, gp);
+
+                    //cleanup
+                    gp.Dispose();
+                    b.Dispose();
+                    b.Dispose();
+                    f.Dispose();
+                    sf.Dispose();
 
                     //layers.Add(this.GetFaceTextLayer(info, leftText, topText, clr));
 
@@ -175,77 +238,108 @@ namespace WeixinServer.Helpers
             //return outStream;
         }
 
-        //private ImageLayer GetFrameImageLayer(FaceRectangle detect)
-        //{
-        //    var resizeLayer = new ResizeLayer(size: new Size(detect.Width, detect.Height), resizeMode: ResizeMode.Stretch);
-        //    var frameSteam = new MemoryStream();
-        //    var frameFactory = new ImageFactory(preserveExifData: false);
-        //    //frameFactory.Load(this.frameImageUri).Resize(resizeLayer).Save(frameSteam);
+        private MemoryStream tulisnamafile(MemoryStream imageMS, string textnya)
+        {
 
-        //    var frameImage = Image.FromStream(frameSteam);
-        //    return new ImageLayer
-        //    {
-        //        Image = frameImage,
-        //        Position = new Point(detect.Left, detect.Top),
-        //    };
-        //}
+            Image image = Image.FromStream(imageMS);
+            //Bitmap newImage = new Bitmap(640, 380);
+            MemoryStream ms = new MemoryStream();
+            using (Graphics g = Graphics.FromImage(image))
+            {
+                // Draw base image
+                g.DrawImageUnscaled(image, 0, 0);
+                //Static is HERE
+                SolidBrush brushing = new SolidBrush(System.Drawing.Color.White);
+                Font font = new Font(("Comic Sans MS"), 20.0f);
+                int napoint = image.Height - 90;
+                int napointa = image.Width - 200;
+                //FontFamily ff = new FontFamily("Times New Roman");
+                PrivateFontCollection pfcoll = new PrivateFontCollection();
+                //put a font file under a Fonts directory within your application root
+                pfcoll.AddFontFile(this.frontImageUri);
+                pfcoll.AddFontFile(this.meoWuFontUri);
+                FontFamily ff = pfcoll.Families[0];
+                int fontSize = 36;
+                Font f = new Font(ff, fontSize, FontStyle.Regular);
+                StringFormat sf = new StringFormat();
+                System.Drawing.Rectangle displayRectangle = 
+                    new System.Drawing.Rectangle(new Point(5, napoint), new Size(image.Width - 1, image.Height - 1));
+                g.DrawEllipse(Pens.Magenta, new System.Drawing.Rectangle(0, 0, 1, 1));
+                GraphicsPath gp = new GraphicsPath();
+                gp.AddString(textnya, ff, (int)FontStyle.Bold, fontSize + 4, new Point(0, 0), sf);
+                g.FillPath(Brushes.White, gp);
+                g.DrawPath(Pens.Black, gp);
 
-        //private TextLayer GetFaceTextLayer(string text, int x, int y, Microsoft.ProjectOxford.Vision.Contract.Color color)
-        //{
-        //    const int RGBMAX = 255;
+                g.Flush(FlushIntention.Sync);
+                g.Dispose();
+            }
+            
+            image.Save(ms, System.Drawing.Imaging.ImageFormat.Jpeg);
+            image.Dispose();
+            return ms;
+        }
 
-        //    System.Drawing.Color fontColor = System.Drawing.Color.DeepPink;
-        //    if (color != null && !string.IsNullOrWhiteSpace(color.AccentColor))
-        //    {
-        //        var accentColor = ColorTranslator.FromHtml("#" + color.AccentColor);
-        //        fontColor = System.Drawing.Color.FromArgb(RGBMAX - accentColor.R, RGBMAX - accentColor.G, RGBMAX - accentColor.B);
-        //    }
+        private MemoryStream tulisnamafile2(MemoryStream imageMS, string textnya)
+        {
 
-        //    var fontSize = 30;//width < 1000 ? 24 : 36;
+            float fontSize = 22;
 
+            Image image = Image.FromStream(imageMS);
+            MemoryStream ms = new MemoryStream();
 
-        //    return new TextLayer
-        //    {
-        //        DropShadow = true,
-        //        FontColor = fontColor,
-        //        FontSize = fontSize,
-        //        FontFamily = new FontFamily(GenericFontFamilies.SansSerif),
-        //        Text = text,
-        //        Style = FontStyle.Bold,
-        //        Position = new Point(x, y),
-        //        Opacity = 85,
-        //    };
-        //}
+            //some test image for this demo
+            Bitmap bmp = (Bitmap)image;
+            Graphics g = Graphics.FromImage(bmp);
 
+            //this will center align our text at the bottom of the image
+            StringFormat sf = new StringFormat();
+            sf.Alignment = StringAlignment.Center;
+            sf.LineAlignment = StringAlignment.Far;
 
-        //private TextLayer GetTextLayer(string text, int width, int height, Microsoft.ProjectOxford.Vision.Contract.Color color)
-        //{
-        //    const int RGBMAX = 255;
+            //define a font to use.
+            Font f = new Font("Impact", fontSize, FontStyle.Bold, GraphicsUnit.Pixel);
 
-        //    System.Drawing.Color fontColor = System.Drawing.Color.DeepPink;
-        //    if (color != null && !string.IsNullOrWhiteSpace(color.AccentColor))
-        //    {
-        //        var accentColor = ColorTranslator.FromHtml("#" + color.AccentColor);
-        //        fontColor = System.Drawing.Color.FromArgb(RGBMAX - accentColor.R, RGBMAX - accentColor.G, RGBMAX - accentColor.B);
-        //    }
+            //pen for outline - set width parameter
+            Pen p = new Pen(ColorTranslator.FromHtml("#77090C"), 8);
+            p.LineJoin = LineJoin.Round; //prevent "spikes" at the path
 
-        //    var fontSize = width < 1000 ? 24 : 36;
+            //this makes the gradient repeat for each text line
+            System.Drawing.Rectangle fr = new System.Drawing.Rectangle(0, bmp.Height - f.Height, bmp.Width, f.Height);
+            LinearGradientBrush b = new LinearGradientBrush(fr,
+                                                            ColorTranslator.FromHtml("#FF6493"),
+                                                            ColorTranslator.FromHtml("#D00F14"),
+                                                            90);
 
-        //    var x = (int)(width * 0.05);
-        //    var y = height - (fontSize + 5) * 5;
+            //this will be the rectangle used to draw and auto-wrap the text.
+            //basically = image size
+            System.Drawing.Rectangle r = new System.Drawing.Rectangle(0, 0, bmp.Width, bmp.Height);
 
-        //    return new TextLayer
-        //    {
-        //        DropShadow = true,
-        //        FontColor = fontColor,
-        //        FontSize = fontSize,
-        //        FontFamily = new FontFamily(GenericFontFamilies.SansSerif),
-        //        Text = text,
-        //        Style = FontStyle.Bold,
-        //        Position = new Point(x, y),
-        //        Opacity = 85,
-        //    };
-        //}
+            GraphicsPath gp = new GraphicsPath();
+
+            //look mom! no pre-wrapping!
+            gp.AddString(textnya, f.FontFamily, (int)FontStyle.Bold, fontSize, r, sf);
+
+            //these affect lines such as those in paths. Textrenderhint doesn't affect
+            //text in a path as it is converted to ..well, a path.    
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            g.PixelOffsetMode = PixelOffsetMode.HighQuality;
+
+            //TODO: shadow -> g.translate, fillpath once, remove translate
+            g.DrawPath(p, gp);
+            g.FillPath(b, gp);
+
+            //cleanup
+            gp.Dispose();
+            b.Dispose();
+            b.Dispose();
+            f.Dispose();
+            sf.Dispose();
+            g.Dispose();
+            bmp.Save(ms, System.Drawing.Imaging.ImageFormat.Jpeg);
+            bmp.Dispose();
+            return ms;
+
+        }
 
         private MemoryStream DrawText(string text, int width, int height, Microsoft.ProjectOxford.Vision.Contract.Color color)
         {
@@ -261,41 +355,86 @@ namespace WeixinServer.Helpers
                 fontColor = System.Drawing.Color.FromArgb(RGBMAX - accentColor.R, RGBMAX - accentColor.G, RGBMAX - accentColor.B);
             }
 
-            
-
-            //DropShadow = true,
-            //FontColor = fontColor,
-            //FontSize = fontSize,
-            //FontFamily = new FontFamily(GenericFontFamilies.SansSerif),
-            //Text = text,
-            //Style = FontStyle.Bold,
-            //Position = new Point(x, y),
-            //Opacity = 85,
-
-
             var ms = new MemoryStream();
-            // Modify the image using g
 
             Image image = Image.FromStream(midStream);
-            //        Watermark
-            //var clr = new Microsoft.ProjectOxford.Vision.Contract.Color();
-            //clr.AccentColor = "CAA501";
+            
             using (Graphics g = Graphics.FromImage(image))
             {
-                    //draw text 
-                    //Size room = new Size(faceDetect.FaceRectangle.Width, faceDetect.FaceRectangle.Top - topText);
-                //Font f = new Font(ff, fontSize, FontStyle.Bold, GraphicsUnit.Pixel);
                 var fontSize = width < 1000 ? 24 : 36;
-                //Font f = new Font(ff, fontSize, FontStyle.Bold, GraphicsUnit.Pixel);
                 var ret = FindFont(g, text, new Size(image.Width /2 , image.Height / 2), new Font(ff, fontSize, FontStyle.Bold, GraphicsUnit.Pixel));
-                //Font f = ret.Item1;
                 fontSize = (int)ret.Item2;
+                int count = 1;
+                int start = 0;
+                while ((start = text.IndexOf('\n', start)) != -1)
+                {
+                    count++;
+                    start++;
+                }
+                
                 Font f = new Font(ff, fontSize, FontStyle.Bold, GraphicsUnit.Pixel);
-                //if (fontSize < 24) fontSize = 24;
-                //var fontSize = 36;
                 var x = (int)(image.Width * 0.05);
-                var y = image.Height - (fontSize + 5) * 6;
-                g.DrawString(text, f, new SolidBrush(fontColor), new Point(x, y));
+                var y = image.Height - (fontSize + 5) * count;
+
+                //g.DrawString(text, f, new SolidBrush(fontColor), new Point(x, y));
+                
+                
+                //Draw better sytle
+
+                //some test image for this demo
+                Bitmap bmp = (Bitmap)image;
+               // Graphics g = Graphics.FromImage(bmp);
+
+                //this will center align our text at the bottom of the image
+                StringFormat sf = new StringFormat();
+                sf.Alignment = StringAlignment.Center;
+                sf.LineAlignment = StringAlignment.Far;
+
+                //define a font to use.
+                f = new Font(ff, fontSize, FontStyle.Bold, GraphicsUnit.Pixel);
+
+                //pen for outline - set width parameter
+                //Pen p = new Pen(ColorTranslator.FromHtml("#77090C"), 8);
+                //Pen p = new Pen(fontColor, 8);
+                //Pen p = new Pen(ColorTranslator.FromHtml("#777777"), 8);
+                Pen p = new Pen(System.Drawing.Color.White, 8);
+                
+                p.LineJoin = LineJoin.Round; //prevent "spikes" at the path
+
+                //this makes the gradient repeat for each text line
+                System.Drawing.Rectangle fr = new System.Drawing.Rectangle(0, bmp.Height - 2 * f.Height, bmp.Width, f.Height);
+                LinearGradientBrush b = new LinearGradientBrush(fr,
+                                                                ColorTranslator.FromHtml("#FF6493"),
+                                                                ColorTranslator.FromHtml("#D00F14"),
+                                                                90);
+
+                //this will be the rectangle used to draw and auto-wrap the text.
+                //basically = image size
+                System.Drawing.Rectangle r = new System.Drawing.Rectangle(0, 0, bmp.Width, bmp.Height);
+
+                GraphicsPath gp = new GraphicsPath();
+
+                //look mom! no pre-wrapping!
+                gp.AddString(text, ff, (int)FontStyle.Bold, fontSize, r, sf);
+
+                //these affect lines such as those in paths. Textrenderhint doesn't affect
+                //text in a path as it is converted to ..well, a path.    
+                g.SmoothingMode = SmoothingMode.AntiAlias;
+                g.PixelOffsetMode = PixelOffsetMode.HighQuality;
+
+                //TODO: shadow -> g.translate, fillpath once, remove translate
+                g.DrawPath(p, gp);
+                g.FillPath(b, gp);
+
+                //cleanup
+                gp.Dispose();
+                b.Dispose();
+                b.Dispose();
+                f.Dispose();
+                sf.Dispose();
+                g.Dispose();
+
+
                 image.Save(ms, System.Drawing.Imaging.ImageFormat.Jpeg);
             }
 
@@ -324,61 +463,40 @@ namespace WeixinServer.Helpers
             var upyun = new UpYun("wxhowoldtest", "work01", "vYiJVc7iYY33w58O");
             
             using (var inStream = new MemoryStream(photoBytes))
-            {   
-                using (var outStream = new MemoryStream())
-                {
-                    // Initialize the ImageFactory using the overload to preserve EXIF metadata.
-                    //using (var imageFactory = new ImageFactory(preserveExifData: false))
-                    //{
-                        // Load
-                        timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage::RenderAnalysisResultAsImage imageFactory.Load begin\n", DateTime.Now - this.startTime));
-                        midStream = DrawRects(inStream, result);
-                        midStream.Seek(0, SeekOrigin.Begin);
+            {
+                var outStream = new MemoryStream();
+                timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage::RenderAnalysisResultAsImage imageFactory.Load begin\n", DateTime.Now - this.startTime));
+                midStream = DrawRects(inStream, result);
+                midStream.Seek(0, SeekOrigin.Begin);
 
-                        //var midStream = 
-                        timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage::RenderAnalysisResultAsImage imageFactory.Load midStream generated\n", DateTime.Now - this.startTime));
+                //var midStream = 
+                timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage::RenderAnalysisResultAsImage imageFactory.Load midStream generated\n", DateTime.Now - this.startTime));
 
-                        midStream = DrawText(captionText, result.Metadata.Width, result.Metadata.Height, result.Color);
-
-                        //imageFactory.Load(midStream);
-                        //timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage::RenderAnalysisResultAsImage imageFactory.Load end\n", DateTime.Now - this.startTime));
-                        ////// Add frame
-                        ////foreach (var detect in result.Faces)
-                        ////{
-                        ////    imageFactory.Overlay(this.GetFrameImageLayer(detect.FaceRectangle));
-                        ////    //break;//only one
-                        ////}
-                        
-                        //// Save
-                        //timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage::RenderAnalysisResultAsImage Watermark begin\n", DateTime.Now - this.startTime));
-                        //imageFactory
-                        //   // .Watermark(this.GetTextLayer(captionText, result.Metadata.Width, result.Metadata.Height, result.Color))
-                        //    .Format(new JpegFormat())
-                        //    .Save(outStream);
-                        //timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage::RenderAnalysisResultAsImage Watermark end\n", DateTime.Now - this.startTime));
-                    //}
-                    timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage::RenderAnalysisResultAsImage Upload to image CDN begin\n", DateTime.Now - this.startTime));
-                    // Upload to image CDN
+                outStream = DrawText(captionText, result.Metadata.Width, result.Metadata.Height, result.Color);
+                //outStream.Seek(0, SeekOrigin.Begin);
+                //outStream = tulisnamafile2(midStream, captionText);
+                timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage::RenderAnalysisResultAsImage Upload to image CDN begin\n", DateTime.Now - this.startTime));
                     
-                 //   return string.Format("酷评:\n{0}\n归图:\n{1}", captionText, resultUrl);
+                //   return string.Format("酷评:\n{0}\n归图:\n{1}", captionText, resultUrl);
                     
 
-                    // Retrieve reference to a blob named "myblob".
-                    //string blobName = string.Format("{0}_{1}.jpg", this.curUserName, random_string(12));
-                    int idx = this.curUserName.LastIndexOf('_');
-                    idx = idx > -1? idx : 0;
-                    string blobName = string.Format("{0}{1}.jpg", random_string(12), this.curUserName.Substring(idx));
-                    CloudBlockBlob blockBlob = container.GetBlockBlobReference(blobName);
+                // Retrieve reference to a blob named "myblob".
+                //string blobName = string.Format("{0}_{1}.jpg", this.curUserName, random_string(12));
+                int idx = this.curUserName.LastIndexOf('_');
+                idx = idx > -1? idx : 0;
+                string blobName = string.Format("{0}{1}.jpg", random_string(12), this.curUserName.Substring(idx));
+                CloudBlockBlob blockBlob = container.GetBlockBlobReference(blobName);
 
-                    // Create or overwrite the "myblob" blob with contents from a local file.
-                    midStream.Seek(0, SeekOrigin.Begin);
-                    blockBlob.UploadFromStream(midStream);
-                    resultUrl = "http://geeekstore.blob.core.windows.net/cdn/" + blobName;
-                    //resultUrl = upyun.UploadImageStream(outStream);
+                // Create or overwrite the "myblob" blob with contents from a local file.
+                //midStream.Seek(0, SeekOrigin.Begin);
+                //blockBlob.UploadFromStream(midStream);
+                outStream.Seek(0, SeekOrigin.Begin);
+                blockBlob.UploadFromStream(outStream);
+                resultUrl = "http://geeekstore.blob.core.windows.net/cdn/" + blobName;
+                //resultUrl = upyun.UploadImageStream(outStream);
 
-                    this.returnImageUrl = resultUrl;                    
-                    timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage::RenderAnalysisResultAsImage Upload to image CDN end\n", DateTime.Now - this.startTime));
-                }
+                this.returnImageUrl = resultUrl;                    
+                timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage::RenderAnalysisResultAsImage Upload to image CDN end\n", DateTime.Now - this.startTime));
             }
 
             return string.Format("酷评:\n{0}\n归图:\n{1}", captionText, resultUrl);
