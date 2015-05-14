@@ -773,8 +773,8 @@ namespace WeixinServer.Helpers
 
         private static string numberToChineseChar(int number)
         {
-            var chineseCharStr = "零一二三四五六七八九";
-            return (number < chineseCharStr.Length ? chineseCharStr[number] : number).ToString();
+            var chineseCharStr = "零一两三四五六七八九".ToCharArray();
+            return number < chineseCharStr.Length ? chineseCharStr[number].ToString() : number.ToString();
         }
     }
 }
