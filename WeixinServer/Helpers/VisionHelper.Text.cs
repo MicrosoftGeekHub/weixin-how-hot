@@ -660,7 +660,7 @@ namespace WeixinServer.Helpers
                 rscr = result.Adult.RacyScore * 20000.0;
             }
             if (result.Adult.IsAdultContent) desStringWriter.Write("手哥: 黄图, 滚粗~！\n");
-            desStringWriter.Write(string.Format("性感评分: {0:F0}\n", rscr));//TODO 少量 or More by Score
+            desStringWriter.Write(string.Format("Hot值: {0:F0}\n", rscr));//TODO 少量 or More by Score
            // desStringWriter.Write(string.Format("手哥评分: {0:F0}\n", rscr));//TODO 少量 or More by Score
             
             //desStringWriter.Write(string.Format(": {0:F2}%\n", ascr));//TODO 少量 or More by Score

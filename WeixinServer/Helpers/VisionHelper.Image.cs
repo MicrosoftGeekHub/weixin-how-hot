@@ -137,11 +137,12 @@ namespace WeixinServer.Helpers
                     var fontSize = ret.Item2;
                     Font f = new Font(ffMeo, fontSize, FontStyle.Bold, GraphicsUnit.Pixel);
                     //int leftText = faceDetect.FaceRectangle.Left - faceDetect.FaceRectangle.Width;
-                    int leftText = faceDetect.FaceRectangle.Left;
-                    //leftText = leftText > 0 ? leftText : 0;
+                    int leftText = faceDetect.FaceRectangle.Left - 30;
+                    leftText = leftText > 0 ? leftText : 0;
                     g.DrawString(info, f, new SolidBrush(colour), new Point(leftText, topText));
 
-                    g.DrawString(string.Format("{0}{1}",genderInfo, faceDetect.Attributes.Age), f, new SolidBrush(colour),
+                    var fHead = new Font(ffMeo, (int)(fontSize * 1.3), FontStyle.Bold, GraphicsUnit.Pixel);
+                    g.DrawString(string.Format("{0}{1}", genderInfo, faceDetect.Attributes.Age), fHead, new SolidBrush(colour),
                         new Point(faceDetect.FaceRectangle.Left, faceDetect.FaceRectangle.Top - f.Height - 5));
                     ////some test image for this demo
                     //Bitmap bmp = (Bitmap)image;
