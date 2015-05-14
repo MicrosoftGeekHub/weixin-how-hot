@@ -183,7 +183,7 @@ namespace WeixinServer.Helpers
 
                         //var taskAnalyzeUrl = this.visionClient.AnalyzeImageAsync(imagePathOrUrl, visualFeatures);
 
-                        int minNumPixs = 50;
+                        int minNumPixs = 100;
                         using (var ms = new MemoryStream())
                         {
                             streamToUpload.CopyTo(ms);
@@ -286,10 +286,11 @@ namespace WeixinServer.Helpers
                 timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage\t RenderAnalysisResultAsImage end\n", DateTime.Now - this.startTime));
                 if (string.IsNullOrEmpty(resImg))
                 {
-                    return new RichResult(timeLogger.ToString(), resTxt, errLogger.ToString(), this.returnImageUrl, photoBytes);
+                    //return new RichResult(timeLogger.ToString(), resTxt, errLogger.ToString(), this.returnImageUrl, photoBytes);
+                    return new RichResult(timeLogger.ToString(), resTxt, errLogger.ToString(), this.returnImageUrl);
                 }
 
-                return new RichResult(timeLogger.ToString(), resImg, errLogger.ToString(), this.returnImageUrl, photoBytes);
+                return new RichResult(timeLogger.ToString(), resImg, errLogger.ToString(), this.returnImageUrl);
             }
         }
 
@@ -659,9 +660,10 @@ namespace WeixinServer.Helpers
                 ascr = result.Adult.AdultScore * 10000.0;
                 rscr = result.Adult.RacyScore * 20000.0;
             }
-            desStringWriter.Write(string.Format("小鲜肉指数: {0:F0}\n", rscr));//TODO 少量 or More by Score
+            if (result.Adult.IsAdultContent) desStringWriter.Write("手哥: 黄图, 滚粗~！");
+            desStringWriter.Write(string.Format("性感评分: {0:F0}\n", rscr));//TODO 少量 or More by Score
+           // desStringWriter.Write(string.Format("手哥评分: {0:F0}\n", rscr));//TODO 少量 or More by Score
             
-            //desStringWriter.Write(string.Format("综合肾价: M${0:F0}\n", (rscr + ascr) * result.Faces.Length));//TODO 少量 or More by Score
             //desStringWriter.Write(string.Format(": {0:F2}%\n", ascr));//TODO 少量 or More by Score
             if (result.Categories != null && result.Categories.Length > 0)
             {
@@ -718,20 +720,20 @@ namespace WeixinServer.Helpers
 
                 //里面的男人很幸福
                 //一群男or女屌丝
-                if (numFemale > numMale && numMale > 0) desStringWriter.Write(string.Format("话说,这{0}个颜龄在{1:F1}岁左右的骚男很幸福:)", numMale, mAvgAge / numMale));
-                else if (numFemale < numMale && numFemale > 0) desStringWriter.Write(string.Format("话说,这{0}个颜龄在{1:F1}岁左右的女人很幸福:)", numFemale, fAvgAge / numFemale));
-                else if (numFemale == 0) desStringWriter.Write(string.Format("话说,{0}个孤独的骚男, 颜龄在{1:F1}岁左右……", numMale, mAvgAge / numMale));
-                else if (numMale == 0) desStringWriter.Write(string.Format("话说,{0}个寂寞的骚女, 颜龄在{1:F1}岁左右……", numFemale, fAvgAge / numFemale));
+                if (numFemale > numMale && numMale > 0) desStringWriter.Write(string.Format("话说,这{0}个颜龄在{1:F1}岁左右的男人很幸福:)\n", numMale, mAvgAge / numMale));
+                else if (numFemale < numMale && numFemale > 0) desStringWriter.Write(string.Format("话说,这{0}个颜龄在{1:F1}岁左右的女人很幸福:)\n", numFemale, fAvgAge / numFemale));
+                else if (numFemale == 0) desStringWriter.Write(string.Format("话说,{0}个孤独的sao男, 颜龄在{1:F1}岁左右……", numMale, mAvgAge / numMale));
+                else if (numMale == 0) desStringWriter.Write(string.Format("话说,{0}个寂寞的sao女, 颜龄在{1:F1}岁左右……", numFemale, fAvgAge / numFemale));
                 else
                 {
                     //desStringWriter.Write(string.Format("里面有{0}男{1}女,", numMale, numFemale));//TODO 少量 or More by Score
                     //desStringWriter.Write(string.Format("平均年龄{0:F0}岁", avgAge / (numMale + numFemale)));//TODO 少量 or More by Score
-                    desStringWriter.Write(string.Format("{0}位颜龄{1:F1}岁左右的骚男,和{2}位颜龄{3:F1}岁左右的骚女", numMale, mAvgAge / numMale, numFemale, fAvgAge / numFemale));//TODO 少量 or More by Score
+                    desStringWriter.Write(string.Format("{0}位颜龄{1:F1}岁左右的sao男,和{2}位颜龄{3:F1}岁左右的sao女", numMale, mAvgAge / numMale, numFemale, fAvgAge / numFemale));//TODO 少量 or More by Score
                 }
                 //老驴啃嫩草
                 float ratio = mAvgAge / fAvgAge;
-                if (ratio > 1.2 && numFemale > 0) desStringWriter.Write(string.Format("= {0}头老驴啃{1}棵嫩草", numMale, numFemale));
-                else if (ratio < 0.8 && numMale > 0) desStringWriter.Write(string.Format("= {0}棵老草啃{1}头嫩驴", numFemale, numMale));
+                if (ratio > 1.2 && numFemale > 0) desStringWriter.Write(string.Format("因为僧多粥少, 所以{0}头老驴啃{1}棵嫩草", numMale, numFemale));
+                else if (ratio < 0.8 && numMale > 0) desStringWriter.Write(string.Format("因为粥多僧少, 所以{0}棵老草啃{1}头嫩驴", numFemale, numMale));
                 else 
                 { 
                    // desStringWriter.Write(string.Format("{0}红男{1}绿女, 年轻的朋友在一起, 比热火都惹火", numMale, numFemale)); 

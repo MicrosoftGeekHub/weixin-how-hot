@@ -47,7 +47,9 @@ namespace WeixinServer.Helpers
             float WidthScaleRatio = Room.Width / RealSize.Width;
             float ScaleRatio = (HeightScaleRatio < WidthScaleRatio) ? ScaleRatio = HeightScaleRatio : ScaleRatio = WidthScaleRatio;
             float ScaleFontSize = PreferedFont.Size * ScaleRatio;
-            return new Tuple<Font, float>(new Font(PreferedFont.FontFamily, ScaleFontSize), ScaleFontSize);
+            var intFontSize = ((int)ScaleFontSize / 4) * 4;
+            if(intFontSize < 24) intFontSize = 24;
+            return new Tuple<Font, float>(new Font(PreferedFont.FontFamily, intFontSize), intFontSize);
         }
 
 
@@ -72,6 +74,7 @@ namespace WeixinServer.Helpers
             int ascr = (int)(analysisResult.Adult.AdultScore * 2500);
             int rscr = (int)(analysisResult.Adult.RacyScore * 5000);
             int saoBility = ascr + rscr;
+            //var hotivity = saoBility;
             Image image = Image.FromStream(inStream);
             //        Watermark
             var clr = new Microsoft.ProjectOxford.Vision.Contract.Color();
@@ -94,16 +97,18 @@ namespace WeixinServer.Helpers
                 {
                     string genderInfo = "";
 
-                    //int topText = faceDetect.FaceRectangle.Top + faceDetect.FaceRectangle.Height + 5;
-                    int topText = faceDetect.FaceRectangle.Top - 30;
+                    int topText = faceDetect.FaceRectangle.Top + faceDetect.FaceRectangle.Height + 5;
+                    //int topText = faceDetect.FaceRectangle.Top - faceDetect.FaceRectangle.Height - 10;
                     topText = topText > 0 ? topText : 0;
                     int leftText = faceDetect.FaceRectangle.Left - 5;
 
-                    if (faceDetect.Attributes.Gender.Equals("Male"))
+                    var colour = System.Drawing.Color.Magenta;
+                    if (faceDetect.Attributes.Gender.ToLower().Equals("male"))
                     {
                         genderInfo += "♂";
                         maleRectangles.Add(new System.Drawing.Rectangle(faceDetect.FaceRectangle.Left,
                             faceDetect.FaceRectangle.Top, faceDetect.FaceRectangle.Width, faceDetect.FaceRectangle.Height));
+                        colour = System.Drawing.Color.Lime;
                         //maleRectangles.Add(new System.Drawing.Rectangle(leftText,
                         //    topText, faceDetect.FaceRectangle.Width, faceDetect.FaceRectangle.Top - topText));
                     }
@@ -117,13 +122,19 @@ namespace WeixinServer.Helpers
                     }
                     //draw text 
                     //float size = faceDetect.FaceRectangle.Width / 5.0f;
+                    var hotivity = saoBility * faceDetect.Attributes.Age;
+                    //string info = string.Format("{0}{1}\n", genderInfo, faceDetect.Attributes.Age);
+                    string info = string.Format("{0}{1}\nHot度:\n{2}\n肾价:￥{3:F2}万", genderInfo, faceDetect.Attributes.Age,
+                        saoBility * faceDetect.Attributes.Age, ascr / faceDetect.Attributes.Age);
                     //string info = string.Format("{0}颜龄{1}\n骚值{2:F0}\n肾价{3:F2}万", genderInfo, faceDetect.Attributes.Age,
                     //    saoBility * faceDetect.Attributes.Age, ascr / faceDetect.Attributes.Age);
-                    string info = string.Format("{0}颜龄{1}\n", genderInfo, faceDetect.Attributes.Age);
+                    
                     Size room = new Size(faceDetect.FaceRectangle.Width, faceDetect.FaceRectangle.Top - topText);
-                    Font f = new Font(ff, 24, FontStyle.Bold, GraphicsUnit.Pixel);
-                    //Font f = FindFont(g, info, room, new Font("Arial", 600, FontStyle.Regular, GraphicsUnit.Pixel));
-                    g.DrawString(info, f, new SolidBrush(System.Drawing.Color.BlueViolet), new Point(leftText, topText));
+                    var ret = FindFont(g, info, room, new Font("Ariel", 36, FontStyle.Bold, GraphicsUnit.Pixel));
+                    var size = ret.Item2;
+                    Font f = new Font("Ariel", size, FontStyle.Bold, GraphicsUnit.Pixel);
+
+                    g.DrawString(info, f, new SolidBrush(colour), new Point(leftText, topText));
 
                     //layers.Add(this.GetFaceTextLayer(info, leftText, topText, clr));
 
@@ -139,8 +150,8 @@ namespace WeixinServer.Helpers
                 }
                 if (maleRectangles.Count > 0)
                 {
-                    Pen pen = new Pen(System.Drawing.Color.Lime, 2);
-                    g.DrawRectangles(pen, maleRectangles.ToArray());
+                    Pen pen2 = new Pen(System.Drawing.Color.Lime, 2);
+                    g.DrawRectangles(pen2, maleRectangles.ToArray());
                 }
 
                 image.Save(ms, System.Drawing.Imaging.ImageFormat.Jpeg);
@@ -275,15 +286,16 @@ namespace WeixinServer.Helpers
                     //Size room = new Size(faceDetect.FaceRectangle.Width, faceDetect.FaceRectangle.Top - topText);
                 //Font f = new Font(ff, fontSize, FontStyle.Bold, GraphicsUnit.Pixel);
                 var fontSize = width < 1000 ? 24 : 36;
-                Font f = new Font(ff, fontSize, FontStyle.Bold, GraphicsUnit.Pixel);
-                //var ret = FindFont(g, text, new Size(image.Width, image.Height / 3), new Font(ff, fontSize, FontStyle.Bold, GraphicsUnit.Pixel));
+                //Font f = new Font(ff, fontSize, FontStyle.Bold, GraphicsUnit.Pixel);
+                var ret = FindFont(g, text, new Size(image.Width /2 , image.Height / 2), new Font(ff, fontSize, FontStyle.Bold, GraphicsUnit.Pixel));
                 //Font f = ret.Item1;
-                //fontSize = (int)ret.Item2;
+                fontSize = (int)ret.Item2;
+                Font f = new Font(ff, fontSize, FontStyle.Bold, GraphicsUnit.Pixel);
                 //if (fontSize < 24) fontSize = 24;
                 //var fontSize = 36;
                 var x = (int)(image.Width * 0.05);
-                var y = image.Height - (fontSize + 5) * 5;
-                g.DrawString(text, f, new SolidBrush(System.Drawing.Color.LimeGreen), new Point(x, y));
+                var y = image.Height - (fontSize + 5) * 6;
+                g.DrawString(text, f, new SolidBrush(fontColor), new Point(x, y));
                 image.Save(ms, System.Drawing.Imaging.ImageFormat.Jpeg);
             }
 
