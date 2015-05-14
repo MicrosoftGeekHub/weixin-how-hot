@@ -732,13 +732,13 @@ namespace WeixinServer.Helpers
                 else if (numFemale < numMale && numFemale > 0) desStringWriter.Write(string.Format("画说，这{0}个颜龄在{1:F1}岁左右的女人很幸福 :)\n", numberToChineseChar(numFemale), fAvgAge / numFemale));
                 else if (numFemale == 0 && numMale == 1) desStringWriter.Write(string.Format("画说，{0}枚孤独的暖男\n 颜龄在{1:F0}岁左右……", numberToChineseChar(numMale), mAvgAge));
                 else if (numFemale == 0) desStringWriter.Write(string.Format("画说，{0}位孤独的暖男\n 颜龄在{1:F1}岁左右……", numberToChineseChar(numMale), mAvgAge / numMale));
-                else if (numMale == 0 && numFemale == 1) desStringWriter.Write(string.Format("画说，{0}枚寂寞的腐女\n 颜龄在{1:F0}岁左右……", numberToChineseChar(numFemale), fAvgAge));
-                else if (numMale == 0) desStringWriter.Write(string.Format("画说，{0}位寂寞的腐女\n 颜龄在{1:F1}岁左右……", numberToChineseChar(numFemale), fAvgAge / numFemale));
+                else if (numMale == 0 && numFemale == 1) desStringWriter.Write(string.Format("画说，{0}枚寂寞的熟女\n 颜龄在{1:F0}岁左右……", numberToChineseChar(numFemale), fAvgAge));
+                else if (numMale == 0) desStringWriter.Write(string.Format("画说，{0}位寂寞的熟女\n 颜龄在{1:F1}岁左右……", numberToChineseChar(numFemale), fAvgAge / numFemale));
                 else
                 {
                     //desStringWriter.Write(string.Format("里面有{0}男{1}女,", numMale, numFemale));//TODO 少量 or More by Score
                     //desStringWriter.Write(string.Format("平均年龄{0:F0}岁", avgAge / (numMale + numFemale)));//TODO 少量 or More by Score
-                    desStringWriter.Write(string.Format("{0}位颜龄{1:F1}岁左右的暖男，还有{2}位颜龄{3:F1}岁左右的腐女\n", numMale, mAvgAge / numMale, numFemale, fAvgAge / numFemale));//TODO 少量 or More by Score
+                    desStringWriter.Write(string.Format("{0}位颜龄{1:F1}岁左右的暖男，还有{2}位颜龄{3:F1}岁左右的熟女\n", numMale, mAvgAge / numMale, numFemale, fAvgAge / numFemale));//TODO 少量 or More by Score
                 }
                 //老驴啃嫩草
                 float ratio = mAvgAge / fAvgAge;
