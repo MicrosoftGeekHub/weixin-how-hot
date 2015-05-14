@@ -403,7 +403,7 @@ namespace WeixinServer.Helpers
                 p.LineJoin = LineJoin.Round; //prevent "spikes" at the path
 
                 //this makes the gradient repeat for each text line
-                System.Drawing.Rectangle fr = new System.Drawing.Rectangle(0, bmp.Height - f.Height, bmp.Width, f.Height);
+                System.Drawing.Rectangle fr = new System.Drawing.Rectangle(0, bmp.Height - 2 * f.Height, bmp.Width, f.Height);
                 LinearGradientBrush b = new LinearGradientBrush(fr,
                                                                 ColorTranslator.FromHtml("#FF6493"),
                                                                 ColorTranslator.FromHtml("#D00F14"),
