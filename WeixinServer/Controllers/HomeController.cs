@@ -134,8 +134,8 @@ namespace WeixinServer.Controllers
             //check data from db
             using (var dbContext = new WeixinDBContext())
             {
-                ImageStorage image = dbContext.ImageStorages.FirstOrDefault(p => p.OpenId == msg.FromUserName && p.PicUrl == msg.PicUrl && p.CreateTime == msg.CreateTime);
-                //ImageStorage image = dbContext.ImageStorages.FirstOrDefault(p => p.PicUrl == msg.PicUrl);
+                //ImageStorage image = dbContext.ImageStorages.FirstOrDefault(p => p.OpenId == msg.FromUserName && p.PicUrl == msg.PicUrl && p.CreateTime == msg.CreateTime);
+                ImageStorage image = dbContext.ImageStorages.FirstOrDefault(p => p.PicUrl == msg.PicUrl);
                 if (image != null)
                 {
                     Response.Write(string.Format("<xml><ToUserName><![CDATA[{0}]]></ToUserName><FromUserName><![CDATA[{1}]]></FromUserName><CreateTime>12345678</CreateTime><MsgType><![CDATA[text]]></MsgType><Content><![CDATA[{2}]]></Content><DebugInfo><![CDATA[{3}]]></DebugInfo><ErrorInfo><![CDATA[{4}]]></ErrorInfo></xml>",
@@ -166,7 +166,7 @@ namespace WeixinServer.Controllers
                 image.OpenId = msg.FromUserName;
                 image.CreateTime = msg.CreateTime;
                 image.PicUrl = msg.PicUrl;
-                image.PicContent = ret.rawImage;
+                //image.PicContent = ret.rawImage;
                 image.ParsedUrl = ret.uploadedUrl;
                 image.ParsedContent = null;
                 image.ParsedDescription = ret.analyzeImageResult;
@@ -186,18 +186,18 @@ namespace WeixinServer.Controllers
             Response.End();
 
             //write to DB
-            var webClient = new WebClient();
-            var processedImageBytes = webClient.DownloadData(ret.uploadedUrl);
+            //var webClient = new WebClient();
+            //var processedImageBytes = webClient.DownloadData(ret.uploadedUrl);
 
-            using (var dbContext = new WeixinDBContext())
-            {
-                ImageStorage image = dbContext.ImageStorages.FirstOrDefault(p => p.Id == id);
-                if (image != null)
-                {
-                    image.ParsedContent = processedImageBytes;
-                    dbContext.SaveChanges();   
-                }
-            }
+            //using (var dbContext = new WeixinDBContext())
+            //{
+            //    ImageStorage image = dbContext.ImageStorages.FirstOrDefault(p => p.Id == id);
+            //    if (image != null)
+            //    {
+            //        image.ParsedContent = processedImageBytes;
+            //        dbContext.SaveChanges();   
+            //    }
+            //}
 
             return true;
         }

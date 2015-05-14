@@ -183,7 +183,7 @@ namespace WeixinServer.Helpers
 
                         //var taskAnalyzeUrl = this.visionClient.AnalyzeImageAsync(imagePathOrUrl, visualFeatures);
 
-                        int minNumPixs = 50;
+                        int minNumPixs = 100;
                         using (var ms = new MemoryStream())
                         {
                             streamToUpload.CopyTo(ms);
@@ -286,10 +286,11 @@ namespace WeixinServer.Helpers
                 timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage\t RenderAnalysisResultAsImage end\n", DateTime.Now - this.startTime));
                 if (string.IsNullOrEmpty(resImg))
                 {
-                    return new RichResult(timeLogger.ToString(), resTxt, errLogger.ToString(), this.returnImageUrl, photoBytes);
+                    //return new RichResult(timeLogger.ToString(), resTxt, errLogger.ToString(), this.returnImageUrl, photoBytes);
+                    return new RichResult(timeLogger.ToString(), resTxt, errLogger.ToString(), this.returnImageUrl);
                 }
 
-                return new RichResult(timeLogger.ToString(), resImg, errLogger.ToString(), this.returnImageUrl, photoBytes);
+                return new RichResult(timeLogger.ToString(), resImg, errLogger.ToString(), this.returnImageUrl);
             }
         }
 
@@ -659,9 +660,10 @@ namespace WeixinServer.Helpers
                 ascr = result.Adult.AdultScore * 10000.0;
                 rscr = result.Adult.RacyScore * 20000.0;
             }
+            if (result.Adult.IsAdultContent) desStringWriter.Write("手哥: 黄图, 滚粗~！");
             desStringWriter.Write(string.Format("性感评分: {0:F0}\n", rscr));//TODO 少量 or More by Score
-            desStringWriter.Write(string.Format("手哥评分: {0:F0}\n", rscr));//TODO 少量 or More by Score
-            //desStringWriter.Write(string.Format("综合肾价: M${0:F0}\n", (rscr + ascr) * result.Faces.Length));//TODO 少量 or More by Score
+           // desStringWriter.Write(string.Format("手哥评分: {0:F0}\n", rscr));//TODO 少量 or More by Score
+            
             //desStringWriter.Write(string.Format(": {0:F2}%\n", ascr));//TODO 少量 or More by Score
             if (result.Categories != null && result.Categories.Length > 0)
             {

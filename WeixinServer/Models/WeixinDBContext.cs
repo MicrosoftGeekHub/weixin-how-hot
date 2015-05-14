@@ -37,7 +37,7 @@ namespace WeixinServer
         public string OpenId { get; set; }
         public int CreateTime { get; set; }
         public string PicUrl { get; set; }
-        public byte[] PicContent { get; set; }
+        //public byte[] PicContent { get; set; }
         public string ParsedUrl { get; set; }
         public byte[] ParsedContent { get; set; }
         public string ParsedDescription { get; set; }
