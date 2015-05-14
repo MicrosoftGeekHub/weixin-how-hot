@@ -128,7 +128,7 @@ namespace WeixinServer.Helpers
                     //float size = faceDetect.FaceRectangle.Width / 5.0f;
                     var hotivity = saoBility * faceDetect.Attributes.Age;
                     //string info = string.Format("{0}{1}\n", genderInfo, faceDetect.Attributes.Age);
-                    string info = string.Format("Hot值:\n${0:F1}万\n", saoBility / faceDetect.Attributes.Age);
+                    string info = string.Format("Hot值：\n${0:F1}万\n", saoBility / faceDetect.Attributes.Age);
                     //string info = string.Format("{0}颜龄{1}\n骚值{2:F0}\n肾价{3:F2}万", genderInfo, faceDetect.Attributes.Age,
                     //    saoBility * faceDetect.Attributes.Age, ascr / faceDetect.Attributes.Age);
                     
