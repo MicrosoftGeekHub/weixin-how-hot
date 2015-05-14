@@ -839,6 +839,7 @@ namespace WeixinServer.Helpers
             }
             timeLogger.Append(string.Format("{0} VisionHelper::ShowRichAnalysisResult end\n", DateTime.Now - this.startTime));
             //Console.ResetColor();
+            desStringWriter.Write("\n更多内容请关注微信公众号geekplus-ms");
             return desStringWriter.ToString();
         }
 

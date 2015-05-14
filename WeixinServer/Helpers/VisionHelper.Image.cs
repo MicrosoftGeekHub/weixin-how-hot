@@ -176,8 +176,10 @@ namespace WeixinServer.Helpers
                                                                     ColorTranslator.FromHtml("#FF6493"),
                                                                     ColorTranslator.FromHtml("#D00F14"),
                                                                     90);
+                    var genderTop = faceDetect.FaceRectangle.Top - (int)(f.Height*1.5);
+                    genderTop = genderTop > 0? genderTop : 0;
                     System.Drawing.Rectangle r2 = new System.Drawing.Rectangle(faceDetect.FaceRectangle.Left,
-                           faceDetect.FaceRectangle.Top - f.Height - 5,
+                           genderTop,
                            faceDetect.FaceRectangle.Width,
                            (int)(faceDetect.FaceRectangle.Height * 0.618));
                     //this will be the rectangle used to draw and auto-wrap the text.
@@ -375,7 +377,7 @@ namespace WeixinServer.Helpers
             using (Graphics g = Graphics.FromImage(image))
             {
                 var fontSize = width < 1000 ? 24 : 36;
-                var ret = FindFont(g, text, new Size(image.Width /2 , image.Height / 2), new Font(ff, fontSize, FontStyle.Bold, GraphicsUnit.Pixel));
+                var ret = FindFont(g, text, new Size(image.Width , image.Height), new Font(ff, fontSize, FontStyle.Bold, GraphicsUnit.Pixel));
                 fontSize = (int)ret.Item2;
                 int count = 1;
                 int start = 0;
@@ -512,8 +514,9 @@ namespace WeixinServer.Helpers
                 timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage::RenderAnalysisResultAsImage Upload to image CDN end\n", DateTime.Now - this.startTime));
             }
 
-            return string.Format("酷评:\n{0}\n归图:\n{1}", captionText, resultUrl);
-            //return string.Format("酷评:\n{0}\n归图:\n{1}\n原图:\n{2}", captionText, resultUrl, this.originalImageUrl);
+            //return string.Format("画说:\n{0}", resultUrl);
+            return string.Format("画说:\n{0}\n归图:\n{1}\n", captionText, resultUrl);
+            //return string.Format("画说:\n{0}\n归图:\n{1}\n原图:\n{2}", captionText, resultUrl, this.originalImageUrl);
         }
     }
 }
