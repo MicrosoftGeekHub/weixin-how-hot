@@ -138,8 +138,8 @@ namespace WeixinServer.Helpers
                    // g.DrawString(info, f, new SolidBrush(colour), new Point(leftText, topText));
 
                     var fHead = new Font(ffMeo, (int)(fontSize * 1.3), FontStyle.Bold, GraphicsUnit.Pixel);
-                    g.DrawString(string.Format("{0}{1}", genderInfo, faceDetect.Attributes.Age), fHead, new SolidBrush(colour),
-                        new Point(faceDetect.FaceRectangle.Left, faceDetect.FaceRectangle.Top - f.Height - 5));
+                    //g.DrawString(string.Format("{0}{1}", genderInfo, faceDetect.Attributes.Age), fHead, new SolidBrush(colour),
+                    //    new Point(faceDetect.FaceRectangle.Left, faceDetect.FaceRectangle.Top - f.Height - 5));
                     //some test image for this demo
                     Bitmap bmp = (Bitmap)image;
                     // Graphics g = Graphics.FromImage(bmp);
@@ -168,6 +168,18 @@ namespace WeixinServer.Helpers
                                                                     ColorTranslator.FromHtml("#D00F14"),
                                                                     90);
 
+                    //this makes the gradient repeat for each text line
+                    System.Drawing.Rectangle fr2 = new System.Drawing.Rectangle(faceDetect.FaceRectangle.Left,
+                        faceDetect.FaceRectangle.Top, faceDetect.FaceRectangle.Width * 2, f.Height);
+
+                    LinearGradientBrush b2 = new LinearGradientBrush(fr2,
+                                                                    ColorTranslator.FromHtml("#FF6493"),
+                                                                    ColorTranslator.FromHtml("#D00F14"),
+                                                                    90);
+                    System.Drawing.Rectangle r2 = new System.Drawing.Rectangle(faceDetect.FaceRectangle.Left,
+                           faceDetect.FaceRectangle.Top - f.Height - 5,
+                           faceDetect.FaceRectangle.Width,
+                           (int)(faceDetect.FaceRectangle.Height * 0.618));
                     //this will be the rectangle used to draw and auto-wrap the text.
                     //basically = image size
                     System.Drawing.Rectangle r = new System.Drawing.Rectangle(faceDetect.FaceRectangle.Left,
@@ -179,6 +191,7 @@ namespace WeixinServer.Helpers
 
                     //look mom! no pre-wrapping!
                     gp.AddString(info, ff, (int)FontStyle.Bold, fontSize, r, sf);
+                    gp.AddString(string.Format("{0}{1}", genderInfo, faceDetect.Attributes.Age), ff, (int)FontStyle.Bold, fontSize, r2, sf);
                     //gp.DrawString(info, f, new SolidBrush(colour), new Point(leftText, topText));
                     //gp.AddString(string.Format("{0}{1}", genderInfo, faceDetect.Attributes.Age), ff, (int)FontStyle.Bold, fontSize, r, sf);
                     //    new Point(faceDetect.FaceRectangle.Left, faceDetect.FaceRectangle.Top - f.Height - 5));
