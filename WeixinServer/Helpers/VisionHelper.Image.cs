@@ -124,23 +124,74 @@ namespace WeixinServer.Helpers
                     //float size = faceDetect.FaceRectangle.Width / 5.0f;
                     var hotivity = saoBility * faceDetect.Attributes.Age;
                     //string info = string.Format("{0}{1}\n", genderInfo, faceDetect.Attributes.Age);
-                    string info = string.Format("{0}{1}\nHot度:{2}\n肾价:￥{3:F2}万", genderInfo, faceDetect.Attributes.Age,
-                        saoBility * faceDetect.Attributes.Age, ascr / faceDetect.Attributes.Age);
+                    string info = string.Format("热值:${0:F1}万\n", saoBility / faceDetect.Attributes.Age);
                     //string info = string.Format("{0}颜龄{1}\n骚值{2:F0}\n肾价{3:F2}万", genderInfo, faceDetect.Attributes.Age,
                     //    saoBility * faceDetect.Attributes.Age, ascr / faceDetect.Attributes.Age);
                     
-                    Size room = new Size(faceDetect.FaceRectangle.Width , faceDetect.FaceRectangle.Height);
-                    var ret = FindFont(g, info, room, new Font(ff, 36, FontStyle.Bold, GraphicsUnit.Pixel));
-                    var size = ret.Item2;
-                    Font f = new Font(ff, size, FontStyle.Bold, GraphicsUnit.Pixel);
-                    //int x = leftText - 30;
+                    Size room = new Size(faceDetect.FaceRectangle.Width *2 , faceDetect.FaceRectangle.Height * 2);
+                    var ret = FindFont(g, info, room, new Font("Ariel", 36, FontStyle.Bold, GraphicsUnit.Pixel));
+                    var fontSize = ret.Item2;
+                    Font f = new Font("Ariel", fontSize, FontStyle.Bold, GraphicsUnit.Pixel);
+
                     g.DrawString(info, f, new SolidBrush(colour), new Point(leftText, topText));
 
-                    //draw rich txt
+                    g.DrawString(string.Format("{0}{1}",genderInfo, faceDetect.Attributes.Age), f, new SolidBrush(colour),
+                        new Point(leftText, faceDetect.FaceRectangle.Top - faceDetect.FaceRectangle.Height - 10));
+                    ////some test image for this demo
+                    //Bitmap bmp = (Bitmap)image;
+                    //// Graphics g = Graphics.FromImage(bmp);
 
+                    ////this will center align our text at the bottom of the image
+                    //StringFormat sf = new StringFormat();
+                    //sf.Alignment = StringAlignment.Center;
+                    //sf.LineAlignment = StringAlignment.Far;
 
+                    ////define a font to use.
+                    //f = new Font(ff, fontSize, FontStyle.Bold, GraphicsUnit.Pixel);
 
+                    ////pen for outline - set width parameter
+                    ////Pen p = new Pen(ColorTranslator.FromHtml("#77090C"), 8);
+                    ////Pen p = new Pen(fontColor, 8);
+                    //Pen p = new Pen(ColorTranslator.FromHtml("#77770C"), 8);
 
+                    //p.LineJoin = LineJoin.Round; //prevent "spikes" at the path
+
+                    ////this makes the gradient repeat for each text line
+                    //System.Drawing.Rectangle fr = new System.Drawing.Rectangle(faceDetect.FaceRectangle.Left,
+                    //    faceDetect.FaceRectangle.Top, faceDetect.FaceRectangle.Width * 2, f.Height);
+                    
+                    //LinearGradientBrush b = new LinearGradientBrush(fr,
+                    //                                                ColorTranslator.FromHtml("#FF6493"),
+                    //                                                ColorTranslator.FromHtml("#D00F14"),
+                    //                                                90);
+
+                    ////this will be the rectangle used to draw and auto-wrap the text.
+                    ////basically = image size
+                    //System.Drawing.Rectangle r = new System.Drawing.Rectangle(faceDetect.FaceRectangle.Left,
+                    //        faceDetect.FaceRectangle.Top + faceDetect.FaceRectangle.Height,
+                    //        faceDetect.FaceRectangle.Width,
+                    //        faceDetect.FaceRectangle.Height);
+
+                    //GraphicsPath gp = new GraphicsPath();
+
+                    ////look mom! no pre-wrapping!
+                    //gp.AddString(info, ff, (int)FontStyle.Bold, fontSize, r, sf);
+
+                    ////these affect lines such as those in paths. Textrenderhint doesn't affect
+                    ////text in a path as it is converted to ..well, a path.    
+                    //g.SmoothingMode = SmoothingMode.AntiAlias;
+                    //g.PixelOffsetMode = PixelOffsetMode.HighQuality;
+
+                    ////TODO: shadow -> g.translate, fillpath once, remove translate
+                    //g.DrawPath(p, gp);
+                    //g.FillPath(b, gp);
+
+                    ////cleanup
+                    //gp.Dispose();
+                    //b.Dispose();
+                    //b.Dispose();
+                    //f.Dispose();
+                    //sf.Dispose();
 
                     //layers.Add(this.GetFaceTextLayer(info, leftText, topText, clr));
 
@@ -338,7 +389,8 @@ namespace WeixinServer.Helpers
                 //pen for outline - set width parameter
                 //Pen p = new Pen(ColorTranslator.FromHtml("#77090C"), 8);
                 //Pen p = new Pen(fontColor, 8);
-                Pen p = new Pen(ColorTranslator.FromHtml("#77770C"), 8);
+                //Pen p = new Pen(ColorTranslator.FromHtml("#777777"), 8);
+                Pen p = new Pen(System.Drawing.Color.White, 8);
                 
                 p.LineJoin = LineJoin.Round; //prevent "spikes" at the path
 
