@@ -119,12 +119,12 @@ namespace WeixinServer.Helpers
             //Console.WriteLine(photoBytes.Length + " bytes received");
         }
 
-        
+
         /// <summary>
         /// Analyze the given image.
         /// </summary>
         /// <param name="imagePathOrUrl">The image path or url.</param>
-        public async Task<RichResult> AnalyzeImage(string imagePathOrUrl, string curUserName) 
+        public async Task<RichResult> AnalyzeImage(string imagePathOrUrl, string curUserName)
         {
             this.curUserName = curUserName;
             return await AnalyzeImage(imagePathOrUrl);
@@ -177,8 +177,8 @@ namespace WeixinServer.Helpers
 
                         //string testImg = @"C:\Users\yimlin\Pictures\supgk\91girl.jpg";
                         // Do any async anything you need here without worry
-                        
-                        
+
+
 
 
                         //var taskAnalyzeUrl = this.visionClient.AnalyzeImageAsync(imagePathOrUrl, visualFeatures);
@@ -200,7 +200,7 @@ namespace WeixinServer.Helpers
                                 timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage AnalyzeImageAsync Resize begin\n", DateTime.Now - this.startTime));
                                 int height = minNumPixs;
                                 int width = (int)((float)height * image.Width / image.Height);
-                                if (width < minNumPixs) 
+                                if (width < minNumPixs)
                                 {
                                     width = minNumPixs;
                                     height = (int)((float)width * image.Height / image.Width);
@@ -209,8 +209,8 @@ namespace WeixinServer.Helpers
                                 var resizedMemoryStream = new MemoryStream();
                                 resizedImg.Save(resizedMemoryStream, image.RawFormat);
                                 timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage AnalyzeImageAsync Resize end\n", DateTime.Now - this.startTime));
-                                
-                                
+
+
                                 resizedMemoryStream.Seek(0, SeekOrigin.Begin);
                                 analysisResult = await this.visionClient.AnalyzeImageAsync(resizedMemoryStream, visualFeatures);
                                 timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage AnalyzeImageAsync stream end\n", DateTime.Now - this.startTime));
@@ -222,11 +222,11 @@ namespace WeixinServer.Helpers
                                 timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage AnalyzeImageAsync stream end\n", DateTime.Now - this.startTime));
                             }
                             //analysisResult = await taskAnalyzeUrl;
-                            
+
                            // timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage AnalyzeImageAsync url end\n", DateTime.Now - this.startTime));
                         }
 
-                        
+
 
                         //response.Close();
 
@@ -644,7 +644,7 @@ namespace WeixinServer.Helpers
                 res += "Line Drawing Type : " + lineDrawingType;
             }
 
-            double ascr = 0.0f, rscr = 0.0f;
+            double ascr = 0.0f, rscr = 0.0f, saoBility = 0.0f;
             if (result.Adult != null)
             {
                 //res += "Is Adult Content : " + result.Adult.IsAdultContent;
@@ -656,13 +656,14 @@ namespace WeixinServer.Helpers
                 //res += "Racy Score : " + result.Adult.RacyScore;
                 //map.Add("RacyScore", result.Adult.RacyScore.ToString());
 
-                ascr = result.Adult.AdultScore * 10000.0;
-                rscr = result.Adult.RacyScore * 20000.0;
+                ascr = (int)(result.Adult.AdultScore * 2500);
+                rscr = (int)(result.Adult.RacyScore * 5000);
+                saoBility = ascr + rscr;
             }
             if (result.Adult.IsAdultContent) desStringWriter.Write("手哥：黄图, 滚粗~！\n");
-            desStringWriter.Write(string.Format("画面Hot值：{0:F0}\n", rscr));//TODO 少量 or More by Score
+            desStringWriter.Write(string.Format("风情热度：{0:F0}%\n", saoBility / 1000));//TODO 少量 or More by Score
            // desStringWriter.Write(string.Format("手哥评分: {0:F0}\n", rscr));//TODO 少量 or More by Score
-            
+
             //desStringWriter.Write(string.Format(": {0:F2}%\n", ascr));//TODO 少量 or More by Score
             if (result.Categories != null && result.Categories.Length > 0)
             {
@@ -675,7 +676,7 @@ namespace WeixinServer.Helpers
                 {
                     //res += "   Name : " + category.Name;
                     //res += "; Score : " + category.Score;
-                    
+
                     //if (categoryNameMapping.ContainsKey(category.Name) && ! category.Name.EndsWith("_"))
                     if (category.Name == "others_")
                     {
@@ -703,6 +704,8 @@ namespace WeixinServer.Helpers
                 res += "Faces : ";
                 int numFemale = 0, numMale = 0;
                 float avgAge = 0.0f, mAvgAge = 0.01f, fAvgAge = 0.01f;
+                var maleAgeMap = new Dictionary<string, int>();
+                var femaleAgeMap = new Dictionary<string, int>();
                 foreach (var face in result.RichFaces)
                 {
                     res += "   Age : " + face.Attributes.Age;
@@ -712,39 +715,89 @@ namespace WeixinServer.Helpers
                     {
                         ++numMale;
                         mAvgAge += (float)face.Attributes.Age;
+                        var title = MaleTitleAsPerAge(face.Attributes.Age);
+                        if (maleAgeMap.ContainsKey(title))
+                            maleAgeMap.Add(title, maleAgeMap[title] + 1);
+                        else maleAgeMap.Add(title, 1);
                     }
                     else
                     {
                         ++numFemale;
                         fAvgAge += (float)face.Attributes.Age;
+                        var title = FemaleTitleAsPerAge(face.Attributes.Age);
+                        if (femaleAgeMap.ContainsKey(title))
+                            femaleAgeMap.Add(title, femaleAgeMap[title] + 1);
+                        else femaleAgeMap.Add(title, 1);
                     }
 
                     //read FaceLandmarks
 
-                    //big eyes 
+                    //big eyes
                     //face.FaceLandmarks.
                 }
 
 
-                //里面的男人很幸福 or 一群男 or 女屌丝
-                if (numFemale > numMale && numMale > 0) desStringWriter.Write(string.Format("画说，这{0}个颜龄在{1:F1}岁左右的男人很幸福 :)\n", numberToChineseChar(numMale), mAvgAge / numMale));
-                else if (numFemale < numMale && numFemale > 0) desStringWriter.Write(string.Format("画说，这{0}个颜龄在{1:F1}岁左右的女人很幸福 :)\n", numberToChineseChar(numFemale), fAvgAge / numFemale));
-                else if (numFemale == 0 && numMale == 1) desStringWriter.Write(string.Format("画说，{0}枚孤独的暖男\n 颜龄在{1:F0}岁左右……", numberToChineseChar(numMale), mAvgAge));
-                else if (numFemale == 0) desStringWriter.Write(string.Format("画说，{0}位孤独的暖男\n 颜龄在{1:F1}岁左右……", numberToChineseChar(numMale), mAvgAge / numMale));
-                else if (numMale == 0 && numFemale == 1) desStringWriter.Write(string.Format("画说，{0}枚寂寞的熟女\n 颜龄在{1:F0}岁左右……", numberToChineseChar(numFemale), fAvgAge));
-                else if (numMale == 0) desStringWriter.Write(string.Format("画说，{0}位寂寞的熟女\n 颜龄在{1:F1}岁左右……", numberToChineseChar(numFemale), fAvgAge / numFemale));
+
+
+
+                //这个大叔很幸福
+                if (numFemale > numMale && numMale > 0)
+                {
+                    desStringWriter.Write(string.Format("画说，"));
+                    foreach (var key in maleAgeMap.Keys)
+                    {
+                        desStringWriter.Write(string.Format("这{0}个{1}，",
+                            NumberToChineseChar(maleAgeMap[key]), key));
+                    }
+                    desStringWriter.Write(string.Format("看起来很幸福 :)"));
+
+                }
+                else if (numFemale < numMale && numFemale > 0)
+                {
+
+                    foreach (var key in femaleAgeMap.Keys)
+                    {
+                        desStringWriter.Write(string.Format("这{0}个{1}，",
+                            NumberToChineseChar(femaleAgeMap[key]), key));
+                    }
+                    desStringWriter.Write(string.Format("看起来很满足 :)"));
+
+                }
+                else if (numFemale == 0 && numMale == 1)
+                {
+                    desStringWriter.Write(string.Format("画说，"));
+                    foreach (var key in maleAgeMap.Keys)
+                    {
+                        desStringWriter.Write(string.Format("这{0}个{1}，",
+                            NumberToChineseChar(maleAgeMap[key]), key));
+                    }
+                    desStringWriter.Write(string.Format("看起来很孤独 :)"));
+
+                }
+                else if (numMale == 0 && numFemale == 1)
+                {
+                    desStringWriter.Write(string.Format("画说，"));
+                    foreach (var key in maleAgeMap.Keys)
+                    {
+                        desStringWriter.Write(string.Format("这{0}个{1}，",
+                            NumberToChineseChar(maleAgeMap[key]), key));
+                    }
+                    desStringWriter.Write(string.Format("看起来很孤独 :)"));
+                }
                 else
                 {
-                    desStringWriter.Write(string.Format("{0}位颜龄{1:F1}岁左右的暖男，还有{2}位颜龄{3:F1}岁左右的熟女\n", numberToChineseChar(numMale), mAvgAge / numMale, numberToChineseChar(numFemale), fAvgAge / numFemale));//TODO 少量 or More by Score
                 }
 
                 //老驴啃嫩草
                 float ratio = mAvgAge / fAvgAge;
-                if (ratio > 1.2 && numFemale > 0) desStringWriter.Write(string.Format("因为僧多粥少，所以{0}头老驴啃{1}棵嫩草", numberToChineseChar(numMale), numberToChineseChar(numFemale)));
-                else if (ratio < 0.8 && numMale > 0) desStringWriter.Write(string.Format("因为粥多僧少，所以{0}棵老草啃{1}头嫩驴", numberToChineseChar(numFemale), numberToChineseChar(numMale)));
-                else 
+                if (ratio > 1.2 && numFemale > 0) desStringWriter.Write(string.Format("因为僧多粥少，所以{0}头老驴啃{1}棵嫩草", NumberToChineseChar(numMale), NumberToChineseChar(numFemale)));
+                else if (ratio < 0.8 && numMale > 0) desStringWriter.Write(string.Format("因为粥多僧少，所以{0}棵老草啃{1}头嫩驴", NumberToChineseChar(numFemale), NumberToChineseChar(numMale)));
+                else if (numFemale > 0 && numMale > 0)
                 {
-                    desStringWriter.Write(string.Format("{0}男{1}女，年轻的朋友们，今天来相会，荡起小船儿暖风轻轻吹", numberToChineseChar(numMale), numberToChineseChar(numFemale))); 
+                    desStringWriter.Write(string.Format("{0}男{1}女，年轻的朋友们，今天来相会，荡起小船儿暖风轻轻吹", NumberToChineseChar(numMale), NumberToChineseChar(numFemale)));
+                }
+                else
+                {
                 }
             }
 
@@ -768,7 +821,44 @@ namespace WeixinServer.Helpers
             return desStringWriter.ToString();
         }
 
-        private static string numberToChineseChar(int number)
+        private static string FemaleTitleAsPerAge(double age)
+        {
+            string title;
+
+            if (age <= 4) title = "学前女婴";
+            else if (age <= 10) title = "学龄萝莉";
+            else if (age <= 16) title = "情窦初开的花季少女";
+            else if (age <= 17) title = "情窦初开的雨季少女";
+            else if (age <= 24) title = "红颜祸水";
+            else if (age <= 32) title = "轻熟女";
+            else if (age <= 42) title = "熟女";
+            else if (age <= 55) title = "阿姨";
+            else if (age <= 65) title = "大妈";
+            else title = "奶奶";
+            
+            return title;
+        }
+
+        private static string MaleTitleAsPerAge(double age)
+        {
+            string title;
+
+            if (age <= 4) title = "学前灵童";
+            else if (age <= 10) title = "学龄神童";
+            else if (age <= 16) title = "情窦初开的花季少年";
+            else if (age <= 17) title = "情窦初开的雨季少年";
+            else if (age <= 24) title = "弱冠";
+            else if (age <= 30) title = "为买房而奋斗的青年";
+            else if (age <= 35) title = "刚过而立之年的男神";
+            else if (age <= 40) title = "闯荡一番事业的大哥";
+            else if (age <= 55) title = "大叔";
+            else if (age <= 70) title = "大爷";
+            else title = "爷爷";
+            
+            return title;
+        }
+
+        private static string NumberToChineseChar(int number)
         {
             var chineseCharStr = "零一两三四五六七八九".ToCharArray();
             return number < chineseCharStr.Length ? chineseCharStr[number].ToString() : number.ToString();
