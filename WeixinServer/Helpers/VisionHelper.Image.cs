@@ -37,6 +37,7 @@ namespace WeixinServer.Helpers
         private void InitializePropertiesForImage(string frontImageUri)
         {
             this.frontImageUri = frontImageUri;
+            
         }
 
         static Tuple<Font, float> FindFont(System.Drawing.Graphics g, string longString, Size Room, Font PreferedFont)
@@ -85,8 +86,11 @@ namespace WeixinServer.Helpers
             //string fontName = "YourFont.ttf";
             PrivateFontCollection pfcoll = new PrivateFontCollection();
             //put a font file under a Fonts directory within your application root
-            pfcoll.AddFontFile(this.frontImageUri);
-            FontFamily ff = pfcoll.Families[0];
+            //pfcoll.AddFontFile(this.frontImageUri);
+            pfcoll.AddFontFile(this.meoWuFontUri);
+
+            //FontFamily ff = pfcoll.Families[0];
+            FontFamily ffMeo = pfcoll.Families[0];
 
             using (Graphics g = Graphics.FromImage(image))
             {
@@ -100,7 +104,7 @@ namespace WeixinServer.Helpers
                     int topText = faceDetect.FaceRectangle.Top + faceDetect.FaceRectangle.Height + 5;
                     //int topText = faceDetect.FaceRectangle.Top - faceDetect.FaceRectangle.Height - 10;
                     topText = topText > 0 ? topText : 0;
-                    int leftText = faceDetect.FaceRectangle.Left - 5;
+                    
 
                     var colour = System.Drawing.Color.Magenta;
                     if (faceDetect.Attributes.Gender.ToLower().Equals("male"))
@@ -124,19 +128,21 @@ namespace WeixinServer.Helpers
                     //float size = faceDetect.FaceRectangle.Width / 5.0f;
                     var hotivity = saoBility * faceDetect.Attributes.Age;
                     //string info = string.Format("{0}{1}\n", genderInfo, faceDetect.Attributes.Age);
-                    string info = string.Format("热值:${0:F1}万\n", saoBility / faceDetect.Attributes.Age);
+                    string info = string.Format("Hot值:\n${0:F1}万\n", saoBility / faceDetect.Attributes.Age);
                     //string info = string.Format("{0}颜龄{1}\n骚值{2:F0}\n肾价{3:F2}万", genderInfo, faceDetect.Attributes.Age,
                     //    saoBility * faceDetect.Attributes.Age, ascr / faceDetect.Attributes.Age);
                     
-                    Size room = new Size(faceDetect.FaceRectangle.Width *2 , faceDetect.FaceRectangle.Height * 2);
-                    var ret = FindFont(g, info, room, new Font("Ariel", 36, FontStyle.Bold, GraphicsUnit.Pixel));
+                    Size room = new Size((int) (faceDetect.FaceRectangle.Width * 1.5) , faceDetect.FaceRectangle.Height * 2);
+                    var ret = FindFont(g, info, room, new Font(ffMeo, 36, FontStyle.Bold, GraphicsUnit.Pixel));
                     var fontSize = ret.Item2;
-                    Font f = new Font("Ariel", fontSize, FontStyle.Bold, GraphicsUnit.Pixel);
-
+                    Font f = new Font(ffMeo, fontSize, FontStyle.Bold, GraphicsUnit.Pixel);
+                    //int leftText = faceDetect.FaceRectangle.Left - faceDetect.FaceRectangle.Width;
+                    int leftText = faceDetect.FaceRectangle.Left;
+                    //leftText = leftText > 0 ? leftText : 0;
                     g.DrawString(info, f, new SolidBrush(colour), new Point(leftText, topText));
 
                     g.DrawString(string.Format("{0}{1}",genderInfo, faceDetect.Attributes.Age), f, new SolidBrush(colour),
-                        new Point(leftText, faceDetect.FaceRectangle.Top - faceDetect.FaceRectangle.Height - 10));
+                        new Point(faceDetect.FaceRectangle.Left, faceDetect.FaceRectangle.Top - f.Height - 5));
                     ////some test image for this demo
                     //Bitmap bmp = (Bitmap)image;
                     //// Graphics g = Graphics.FromImage(bmp);
@@ -251,6 +257,7 @@ namespace WeixinServer.Helpers
                 PrivateFontCollection pfcoll = new PrivateFontCollection();
                 //put a font file under a Fonts directory within your application root
                 pfcoll.AddFontFile(this.frontImageUri);
+                pfcoll.AddFontFile(this.meoWuFontUri);
                 FontFamily ff = pfcoll.Families[0];
                 int fontSize = 36;
                 Font f = new Font(ff, fontSize, FontStyle.Regular);

@@ -151,7 +151,9 @@ namespace WeixinServer.Controllers
             //var ret = vision.AnalyzeImage(msg.PicUrl);
             RichResult ret = null;
             //ret = vision.AnalyzeImage(msg.PicUrl); 
-            VisionHelper vision = new VisionHelper("cc9e33682fcd4eeab114f9a63dc16021", System.Web.HttpContext.Current.Server.MapPath(@"~\App_Data\xujl-font.ttf"), this.startTime);
+            VisionHelper vision = new VisionHelper("cc9e33682fcd4eeab114f9a63dc16021",
+                System.Web.HttpContext.Current.Server.MapPath(@"~\App_Data\xujl-font.ttf"), 
+                this.startTime, System.Web.HttpContext.Current.Server.MapPath(@"~\App_Data\MeoWu-font.ttf"));
            
             Task.Run(async () =>
             {
