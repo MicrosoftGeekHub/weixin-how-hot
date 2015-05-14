@@ -145,7 +145,7 @@ namespace WeixinServer.Controllers
                 //ImageStorage image = dbContext.ImageStorages.FirstOrDefault(p => p.OpenId == msg.FromUserName && p.PicUrl == msg.PicUrl && p.CreateTime == msg.CreateTime);
                 //ImageStorage image = dbContext.ImageStorages.FirstOrDefault(p => p.PicUrl == msg.PicUrl);
                 //ImageStorage image = dbContext.ImageStorages.FirstOrDefault(p => p.PicUrl == msg.PicUrl && p.CreateTime == msg.CreateTime);
-                var md5 = GetMd5(msg.PicUrl);
+                var md5 = GetMd5(msg.PicUrl + msg.CreateTime);
                 ImageStorage image = dbContext.ImageStorages.FirstOrDefault(p => p.Md5 == md5);
                 if (image != null)
                 {
