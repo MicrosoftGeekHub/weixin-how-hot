@@ -138,8 +138,8 @@ namespace WeixinServer.Helpers
                    // g.DrawString(info, f, new SolidBrush(colour), new Point(leftText, topText));
 
                     var fHead = new Font(ffMeo, (int)(fontSize * 1.3), FontStyle.Bold, GraphicsUnit.Pixel);
-                    g.DrawString(string.Format("{0}{1}", genderInfo, faceDetect.Attributes.Age), fHead, new SolidBrush(colour),
-                        new Point(faceDetect.FaceRectangle.Left, faceDetect.FaceRectangle.Top - f.Height - 5));
+                    //g.DrawString(string.Format("{0}{1}", genderInfo, faceDetect.Attributes.Age), fHead, new SolidBrush(colour),
+                    //    new Point(faceDetect.FaceRectangle.Left, faceDetect.FaceRectangle.Top - f.Height - 5));
                     //some test image for this demo
                     Bitmap bmp = (Bitmap)image;
                     // Graphics g = Graphics.FromImage(bmp);
@@ -155,7 +155,7 @@ namespace WeixinServer.Helpers
                     //pen for outline - set width parameter
                     //Pen p = new Pen(ColorTranslator.FromHtml("#77090C"), 8);
                     //Pen p = new Pen(fontColor, 8);
-                    Pen p = new Pen(System.Drawing.Color.White, 8);
+                    Pen p = new Pen(System.Drawing.Color.Yellow, 8);
 
                     p.LineJoin = LineJoin.Round; //prevent "spikes" at the path
 
@@ -168,6 +168,20 @@ namespace WeixinServer.Helpers
                                                                     ColorTranslator.FromHtml("#D00F14"),
                                                                     90);
 
+                    //this makes the gradient repeat for each text line
+                    System.Drawing.Rectangle fr2 = new System.Drawing.Rectangle(faceDetect.FaceRectangle.Left,
+                        faceDetect.FaceRectangle.Top, faceDetect.FaceRectangle.Width * 2, f.Height);
+
+                    LinearGradientBrush b2 = new LinearGradientBrush(fr2,
+                                                                    ColorTranslator.FromHtml("#9364FF"),
+                                                                    ColorTranslator.FromHtml("#0F14D0"),
+                                                                    90);
+                    var genderTop = faceDetect.FaceRectangle.Top - (int)(f.Height*1.5);
+                    genderTop = genderTop > 0? genderTop : 0;
+                    System.Drawing.Rectangle r2 = new System.Drawing.Rectangle(faceDetect.FaceRectangle.Left,
+                           genderTop,
+                           faceDetect.FaceRectangle.Width,
+                           (int)(faceDetect.FaceRectangle.Height * 0.618));
                     //this will be the rectangle used to draw and auto-wrap the text.
                     //basically = image size
                     System.Drawing.Rectangle r = new System.Drawing.Rectangle(faceDetect.FaceRectangle.Left,
@@ -179,6 +193,7 @@ namespace WeixinServer.Helpers
 
                     //look mom! no pre-wrapping!
                     gp.AddString(info, ff, (int)FontStyle.Bold, fontSize, r, sf);
+                    gp.AddString(string.Format("{0}{1}", genderInfo, faceDetect.Attributes.Age), ff, (int)FontStyle.Bold, fontSize, r2, sf);
                     //gp.DrawString(info, f, new SolidBrush(colour), new Point(leftText, topText));
                     //gp.AddString(string.Format("{0}{1}", genderInfo, faceDetect.Attributes.Age), ff, (int)FontStyle.Bold, fontSize, r, sf);
                     //    new Point(faceDetect.FaceRectangle.Left, faceDetect.FaceRectangle.Top - f.Height - 5));
@@ -190,7 +205,7 @@ namespace WeixinServer.Helpers
 
                     //TODO: shadow -> g.translate, fillpath once, remove translate
                     g.DrawPath(p, gp);
-                    g.FillPath(b, gp);
+                    g.FillPath(b2, gp);
 
                     //cleanup
                     gp.Dispose();
@@ -362,7 +377,7 @@ namespace WeixinServer.Helpers
             using (Graphics g = Graphics.FromImage(image))
             {
                 var fontSize = width < 1000 ? 24 : 36;
-                var ret = FindFont(g, text, new Size(image.Width /2 , image.Height / 2), new Font(ff, fontSize, FontStyle.Bold, GraphicsUnit.Pixel));
+                var ret = FindFont(g, text, new Size(image.Width , image.Height), new Font(ff, fontSize, FontStyle.Bold, GraphicsUnit.Pixel));
                 fontSize = (int)ret.Item2;
                 int count = 1;
                 int start = 0;
@@ -499,8 +514,9 @@ namespace WeixinServer.Helpers
                 timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage::RenderAnalysisResultAsImage Upload to image CDN end\n", DateTime.Now - this.startTime));
             }
 
-            return string.Format("酷评:\n{0}\n归图:\n{1}", captionText, resultUrl);
-            //return string.Format("酷评:\n{0}\n归图:\n{1}\n原图:\n{2}", captionText, resultUrl, this.originalImageUrl);
+            //return string.Format("画说:\n{0}", resultUrl);
+            return string.Format("画说:\n{0}\n归图:\n{1}\n", captionText, resultUrl);
+            //return string.Format("画说:\n{0}\n归图:\n{1}\n原图:\n{2}", captionText, resultUrl, this.originalImageUrl);
         }
     }
 }

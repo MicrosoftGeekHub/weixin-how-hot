@@ -50,7 +50,14 @@ namespace WeixinServer.Controllers
             if (!string.IsNullOrEmpty(postString))
             {
 
-                if (ProcessMsg(postString))
+                bool isProcessed = false;
+                Task.Run(async () =>
+            {
+                isProcessed = await ProcessMsg(postString);
+            }).Wait();
+
+
+                if (isProcessed)
                 {
                     //...
                 }
@@ -116,7 +123,26 @@ namespace WeixinServer.Controllers
             resule = resule.Replace("-", "");
             return resule.ToLower();
         }
-        private bool ProcessMsg(string xml)
+
+        private async Task<RichResult> QuickReturn(VisionHelper vision, MsgObject msg)
+        {
+            var ret = await vision.AnalyzeImage(msg.PicUrl, msg.FromUserName);
+            if (ret != null)
+            {
+                Response.Write(string.Format("<xml><ToUserName><![CDATA[{0}]]></ToUserName><FromUserName><![CDATA[{1}]]></FromUserName><CreateTime>12345678</CreateTime><MsgType><![CDATA[text]]></MsgType><Content><![CDATA[{2}]]></Content><DebugInfo><![CDATA[{3}]]></DebugInfo><ErrorInfo><![CDATA[{4}]]></ErrorInfo></xml>",
+                    msg.FromUserName, msg.ToUserName, ret.analyzeImageResult, ret.timeLogs, ret.errorLogs));
+
+                // Production mode
+                //Response.Write(string.Format("<xml><ToUserName><![CDATA[{0}]]></ToUserName><FromUserName><![CDATA[{1}]]></FromUserName><CreateTime>12345678</CreateTime><MsgType><![CDATA[text]]></MsgType><Content><![CDATA[{2}]]></Content></xml>", 
+                //msg.FromUserName, msg.ToUserName, ret.analyzeImageResult));
+                Response.End();
+                return ret;
+            }
+            return null;
+        }
+        private VisionHelper vision = new VisionHelper("cc9e33682fcd4eeab114f9a63dc16021", System.Web.HttpContext.Current.Server.MapPath(@"~\App_Data\xujl-font.ttf"), DateTime.Now, System.Web.HttpContext.Current.Server.MapPath(@"~\App_Data\MeoWu-font.ttf"));
+        private string md5;
+        private async Task<bool> ProcessMsg(string xml)
         {
             MsgObject msg = new MsgObject(xml);
 
@@ -139,37 +165,48 @@ namespace WeixinServer.Controllers
                 return false;
             }
 
-            //check data from db
-            using (var dbContext = new WeixinDBContext())
-            {
-                //ImageStorage image = dbContext.ImageStorages.FirstOrDefault(p => p.OpenId == msg.FromUserName && p.PicUrl == msg.PicUrl && p.CreateTime == msg.CreateTime);
-                //ImageStorage image = dbContext.ImageStorages.FirstOrDefault(p => p.PicUrl == msg.PicUrl);
-                //ImageStorage image = dbContext.ImageStorages.FirstOrDefault(p => p.PicUrl == msg.PicUrl && p.CreateTime == msg.CreateTime);
-                var md5 = GetMd5(msg.PicUrl + msg.CreateTime);
-                ImageStorage image = dbContext.ImageStorages.FirstOrDefault(p => p.Md5 == md5);
-                if (image != null)
-                {
-                    Response.Write(string.Format("<xml><ToUserName><![CDATA[{0}]]></ToUserName><FromUserName><![CDATA[{1}]]></FromUserName><CreateTime>12345678</CreateTime><MsgType><![CDATA[text]]></MsgType><Content><![CDATA[{2}]]></Content><DebugInfo><![CDATA[{3}]]></DebugInfo><ErrorInfo><![CDATA[{4}]]></ErrorInfo></xml>",
-                        msg.FromUserName, msg.ToUserName, image.ParsedDescription, image.TimeLog, string.Empty));
-                    Response.End();
-                    return true;
-                }
-            }
+
 
             //string imagePathorUrl = msg.PicUrl;
             //string imagePathorUrl = msg.PicUrl.Replace("https://", "").Replace("http://", "");
             //var ret = vision.AnalyzeImage(msg.PicUrl);
             RichResult ret = null;
             //ret = vision.AnalyzeImage(msg.PicUrl); 
-            VisionHelper vision = new VisionHelper("cc9e33682fcd4eeab114f9a63dc16021",
-                System.Web.HttpContext.Current.Server.MapPath(@"~\App_Data\xujl-font.ttf"), 
-                this.startTime, System.Web.HttpContext.Current.Server.MapPath(@"~\App_Data\MeoWu-font.ttf"));
-           
-            Task.Run(async () =>
+            
+            var task = QuickReturn(vision, msg);
+            md5 = GetMd5(msg.PicUrl + msg.CreateTime.ToString());
+            //check data from db
+            using (var dbContext = new WeixinDBContext())
             {
-                ret = await vision.AnalyzeImage(msg.PicUrl, msg.FromUserName);
+                //ImageStorage image = dbContext.ImageStorages.FirstOrDefault(p => p.OpenId == msg.FromUserName && p.PicUrl == msg.PicUrl && p.CreateTime == msg.CreateTime);
+                //ImageStorage image = dbContext.ImageStorages.FirstOrDefault(p => p.PicUrl == msg.PicUrl);
+                //ImageStorage image = dbContext.ImageStorages.FirstOrDefault(p => p.PicUrl == msg.PicUrl && p.CreateTime == msg.CreateTime);
+                    
+                ImageStorage image = dbContext.ImageStorages.FirstOrDefault(p => p.Md5 == md5);
+                    
+                if (image != null)
+                {
+                    Response.Write(string.Format("<xml><ToUserName><![CDATA[{0}]]></ToUserName><FromUserName><![CDATA[{1}]]></FromUserName><CreateTime>12345678</CreateTime><MsgType><![CDATA[text]]></MsgType><Content><![CDATA[{2}]]></Content><DebugInfo><![CDATA[{3}]]></DebugInfo><ErrorInfo><![CDATA[{4}]]></ErrorInfo></xml>",
+                        msg.FromUserName, msg.ToUserName, image.ParsedDescription, image.TimeLog, md5));
+                    Response.End();
+                    return true;
+                }
+                dbContext.Dispose();
+            }
 
-            }).Wait();
+
+            
+            ret = await task;
+            
+            //// Debug mode
+            //Response.Write(string.Format("<xml><ToUserName><![CDATA[{0}]]></ToUserName><FromUserName><![CDATA[{1}]]></FromUserName><CreateTime>12345678</CreateTime><MsgType><![CDATA[text]]></MsgType><Content><![CDATA[{2}]]></Content><DebugInfo><![CDATA[{3}]]></DebugInfo><ErrorInfo><![CDATA[{4}]]></ErrorInfo></xml>",
+            //    msg.FromUserName, msg.ToUserName, ret.analyzeImageResult, ret.timeLogs, ret.errorLogs));
+
+            // Production mode
+            //Response.Write(string.Format("<xml><ToUserName><![CDATA[{0}]]></ToUserName><FromUserName><![CDATA[{1}]]></FromUserName><CreateTime>12345678</CreateTime><MsgType><![CDATA[text]]></MsgType><Content><![CDATA[{2}]]></Content></xml>", msg.FromUserName, msg.ToUserName, ret.analyzeImageResult));
+
+            //Response.End();
+
 
             //save db first without parsedContent
             int id = -1;
@@ -179,7 +216,7 @@ namespace WeixinServer.Controllers
                 image.OpenId = msg.FromUserName;
                 image.CreateTime = msg.CreateTime;
                 image.PicUrl = msg.PicUrl;
-                image.Md5 = GetMd5(msg.PicUrl);
+                image.Md5 = md5;
                 //image.PicContent = ret.rawImage;
                 image.ParsedUrl = ret.uploadedUrl;
                 image.ParsedDescription = ret.analyzeImageResult;
@@ -189,15 +226,6 @@ namespace WeixinServer.Controllers
                 id = image.Id;
                 dbContext.Dispose();
             }
-
-            // Debug mode
-            Response.Write(string.Format("<xml><ToUserName><![CDATA[{0}]]></ToUserName><FromUserName><![CDATA[{1}]]></FromUserName><CreateTime>12345678</CreateTime><MsgType><![CDATA[text]]></MsgType><Content><![CDATA[{2}]]></Content><DebugInfo><![CDATA[{3}]]></DebugInfo><ErrorInfo><![CDATA[{4}]]></ErrorInfo></xml>",
-                msg.FromUserName, msg.ToUserName, ret.analyzeImageResult, ret.timeLogs, ret.errorLogs));
-
-            // Production mode
-            //Response.Write(string.Format("<xml><ToUserName><![CDATA[{0}]]></ToUserName><FromUserName><![CDATA[{1}]]></FromUserName><CreateTime>12345678</CreateTime><MsgType><![CDATA[text]]></MsgType><Content><![CDATA[{2}]]></Content></xml>", msg.FromUserName, msg.ToUserName, ret.analyzeImageResult));
-
-            Response.End();
 
             //write to DB
             //var webClient = new WebClient();
