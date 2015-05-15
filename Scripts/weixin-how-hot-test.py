@@ -116,8 +116,6 @@ for index, url in enumerate(test_url_list):
     else:
         count_fail += 1
     print("#", index + 1, "-", url, valid, time_interval)
-    # if index == 5:
-    #     break
 
 count_all = count_ok + count_fail
 print("{} test in total, ok: {}, fail: {}, success rate: {:.2f}%, average secs: {:.4f}".format(count_all, count_ok, count_fail, count_ok / count_all * 100, total_time / count_all))
