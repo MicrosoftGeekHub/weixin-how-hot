@@ -151,8 +151,14 @@ namespace WeixinServer.Controllers
             return null;
         }
 
-
-        private VisionHelper vision = new VisionHelper("cc9e33682fcd4eeab114f9a63dc16021", System.Web.HttpContext.Current.Server.MapPath(@"~\App_Data\xujl-font.ttf"), DateTime.Now, System.Web.HttpContext.Current.Server.MapPath(@"~\App_Data\MeoWu-font.ttf"));
+        private string[] keyPool = new string[4] { "cc9e33682fcd4eeab114f9a63dc16021", "d536bbe7125b42a9b948338a54b4ebb7", "8b2854891a9f436e8ecd60127ca62fd9", "b03be7fdc0fd476db7e35fda40494090" };
+        private string GetVisionAPIkey()
+        {
+            var random = new Random();
+            var getrandomIdx = random.Next(0, 3);
+            return keyPool[getrandomIdx];
+        }
+        private string fontPath = System.Web.HttpContext.Current.Server.MapPath(@"~\App_Data\xujl-font.ttf");
         private string md5;
         private async Task<bool> ProcessMsg(string xml)
         {
@@ -184,7 +190,8 @@ namespace WeixinServer.Controllers
             //var ret = vision.AnalyzeImage(msg.PicUrl);
             RichResult ret = null;
             //ret = vision.AnalyzeImage(msg.PicUrl); 
-            
+
+            VisionHelper vision = new VisionHelper(GetVisionAPIkey(), fontPath, DateTime.Now, fontPath);
 
 
             var task = QuickReturn(vision, msg);
