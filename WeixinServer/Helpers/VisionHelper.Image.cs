@@ -28,7 +28,8 @@ namespace WeixinServer.Helpers
 
         private void InitializePropertiesForAzure() 
         {
-            storageConnectionString = "DefaultEndpointsProtocol=https;AccountName=geeekstore;AccountKey=gwn9gAn+Uo6YqjdRNBF/mrM0Hbb54Ns61Rq9Q+ahhSyqrq64jrLMTn834cKmMKbqSFv9BTW8NtCFbUte49EzcA==";
+            //storageConnectionString = "DefaultEndpointsProtocol=https;AccountName=geeekstore;AccountKey=gwn9gAn+Uo6YqjdRNBF/mrM0Hbb54Ns61Rq9Q+ahhSyqrq64jrLMTn834cKmMKbqSFv9BTW8NtCFbUte49EzcA==";
+            storageConnectionString = "DefaultEndpointsProtocol=https;AccountName=howhot;AccountKey=+teNObhdfANQ5/xkSLLH1cFIbF9q2kBdBZ98oBNO0K46xjcjAhuOrh47pHKbwdZZLVDrAG0wzKVtNgxbYDjg2w==";
             storageAccount = CloudStorageAccount.Parse(storageConnectionString);
             blobClient = storageAccount.CreateCloudBlobClient();
             container = blobClient.GetContainerReference("cdn");
@@ -503,7 +504,7 @@ namespace WeixinServer.Helpers
                 //string blobName = string.Format("{0}_{1}.jpg", this.curUserName, random_string(12));
                 int idx = this.curUserName.LastIndexOf('_');
                 idx = idx > -1? idx : 0;
-                string blobName = string.Format("{0}{1}.jpg", random_string(12), this.curUserName.Substring(idx));
+                string blobName = string.Format("{0}.jpg", random_string(12));
                 CloudBlockBlob blockBlob = container.GetBlockBlobReference(blobName);
 
                 // Create or overwrite the "myblob" blob with contents from a local file.
@@ -511,7 +512,8 @@ namespace WeixinServer.Helpers
                 //blockBlob.UploadFromStream(midStream);
                 outStream.Seek(0, SeekOrigin.Begin);
                 blockBlob.UploadFromStream(midStream);
-                resultUrl = "http://geeekstore.blob.core.windows.net/cdn/" + blobName;
+                resultUrl = "http://howhot.blob.core.windows.net/cdn/" + blobName;
+                //resultUrl = "http://geeekstore.blob.core.windows.net/cdn/" + blobName;
                 //resultUrl = upyun.UploadImageStream(outStream);
 
                 this.returnImageUrl = resultUrl;                    
@@ -519,7 +521,8 @@ namespace WeixinServer.Helpers
             //}
 
             //return string.Format("画说:\n{0}", resultUrl);
-            return string.Format("谈画:\n{0}\n归图:\n{1}\n", captionText, resultUrl);
+                //return string.Format("谈画:\n{0}\n归图:\n{1}\n", noAdsTxtResult, resultUrl);
+             return string.Format("谈画:\n{0}\n想知道您上传的图片有多\"Hot\"么? 请看归图:\n{1}\n", noAdsTxtResult, resultUrl);
             //return string.Format("画说:\n{0}\n归图:\n{1}\n原图:\n{2}", captionText, resultUrl, this.originalImageUrl);
         }
     }

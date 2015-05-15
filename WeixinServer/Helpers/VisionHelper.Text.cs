@@ -19,6 +19,7 @@ namespace WeixinServer.Helpers
         private StringBuilder errLogger = new StringBuilder();
         private string returnImageUrl = "";
         private string curUserName = "";
+        private string noAdsTxtResult;
         private void InitializePropertiesForText(string subscriptionKey)
         {
             this.visionClient = new VisionServiceClient(subscriptionKey);
@@ -839,7 +840,8 @@ namespace WeixinServer.Helpers
             }
             timeLogger.Append(string.Format("{0} VisionHelper::ShowRichAnalysisResult end\n", DateTime.Now - this.startTime));
             //Console.ResetColor();
-            desStringWriter.Write("\n我是谈画机器人，请关注极客家公众号geekplus-ms，\n点+号直接发图，我就给您谈画\n");
+            noAdsTxtResult = desStringWriter.ToString();
+            desStringWriter.Write("\n我是谈画机器人，请关注极客家公众号geekplus-ms，\n点+号直接发图，我就跟您谈画\n");
             return desStringWriter.ToString();
         }
 
