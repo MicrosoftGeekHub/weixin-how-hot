@@ -662,7 +662,7 @@ namespace WeixinServer.Helpers
                 saoBility = ascr + rscr;
             }
             if (result.Adult.IsAdultContent) desStringWriter.Write("手哥：黄图, 滚粗~！\n");
-            desStringWriter.Write(string.Format("风情热度：{0:F2}%\n", saoBility / 10.0));//TODO 少量 or More by Score
+            desStringWriter.Write(string.Format("性感比例：Hots Rate={0:F2}%\n", saoBility / 10.0));//TODO 少量 or More by Score
            // desStringWriter.Write(string.Format("手哥评分: {0:F0}\n", rscr));//TODO 少量 or More by Score
 
             //desStringWriter.Write(string.Format(": {0:F2}%\n", ascr));//TODO 少量 or More by Score
