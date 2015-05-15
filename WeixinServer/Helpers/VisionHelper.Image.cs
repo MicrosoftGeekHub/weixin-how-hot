@@ -155,7 +155,7 @@ namespace WeixinServer.Helpers
                     //pen for outline - set width parameter
                     //Pen p = new Pen(ColorTranslator.FromHtml("#77090C"), 8);
                     //Pen p = new Pen(fontColor, 8);
-                    Pen p = new Pen(System.Drawing.Color.White, 8);
+                    Pen p = new Pen(System.Drawing.Color.Yellow, 8);
 
                     p.LineJoin = LineJoin.Round; //prevent "spikes" at the path
 
@@ -173,8 +173,8 @@ namespace WeixinServer.Helpers
                         faceDetect.FaceRectangle.Top, faceDetect.FaceRectangle.Width * 2, f.Height);
 
                     LinearGradientBrush b2 = new LinearGradientBrush(fr2,
-                                                                    ColorTranslator.FromHtml("#FF6493"),
-                                                                    ColorTranslator.FromHtml("#D00F14"),
+                                                                    ColorTranslator.FromHtml("#9364FF"),
+                                                                    ColorTranslator.FromHtml("#0F14D0"),
                                                                     90);
                     var genderTop = faceDetect.FaceRectangle.Top - (int)(f.Height*1.5);
                     genderTop = genderTop > 0? genderTop : 0;
@@ -205,7 +205,7 @@ namespace WeixinServer.Helpers
 
                     //TODO: shadow -> g.translate, fillpath once, remove translate
                     g.DrawPath(p, gp);
-                    g.FillPath(b, gp);
+                    g.FillPath(b2, gp);
 
                     //cleanup
                     gp.Dispose();
