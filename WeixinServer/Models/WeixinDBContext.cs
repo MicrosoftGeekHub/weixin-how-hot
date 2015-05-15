@@ -28,7 +28,7 @@ namespace WeixinServer
         public int CreateTime { get; set; }
     }
 
-    [Table("ReleaseImageStorages")]
+    [Table("ImageStorages")]
     public sealed class ImageStorage
     {
         [Key]

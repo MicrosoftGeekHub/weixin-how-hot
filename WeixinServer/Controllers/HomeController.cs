@@ -141,6 +141,7 @@ namespace WeixinServer.Controllers
             return null;
         }
         private VisionHelper vision = new VisionHelper("cc9e33682fcd4eeab114f9a63dc16021", System.Web.HttpContext.Current.Server.MapPath(@"~\App_Data\xujl-font.ttf"), DateTime.Now, System.Web.HttpContext.Current.Server.MapPath(@"~\App_Data\MeoWu-font.ttf"));
+        private string md5;
         private async Task<bool> ProcessMsg(string xml)
         {
             MsgObject msg = new MsgObject(xml);
@@ -172,34 +173,29 @@ namespace WeixinServer.Controllers
             RichResult ret = null;
             //ret = vision.AnalyzeImage(msg.PicUrl); 
             
-           
-            //Task.Run(async () =>
-            //{
-             // var task =  vision.AnalyzeImage(msg.PicUrl, msg.FromUserName);
             var task = QuickReturn(vision, msg);
-
-                //check data from db
-                using (var dbContext = new WeixinDBContext())
+            md5 = GetMd5(msg.PicUrl + msg.CreateTime.ToString());
+            //check data from db
+            using (var dbContext = new WeixinDBContext())
+            {
+                //ImageStorage image = dbContext.ImageStorages.FirstOrDefault(p => p.OpenId == msg.FromUserName && p.PicUrl == msg.PicUrl && p.CreateTime == msg.CreateTime);
+                //ImageStorage image = dbContext.ImageStorages.FirstOrDefault(p => p.PicUrl == msg.PicUrl);
+                //ImageStorage image = dbContext.ImageStorages.FirstOrDefault(p => p.PicUrl == msg.PicUrl && p.CreateTime == msg.CreateTime);
+                    
+                ImageStorage image = dbContext.ImageStorages.FirstOrDefault(p => p.Md5 == md5);
+                    
+                if (image != null)
                 {
-                    //ImageStorage image = dbContext.ImageStorages.FirstOrDefault(p => p.OpenId == msg.FromUserName && p.PicUrl == msg.PicUrl && p.CreateTime == msg.CreateTime);
-                    //ImageStorage image = dbContext.ImageStorages.FirstOrDefault(p => p.PicUrl == msg.PicUrl);
-                    //ImageStorage image = dbContext.ImageStorages.FirstOrDefault(p => p.PicUrl == msg.PicUrl && p.CreateTime == msg.CreateTime);
-                    var md5 = GetMd5(msg.PicUrl + msg.CreateTime);
-                    ImageStorage image = dbContext.ImageStorages.FirstOrDefault(p => p.Md5 == md5);
-                    dbContext.Dispose();
-                    if (image != null)
-                    {
-                        Response.Write(string.Format("<xml><ToUserName><![CDATA[{0}]]></ToUserName><FromUserName><![CDATA[{1}]]></FromUserName><CreateTime>12345678</CreateTime><MsgType><![CDATA[text]]></MsgType><Content><![CDATA[{2}]]></Content><DebugInfo><![CDATA[{3}]]></DebugInfo><ErrorInfo><![CDATA[{4}]]></ErrorInfo></xml>",
-                            msg.FromUserName, msg.ToUserName, image.ParsedDescription, image.TimeLog, string.Empty));
-                        Response.End();
-                        return true;
-                    }
-
+                    Response.Write(string.Format("<xml><ToUserName><![CDATA[{0}]]></ToUserName><FromUserName><![CDATA[{1}]]></FromUserName><CreateTime>12345678</CreateTime><MsgType><![CDATA[text]]></MsgType><Content><![CDATA[{2}]]></Content><DebugInfo><![CDATA[{3}]]></DebugInfo><ErrorInfo><![CDATA[{4}]]></ErrorInfo></xml>",
+                        msg.FromUserName, msg.ToUserName, image.ParsedDescription, image.TimeLog, md5));
+                    Response.End();
+                    return true;
                 }
+                dbContext.Dispose();
+            }
 
-            //}).Wait();
 
-
+            
             ret = await task;
             
             //// Debug mode
@@ -220,7 +216,7 @@ namespace WeixinServer.Controllers
                 image.OpenId = msg.FromUserName;
                 image.CreateTime = msg.CreateTime;
                 image.PicUrl = msg.PicUrl;
-                image.Md5 = GetMd5(msg.PicUrl);
+                image.Md5 = md5;
                 //image.PicContent = ret.rawImage;
                 image.ParsedUrl = ret.uploadedUrl;
                 image.ParsedDescription = ret.analyzeImageResult;
