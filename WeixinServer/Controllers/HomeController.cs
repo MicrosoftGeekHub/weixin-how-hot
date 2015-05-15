@@ -129,17 +129,29 @@ namespace WeixinServer.Controllers
             var ret = await vision.AnalyzeImage(msg.PicUrl, msg.FromUserName);
             if (ret != null)
             {
-                Response.Write(string.Format("<xml><ToUserName><![CDATA[{0}]]></ToUserName><FromUserName><![CDATA[{1}]]></FromUserName><CreateTime>12345678</CreateTime><MsgType><![CDATA[text]]></MsgType><Content><![CDATA[{2}]]></Content><DebugInfo><![CDATA[{3}]]></DebugInfo><ErrorInfo><![CDATA[{4}]]></ErrorInfo></xml>",
-                    msg.FromUserName, msg.ToUserName, ret.analyzeImageResult, ret.timeLogs, ret.errorLogs));
-
-                // Production mode
-                //Response.Write(string.Format("<xml><ToUserName><![CDATA[{0}]]></ToUserName><FromUserName><![CDATA[{1}]]></FromUserName><CreateTime>12345678</CreateTime><MsgType><![CDATA[text]]></MsgType><Content><![CDATA[{2}]]></Content></xml>", 
-                //msg.FromUserName, msg.ToUserName, ret.analyzeImageResult));
-                Response.End();
-                return ret;
+                //Response.Write(string.Format("<xml><ToUserName><![CDATA[{0}]]></ToUserName><FromUserName><![CDATA[{1}]]></FromUserName><CreateTime>12345678</CreateTime><MsgType><![CDATA[text]]></MsgType><Content><![CDATA[{2}]]></Content><DebugInfo><![CDATA[{3}]]></DebugInfo><ErrorInfo><![CDATA[{4}]]></ErrorInfo></xml>",
+                //    msg.FromUserName, msg.ToUserName, ret.analyzeImageResult, ret.timeLogs, ret.errorLogs));
+                if (ret.errorLogs.Equals(""))
+                {
+                    // Production mode
+                    Response.Write(string.Format("<xml><ToUserName><![CDATA[{0}]]></ToUserName><FromUserName><![CDATA[{1}]]></FromUserName><CreateTime>12345678</CreateTime><MsgType><![CDATA[text]]></MsgType><Content><![CDATA[{2}]]></Content></xml>",
+                    msg.FromUserName, msg.ToUserName, ret.analyzeImageResult));
+                    Response.End();
+                    return ret;
+                }
+                else 
+                {
+                    //Response.Write(string.Format("<xml><ToUserName><![CDATA[{0}]]></ToUserName><FromUserName><![CDATA[{1}]]></FromUserName><CreateTime>12345678</CreateTime><MsgType><![CDATA[text]]></MsgType><Content><![CDATA[{2}]]></Content></xml>",
+                    //msg.FromUserName, msg.ToUserName, "机器人很忙，请稍后再试"));
+                    //Response.End();
+                    return ret;
+                }
+                
             }
             return null;
         }
+
+
         private VisionHelper vision = new VisionHelper("cc9e33682fcd4eeab114f9a63dc16021", System.Web.HttpContext.Current.Server.MapPath(@"~\App_Data\xujl-font.ttf"), DateTime.Now, System.Web.HttpContext.Current.Server.MapPath(@"~\App_Data\MeoWu-font.ttf"));
         private string md5;
         private async Task<bool> ProcessMsg(string xml)
@@ -173,8 +185,11 @@ namespace WeixinServer.Controllers
             RichResult ret = null;
             //ret = vision.AnalyzeImage(msg.PicUrl); 
             
+
+
             var task = QuickReturn(vision, msg);
-            md5 = GetMd5(msg.PicUrl + msg.CreateTime.ToString());
+            md5 = GetMd5(msg.PicUrl);
+            //md5 = GetMd5(msg.PicUrl + msg.CreateTime.ToString());
             //check data from db
             using (var dbContext = new WeixinDBContext())
             {
@@ -197,7 +212,14 @@ namespace WeixinServer.Controllers
 
             
             ret = await task;
-            
+
+            //when not results in DB and got error
+            if (!ret.errorLogs.Equals(""))
+            {
+                Response.Write(string.Format("<xml><ToUserName><![CDATA[{0}]]></ToUserName><FromUserName><![CDATA[{1}]]></FromUserName><CreateTime>12345678</CreateTime><MsgType><![CDATA[text]]></MsgType><Content><![CDATA[{2}]]></Content></xml>",
+                        msg.FromUserName, msg.ToUserName, "机器人很忙，请稍后再试"));
+                Response.End();
+            }
             //// Debug mode
             //Response.Write(string.Format("<xml><ToUserName><![CDATA[{0}]]></ToUserName><FromUserName><![CDATA[{1}]]></FromUserName><CreateTime>12345678</CreateTime><MsgType><![CDATA[text]]></MsgType><Content><![CDATA[{2}]]></Content><DebugInfo><![CDATA[{3}]]></DebugInfo><ErrorInfo><![CDATA[{4}]]></ErrorInfo></xml>",
             //    msg.FromUserName, msg.ToUserName, ret.analyzeImageResult, ret.timeLogs, ret.errorLogs));
@@ -216,10 +238,10 @@ namespace WeixinServer.Controllers
                 image.OpenId = msg.FromUserName;
                 image.CreateTime = msg.CreateTime;
                 image.PicUrl = msg.PicUrl;
-                image.Md5 = md5;
+                image.Md5 = GetMd5(msg.PicUrl + ret.errorLogs);
                 //image.PicContent = ret.rawImage;
                 image.ParsedUrl = ret.uploadedUrl;
-                image.ParsedDescription = ret.analyzeImageResult;
+                image.ParsedDescription = ret.analyzeImageResult + ret.errorLogs;
                 image.TimeLog = ret.timeLogs;
                 dbContext.ImageStorages.Add(image);
                 dbContext.SaveChanges();
