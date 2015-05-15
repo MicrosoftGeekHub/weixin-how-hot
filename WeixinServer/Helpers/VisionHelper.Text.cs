@@ -678,7 +678,7 @@ namespace WeixinServer.Helpers
                     //res += "; Score : " + category.Score;
 
                     //if (categoryNameMapping.ContainsKey(category.Name) && ! category.Name.EndsWith("_"))
-                    if (category.Name == "others_")
+                    if (category.Name.Equals("others_"))
                     {
                         postFix = string.Format("和{0}", categoryNameMapping[category.Name]);
                         continue;
@@ -785,7 +785,7 @@ namespace WeixinServer.Helpers
                 else if (numMale == 0 && numFemale == 1)
                 {
                     desStringWriter.Write(string.Format("画说，"));
-                    foreach (var key in maleAgeMap.Keys)
+                    foreach (var key in femaleAgeMap.Keys)
                     {
                         desStringWriter.Write(string.Format("这{0}个{1}，",
                             NumberToChineseChar(maleAgeMap[key]), key));
@@ -839,7 +839,7 @@ namespace WeixinServer.Helpers
             }
             timeLogger.Append(string.Format("{0} VisionHelper::ShowRichAnalysisResult end\n", DateTime.Now - this.startTime));
             //Console.ResetColor();
-            desStringWriter.Write("\n更多内容请关注微信公众号geekplus-ms");
+            desStringWriter.Write("\n更多内容请关注微信公众号geekplus-ms\n");
             return desStringWriter.ToString();
         }
 
