@@ -155,7 +155,7 @@ namespace WeixinServer.Helpers
                     //pen for outline - set width parameter
                     //Pen p = new Pen(ColorTranslator.FromHtml("#77090C"), 8);
                     //Pen p = new Pen(fontColor, 8);
-                    Pen p = new Pen(System.Drawing.Color.Yellow, 8);
+                    Pen p = new Pen(System.Drawing.Color.White, 8);
 
                     p.LineJoin = LineJoin.Round; //prevent "spikes" at the path
 
