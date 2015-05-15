@@ -185,10 +185,14 @@ namespace WeixinServer.Helpers
                            (int)(faceDetect.FaceRectangle.Height * 0.618));
                     //this will be the rectangle used to draw and auto-wrap the text.
                     //basically = image size
+                    int width = faceDetect.FaceRectangle.Width;
+                    if (width + faceDetect.FaceRectangle.Left > image.Width) width = image.Width - faceDetect.FaceRectangle.Left;
+                    int height = faceDetect.FaceRectangle.Height;
+                    if (2 * height + faceDetect.FaceRectangle.Top > image.Height) height = image.Height - faceDetect.FaceRectangle.Top;
                     System.Drawing.Rectangle r = new System.Drawing.Rectangle(faceDetect.FaceRectangle.Left,
                             faceDetect.FaceRectangle.Top + faceDetect.FaceRectangle.Height,
-                            faceDetect.FaceRectangle.Width ,
-                            faceDetect.FaceRectangle.Height);
+                            width,
+                            height);
 
                     GraphicsPath gp = new GraphicsPath();
 
