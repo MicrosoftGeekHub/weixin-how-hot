@@ -173,8 +173,8 @@ namespace WeixinServer.Helpers
                         faceDetect.FaceRectangle.Top, faceDetect.FaceRectangle.Width * 2, f.Height);
 
                     LinearGradientBrush b2 = new LinearGradientBrush(fr2,
-                                                                    ColorTranslator.FromHtml("#9364FF"),
-                                                                    ColorTranslator.FromHtml("#0F14D0"),
+                                                                    System.Drawing.Color.Aqua,
+                                                                    System.Drawing.Color.DodgerBlue,
                                                                     90);
                     var genderTop = faceDetect.FaceRectangle.Top - (int)(f.Height*1.5);
                     genderTop = genderTop > 0? genderTop : 0;
@@ -476,18 +476,22 @@ namespace WeixinServer.Helpers
             string resultUrl = null;
 
             var upyun = new UpYun("wxhowoldtest", "work01", "vYiJVc7iYY33w58O");
-            
-            using (var inStream = new MemoryStream(photoBytes))
-            {
+
+            //using (var midStream = new MemoryStream(photoBytes))
+            //{
+                midStream = new MemoryStream(photoBytes);
                 var outStream = new MemoryStream();
                 timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage::RenderAnalysisResultAsImage imageFactory.Load begin\n", DateTime.Now - this.startTime));
-                midStream = DrawRects(inStream, result);
+                
+                outStream = DrawText(captionText, result.Metadata.Width, result.Metadata.Height, result.Color);
+                outStream.Seek(0, SeekOrigin.Begin);
+                midStream = DrawRects(outStream, result);
                 midStream.Seek(0, SeekOrigin.Begin);
 
                 //var midStream = 
                 timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage::RenderAnalysisResultAsImage imageFactory.Load midStream generated\n", DateTime.Now - this.startTime));
 
-                outStream = DrawText(captionText, result.Metadata.Width, result.Metadata.Height, result.Color);
+                
                 //outStream.Seek(0, SeekOrigin.Begin);
                 //outStream = tulisnamafile2(midStream, captionText);
                 timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage::RenderAnalysisResultAsImage Upload to image CDN begin\n", DateTime.Now - this.startTime));
@@ -506,16 +510,16 @@ namespace WeixinServer.Helpers
                 //midStream.Seek(0, SeekOrigin.Begin);
                 //blockBlob.UploadFromStream(midStream);
                 outStream.Seek(0, SeekOrigin.Begin);
-                blockBlob.UploadFromStream(outStream);
+                blockBlob.UploadFromStream(midStream);
                 resultUrl = "http://geeekstore.blob.core.windows.net/cdn/" + blobName;
                 //resultUrl = upyun.UploadImageStream(outStream);
 
                 this.returnImageUrl = resultUrl;                    
                 timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage::RenderAnalysisResultAsImage Upload to image CDN end\n", DateTime.Now - this.startTime));
-            }
+            //}
 
             //return string.Format("画说:\n{0}", resultUrl);
-            return string.Format("画说:\n{0}\n归图:\n{1}\n", captionText, resultUrl);
+            return string.Format("谈画:\n{0}\n归图:\n{1}\n", captionText, resultUrl);
             //return string.Format("画说:\n{0}\n归图:\n{1}\n原图:\n{2}", captionText, resultUrl, this.originalImageUrl);
         }
     }

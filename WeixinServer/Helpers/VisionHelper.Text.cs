@@ -788,7 +788,7 @@ namespace WeixinServer.Helpers
                     foreach (var key in femaleAgeMap.Keys)
                     {
                         desStringWriter.Write(string.Format("这{0}个{1}，",
-                            NumberToChineseChar(maleAgeMap[key]), key));
+                            NumberToChineseChar(femaleAgeMap[key]), key));
                     }
                     desStringWriter.Write(string.Format("看起来很无辜 :)"));
                 }
@@ -839,7 +839,7 @@ namespace WeixinServer.Helpers
             }
             timeLogger.Append(string.Format("{0} VisionHelper::ShowRichAnalysisResult end\n", DateTime.Now - this.startTime));
             //Console.ResetColor();
-            desStringWriter.Write("\n更多内容请关注微信公众号geekplus-ms\n");
+            desStringWriter.Write("\n我是谈画机器人，请关注极客家公众号geekplus-ms，\n点+号直接发图，我就给您谈画\n");
             return desStringWriter.ToString();
         }
 
