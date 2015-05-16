@@ -27,16 +27,32 @@ namespace WeixinServer.Controllers
             }
             else
             {
-                if (!Valid())
-                {
-                    return View();
-                }
+                Valid();
+                return View("HowOld");
             }
 
             return View();
         }
 
-        public void ProcessPost()
+        public ActionResult Image()
+        {
+            if (Request.HttpMethod.ToUpper() == "POST")
+            {
+                //send response
+                ProcessPost(true);
+            }
+            else
+            {
+                if (!Valid())
+                {
+                    return View("Index");
+                }
+            }
+
+            return View("Index");
+        }
+
+        public void ProcessPost(bool returnImage = false)
         {
             string postString = string.Empty;
 
@@ -53,7 +69,7 @@ namespace WeixinServer.Controllers
                 bool isProcessed = false;
                 Task.Run(async () =>
             {
-                isProcessed = await ProcessMsg(postString);
+                isProcessed = await ProcessMsg(postString, returnImage);
             }).Wait();
 
 
@@ -160,7 +176,7 @@ namespace WeixinServer.Controllers
         }
         private string fontPath = System.Web.HttpContext.Current.Server.MapPath(@"~\App_Data\xujl-font.ttf");
         private string md5;
-        private async Task<bool> ProcessMsg(string xml)
+        private async Task<bool> ProcessMsg(string xml, bool returnImage)
         {
             MsgObject msg = new MsgObject(xml);
 
