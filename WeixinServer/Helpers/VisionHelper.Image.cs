@@ -160,7 +160,7 @@ namespace WeixinServer.Helpers
                     }
                     else if (mouthLargeRate < 0.9)
                     {
-                        eyeDescribion += "\n樱桃小口";
+                        eyeDescribion += "\n樱桃小口" + nickName;
                     }
                     else
                     {
