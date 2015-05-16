@@ -139,6 +139,8 @@ namespace WeixinServer.Helpers
                     //var hotivity = 100000 * (faceDetect.FaceRectangle.Height / faceDetect.FaceRectangle.Width - 1);
                     var lm = faceDetect.FaceLandmarks;
                     var emLargeRate = DistanceSquare(lm.EyeLeftBottom, lm.EyeLeftTop) / DistanceSquare(lm.EyeLeftInner, lm.EyeLeftOuter);
+                    //var mouthLargeRate = DistanceSquare(lm.UpperLipBottom, lm.UnderLipTop) / DistanceSquare(lm.EyeLeftInner, lm.EyeRightInner);
+                    var mouthLargeRate = DistanceSquare(lm.MouthRight, lm.MouthLeft) / DistanceSquare(lm.EyeLeftInner, lm.EyeRightInner);
                     var eyeDescribion = "";
                     if (emLargeRate > 0.08)
                     {
@@ -149,6 +151,22 @@ namespace WeixinServer.Helpers
                     {
                         eyeDescribion = "丹凤眼";
                     }
+
+
+                    if (mouthLargeRate > 1.1)
+                    {
+                        eyeDescribion += "\n性感大嘴" + nickName;
+
+                    }
+                    else if (mouthLargeRate < 0.9)
+                    {
+                        eyeDescribion += "\n樱桃小口";
+                    }
+                    else
+                    {
+ 
+                    }
+
                     hotivity += emLargeRate * 100;
                     //hotivity = hotivity / 10
                     string info = string.Format("{0:F0}万\nHots\n{1}\n", hotivity, eyeDescribion);
@@ -201,7 +219,7 @@ namespace WeixinServer.Helpers
                                                                     System.Drawing.Color.Aqua,
                                                                     System.Drawing.Color.DodgerBlue,
                                                                     90);
-                    var genderTop = faceDetect.FaceRectangle.Top - (int)(f.Height*1.5);
+                    var genderTop = faceDetect.FaceRectangle.Top - (int)(f.Height*3);
                     genderTop = genderTop > 0? genderTop : 0;
                     System.Drawing.Rectangle r2 = new System.Drawing.Rectangle(faceDetect.FaceRectangle.Left,
                            genderTop,
