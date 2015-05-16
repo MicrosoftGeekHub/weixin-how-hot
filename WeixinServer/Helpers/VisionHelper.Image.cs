@@ -84,6 +84,19 @@ namespace WeixinServer.Helpers
             int saoBility = ascr + rscr;
             //var hotivity = saoBility;
             Image image = Image.FromStream(inStream);
+            var imageSize = image.Width;
+            var rectEmsize = 1.0f;
+            if (image.Height > maxNumPixs)
+            {
+                int height = maxNumPixs;
+                int width = (int)((float)height * image.Width / image.Height);
+                if (width < minNumPixs)
+                {
+                    width = minNumPixs;
+                    height = (int)((float)width * image.Height / image.Width);
+                }
+                rectEmsize = (float) image.Height / height;
+            }
             //        Watermark
             //var clr = new Microsoft.ProjectOxford.Vision.Contract.Color();
             //clr.AccentColor = "CAA501";
@@ -106,6 +119,14 @@ namespace WeixinServer.Helpers
                 var maleRectangles = new List<System.Drawing.Rectangle>();
                 foreach (var faceDetect in faceDetections)
                 {
+                    if (rectEmsize > 0)
+                    {
+                        faceDetect.FaceRectangle.Top = (int)(faceDetect.FaceRectangle.Top * rectEmsize);
+                        faceDetect.FaceRectangle.Left = (int)(faceDetect.FaceRectangle.Left * rectEmsize);
+                        faceDetect.FaceRectangle.Width = (int)(faceDetect.FaceRectangle.Width * rectEmsize);
+                        faceDetect.FaceRectangle.Height = (int)(faceDetect.FaceRectangle.Height * rectEmsize);
+                    }
+
                     string genderInfo = "";
 
                     int topText = faceDetect.FaceRectangle.Top + faceDetect.FaceRectangle.Height + 5;
@@ -169,7 +190,7 @@ namespace WeixinServer.Helpers
 
                     hotivity += emLargeRate * 100;
                     //hotivity = hotivity / 10
-                    string info = string.Format("{0:F0}万\nHots\n{1}\n", hotivity, eyeDescribion);
+                    string info = string.Format("{0:F0}万\nHots\n{1}\n", rectEmsize, eyeDescribion);
                     
                     Size room = new Size((int) (faceDetect.FaceRectangle.Width) , (int)(faceDetect.FaceRectangle.Height));
                     var ret = FindFont(g, info, room, new Font(ff, 36, FontStyle.Bold, GraphicsUnit.Pixel));

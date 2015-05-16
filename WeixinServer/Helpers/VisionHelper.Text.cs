@@ -131,6 +131,9 @@ namespace WeixinServer.Helpers
             return await AnalyzeImage(imagePathOrUrl);
         }
 
+        private int minNumPixs = 50;
+        private int maxNumPixs = 800;
+
         /// <summary>
         /// Analyze the given image.
         /// </summary>
@@ -184,7 +187,8 @@ namespace WeixinServer.Helpers
 
                         //var taskAnalyzeUrl = this.visionClient.AnalyzeImageAsync(imagePathOrUrl, visualFeatures);
 
-                        int minNumPixs = 800;
+                        
+
                         using (var ms = new MemoryStream())
                         {
                             streamToUpload.CopyTo(ms);
@@ -192,10 +196,10 @@ namespace WeixinServer.Helpers
                             MemoryStream ms4face = new MemoryStream();
                             image.Save(ms4face, image.RawFormat);
                             timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage AnalyzeImageAsync stream begin\n", DateTime.Now - this.startTime));
-                            if (image.Width > minNumPixs)
+                            if (image.Height > maxNumPixs)
                             {
                                 timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage AnalyzeImageAsync Resize begin\n", DateTime.Now - this.startTime));
-                                int height = minNumPixs;
+                                int height = maxNumPixs;
                                 int width = (int)((float)height * image.Width / image.Height);
                                 if (width < minNumPixs)
                                 {
@@ -209,9 +213,9 @@ namespace WeixinServer.Helpers
                                 resizedImg.Save(resizedMemoryStream2, image.RawFormat);
                                 
                                 timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage AnalyzeImageAsync Resize end\n", DateTime.Now - this.startTime));
-                                resizedMemoryStream.Seek(0, SeekOrigin.Begin);
-                                photoBytes = resizedMemoryStream.ToArray();
-                                timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage AnalyzeImageAsync read Bytes end\n", DateTime.Now - this.startTime));
+                           //     resizedMemoryStream.Seek(0, SeekOrigin.Begin);
+                          //      photoBytes = resizedMemoryStream.ToArray();
+                          //      timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage AnalyzeImageAsync read Bytes end\n", DateTime.Now - this.startTime));
                                 
                                 faceAgent fa = new faceAgent();
                                 resizedMemoryStream.Seek(0, SeekOrigin.Begin);
@@ -237,7 +241,7 @@ namespace WeixinServer.Helpers
                                 ms.Seek(0, SeekOrigin.Begin);
                                 analysisResult = await this.visionClient.AnalyzeImageAsync(ms4face, visualFeatures); ;
                                 ms.Seek(0, SeekOrigin.Begin);
-                                photoBytes = ms.ToArray();
+                              //  photoBytes = ms.ToArray();
 
                                 timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage AnalyzeImageAsync stream end\n", DateTime.Now - this.startTime));
                             }
@@ -297,7 +301,7 @@ namespace WeixinServer.Helpers
                 var txtRichResult = new RichResult(timeLogger.ToString(), resTxt, errLogger.ToString());
                 if (string.IsNullOrEmpty(resTxt)) return txtRichResult;
 
-                //photoBytes = await taskb;
+                photoBytes = await taskb;
                 timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage client.DownloadDataTaskAsync end\n", DateTime.Now - this.startTime));
 
                 var resImg = this.RenderAnalysisResultAsImage(analysisResult, resTxt);
