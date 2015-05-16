@@ -195,8 +195,8 @@ namespace WeixinServer.Controllers
 
 
             var task = QuickReturn(vision, msg);
-            md5 = GetMd5(msg.PicUrl);
-            //md5 = GetMd5(msg.PicUrl + msg.CreateTime.ToString());
+            //md5 = GetMd5(msg.PicUrl);
+            md5 = GetMd5(msg.PicUrl + msg.CreateTime.ToString());
             //check data from db
             using (var dbContext = new WeixinDBContext())
             {
@@ -245,7 +245,7 @@ namespace WeixinServer.Controllers
                 image.OpenId = msg.FromUserName;
                 image.CreateTime = msg.CreateTime;
                 image.PicUrl = msg.PicUrl;
-                image.Md5 = GetMd5(msg.PicUrl + ret.errorLogs);
+                image.Md5 = GetMd5(msg.PicUrl + msg.CreateTime.ToString() + ret.errorLogs);
                 //image.PicContent = ret.rawImage;
                 image.ParsedUrl = ret.uploadedUrl;
                 image.ParsedDescription = ret.analyzeImageResult + ret.errorLogs;
