@@ -5,71 +5,72 @@ import xml.etree.ElementTree as etree
 
 target_url = "http://msftgeekblog.azurewebsites.net/"
 
-test_url_list = [
-    "http://geeekstore.blob.core.windows.net/cdn/weiTestCase/book1.jpg",
-    "http://geeekstore.blob.core.windows.net/cdn/weiTestCase/book2.jpg",
-    "http://geeekstore.blob.core.windows.net/cdn/weiTestCase/book3.jpg",
-    "http://geeekstore.blob.core.windows.net/cdn/weiTestCase/book4.jpg",
-    "http://geeekstore.blob.core.windows.net/cdn/weiTestCase/build1.jpg",
-    "http://geeekstore.blob.core.windows.net/cdn/weiTestCase/build2.jpg",
-    "http://geeekstore.blob.core.windows.net/cdn/weiTestCase/build3.jpg",
-    "http://geeekstore.blob.core.windows.net/cdn/weiTestCase/coupl2.jpg",
-    "http://geeekstore.blob.core.windows.net/cdn/weiTestCase/couple1.jpg",
-    "http://geeekstore.blob.core.windows.net/cdn/weiTestCase/female1.jpg",
-    "http://geeekstore.blob.core.windows.net/cdn/weiTestCase/female2.jpg",
-    "http://geeekstore.blob.core.windows.net/cdn/weiTestCase/female3.jpg",
-    "http://geeekstore.blob.core.windows.net/cdn/weiTestCase/food1.jpg",
-    "http://geeekstore.blob.core.windows.net/cdn/weiTestCase/food10.jpg",
-    "http://geeekstore.blob.core.windows.net/cdn/weiTestCase/food11.jpg",
-    "http://geeekstore.blob.core.windows.net/cdn/weiTestCase/food2.jpg",
-    "http://geeekstore.blob.core.windows.net/cdn/weiTestCase/food3.jpg",
-    "http://geeekstore.blob.core.windows.net/cdn/weiTestCase/food4.jpg",
-    "http://geeekstore.blob.core.windows.net/cdn/weiTestCase/food5.jpg",
-    "http://geeekstore.blob.core.windows.net/cdn/weiTestCase/food6.jpg",
-    "http://geeekstore.blob.core.windows.net/cdn/weiTestCase/food7.jpg",
-    "http://geeekstore.blob.core.windows.net/cdn/weiTestCase/food8.jpg",
-    "http://geeekstore.blob.core.windows.net/cdn/weiTestCase/food9.jpg",
-    "http://geeekstore.blob.core.windows.net/cdn/weiTestCase/group0.jpg",
-    "http://geeekstore.blob.core.windows.net/cdn/weiTestCase/group1.jpg",
-    "http://geeekstore.blob.core.windows.net/cdn/weiTestCase/group2.jpg",
-    "http://geeekstore.blob.core.windows.net/cdn/weiTestCase/group3.jpg",
-    "http://geeekstore.blob.core.windows.net/cdn/weiTestCase/group4.jpg",
-    "http://geeekstore.blob.core.windows.net/cdn/weiTestCase/keyboard.jpg",
-    "http://geeekstore.blob.core.windows.net/cdn/weiTestCase/male1.jpg",
-    "http://geeekstore.blob.core.windows.net/cdn/weiTestCase/male2.jpg",
-    "http://geeekstore.blob.core.windows.net/cdn/weiTestCase/male3.jpg",
-    "http://geeekstore.blob.core.windows.net/cdn/weiTestCase/male4.jpg",
-    "http://geeekstore.blob.core.windows.net/cdn/weiTestCase/manual.jpg",
-    "http://geeekstore.blob.core.windows.net/cdn/weiTestCase/menu1.jpg",
-    "http://geeekstore.blob.core.windows.net/cdn/weiTestCase/menu2.jpg",
-    "http://geeekstore.blob.core.windows.net/cdn/weiTestCase/menu3.jpg",
-    "http://geeekstore.blob.core.windows.net/cdn/weiTestCase/menu4.jpg",
-    "http://geeekstore.blob.core.windows.net/cdn/weiTestCase/menu5.jpg",
-    "http://geeekstore.blob.core.windows.net/cdn/weiTestCase/menu6.jpg",
-    "http://geeekstore.blob.core.windows.net/cdn/weiTestCase/outdoor1.jpg",
-    "http://geeekstore.blob.core.windows.net/cdn/weiTestCase/outdoor2.jpg",
-    "http://geeekstore.blob.core.windows.net/cdn/weiTestCase/outdoor4.jpg",
-    "http://geeekstore.blob.core.windows.net/cdn/weiTestCase/png-menu.png",
-    "http://geeekstore.blob.core.windows.net/cdn/weiTestCase/post1.jpg",
-    "http://geeekstore.blob.core.windows.net/cdn/weiTestCase/post2.jpg",
-    "http://geeekstore.blob.core.windows.net/cdn/weiTestCase/qr.jpg",
-    "http://geeekstore.blob.core.windows.net/cdn/weiTestCase/railway.jpg",
-    "http://geeekstore.blob.core.windows.net/cdn/weiTestCase/screen-male.jpg",
-    "http://geeekstore.blob.core.windows.net/cdn/weiTestCase/screen1.jpg",
-    "http://geeekstore.blob.core.windows.net/cdn/weiTestCase/screen2.jpg",
-    "http://geeekstore.blob.core.windows.net/cdn/weiTestCase/screen3.jpg",
-    "http://geeekstore.blob.core.windows.net/cdn/weiTestCase/screen4.jpg",
-    "http://geeekstore.blob.core.windows.net/cdn/weiTestCase/sky.jpg",
-    "http://geeekstore.blob.core.windows.net/cdn/weiTestCase/venue1.jpg",
-    "http://geeekstore.blob.core.windows.net/cdn/weiTestCase/venue2.jpg",
-    "http://geeekstore.blob.core.windows.net/cdn/weiTestCase/venue3.jpg",
+test_url_prefix ="http://geeekstore.blob.core.windows.net/cdn/weiTestCase/"
+test_file_list = [
+    "book1.jpg",
+    "book2.jpg",
+    "book3.jpg",
+    "book4.jpg",
+    "build1.jpg",
+    "build2.jpg",
+    "build3.jpg",
+    "coupl2.jpg",
+    "couple1.jpg",
+    "female1.jpg",
+    "female2.jpg",
+    "female3.jpg",
+    "food1.jpg",
+    "food10.jpg",
+    "food11.jpg",
+    "food2.jpg",
+    "food3.jpg",
+    "food4.jpg",
+    "food5.jpg",
+    "food6.jpg",
+    "food7.jpg",
+    "food8.jpg",
+    "food9.jpg",
+    "group0.jpg",
+    "group1.jpg",
+    "group2.jpg",
+    "group3.jpg",
+    "group4.jpg",
+    "keyboard.jpg",
+    "male1.jpg",
+    "male2.jpg",
+    "male3.jpg",
+    "male4.jpg",
+    "manual.jpg",
+    "menu1.jpg",
+    "menu2.jpg",
+    "menu3.jpg",
+    "menu4.jpg",
+    "menu5.jpg",
+    "menu6.jpg",
+    "outdoor1.jpg",
+    "outdoor2.jpg",
+    "outdoor4.jpg",
+    "png-menu.png",
+    "post1.jpg",
+    "post2.jpg",
+    "qr.jpg",
+    "railway.jpg",
+    "screen-male.jpg",
+    "screen1.jpg",
+    "screen2.jpg",
+    "screen3.jpg",
+    "screen4.jpg",
+    "sky.jpg",
+    "venue1.jpg",
+    "venue2.jpg",
+    "venue3.jpg",
 ]
 
 post_content_template = """
 <xml>
 <ToUserName><![CDATA[toUnitTest]]></ToUserName>
 <FromUserName><![CDATA[fromUnitTest]]></FromUserName>
-<CreateTime>1348831860</CreateTime>
+<CreateTime>%d</CreateTime>
 <MsgType><![CDATA[image]]></MsgType>
 <PicUrl><![CDATA[%s]]></PicUrl>
 <MediaId><![CDATA[media_id]]></MediaId>
@@ -81,7 +82,7 @@ post_content_template = """
 def post_image(url):
     try:
         headers = {'Content-Type': 'application/xml'}
-        resp = post(target_url, data = post_content_template % url, headers = headers, timeout = 20)
+        resp = post(target_url, data = post_content_template % (int(time()), url), headers = headers, timeout = 30)
         if resp.status_code == codes.ok:
             return resp.text
     except Exception as e:
@@ -104,7 +105,8 @@ def parse_response_valid(text):
 count_ok = 0
 count_fail = 0
 total_time = 0.0
-for index, url in enumerate(test_url_list):
+for index, filename in enumerate(test_file_list):
+    url = test_url_prefix + filename
     time_start = time()
     text = post_image(url)
     time_end = time()
