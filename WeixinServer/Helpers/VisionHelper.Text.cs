@@ -695,11 +695,20 @@ namespace WeixinServer.Helpers
                 //var sb = new StringBuilder();
                 string preFix = "";
                 string postFix = "";
+                //MvcApplication.InitCateMap();
+                var cat2StoryMap = MvcApplication.GetCateMap();
                 foreach (var category in result.Categories)
                 {
                     //res += "   Name : " + category.Name;
                     //res += "; Score : " + category.Score;
-
+                    if (cat2StoryMap.ContainsKey(category.Name))
+                    {
+                        var story = cat2StoryMap[category.Name];
+                        char[] charArr = {'，', '。' };
+                        foreach (var line in story.Split(charArr))
+                            desStringWriter.WriteLine(line);
+                        break;
+                    }
                     //if (categoryNameMapping.ContainsKey(category.Name) && ! category.Name.EndsWith("_"))
                     if (category.Name.Equals("others_"))
                     {
@@ -722,6 +731,10 @@ namespace WeixinServer.Helpers
                 {
                     desStringWriter.Write(string.Format("{0}和{1}", preFix.TrimEnd('、'), postFix));
                 }
+                else
+                {
+                    desStringWriter.Write(string.Format("{0}{1}", preFix.TrimEnd('、'), postFix));
+                }
                 
                 if (result.Categories.Length > 1 && preFix.Length > 1)
                     desStringWriter.Write(string.Format("等内容"));
@@ -730,8 +743,8 @@ namespace WeixinServer.Helpers
 
             if (result.RichFaces != null && result.RichFaces.Length > 0)
             {
-                var shenPrice = (result.Adult.AdultScore + 2 * result.Adult.RacyScore) * result.RichFaces.Length * 2500;
-                desStringWriter.Write(string.Format("集体肾价：${0:F0}万，打八折只要998！\n", shenPrice));//TODO 少量 or More by Score
+               // var shenPrice = (result.Adult.AdultScore + 2 * result.Adult.RacyScore) * result.RichFaces.Length * 2500;
+               // desStringWriter.Write(string.Format("集体肾价：${0:F0}万，打八折只要998！\n", shenPrice));//TODO 少量 or More by Score
                 res += "Faces : ";
                 int numFemale = 0, numMale = 0;
                 float avgAge = 0.0f, mAvgAge = 0.01f, fAvgAge = 0.01f;
@@ -774,13 +787,13 @@ namespace WeixinServer.Helpers
                 //这个大叔很幸福
                 if (numFemale >= numMale && numMale > 0)
                 {
-                    desStringWriter.Write(string.Format("画说，"));
+                    desStringWriter.Write(string.Format("画说，这"));
                     foreach (var key in maleAgeMap.Keys)
                     {
-                        desStringWriter.Write(string.Format("这{0}个{1}，",
+                        desStringWriter.Write(string.Format("{0}个{1}，",
                             NumberToChineseChar(maleAgeMap[key]), key));
                     }
-                    desStringWriter.Write(string.Format("看起来很幸福 :) \n因为身边有"));
+                    desStringWriter.Write(string.Format("看起来很幸福 :) ，因为身边有"));
                     foreach (var key in femaleAgeMap.Keys)
                     {
                         desStringWriter.Write(string.Format("{0}个{1}，",
@@ -841,16 +854,16 @@ namespace WeixinServer.Helpers
                 else { }
 
                 //老驴啃嫩草
-                float ratio = mAvgAge / fAvgAge;
-                if (ratio > 1.2 && numFemale > 0) desStringWriter.Write(string.Format("\n因为僧多粥少，所以{0}头老驴啃{1}棵嫩草", NumberToChineseChar(numMale), NumberToChineseChar(numFemale)));
-                else if (ratio < 0.8 && numMale > 0) desStringWriter.Write(string.Format("\n因为粥多僧少，所以{0}棵老草啃{1}头嫩驴", NumberToChineseChar(numFemale), NumberToChineseChar(numMale)));
+                //float ratio = mAvgAge / fAvgAge;
+                //if (ratio > 1.2 && numFemale > 0) desStringWriter.Write(string.Format("\n因为僧多粥少，所以{0}头老驴啃{1}棵嫩草", NumberToChineseChar(numMale), NumberToChineseChar(numFemale)));
+                //else if (ratio < 0.8 && numMale > 0) desStringWriter.Write(string.Format("\n因为粥多僧少，所以{0}棵老草啃{1}头嫩驴", NumberToChineseChar(numFemale), NumberToChineseChar(numMale)));
                 //else if (numFemale > 0 && numMale > 0)
                 //{
                 //    desStringWriter.Write(string.Format("{0}男{1}女，年轻的朋友们，今天来相会，荡起小船儿暖风轻轻吹", NumberToChineseChar(numMale), NumberToChineseChar(numFemale)));
                 //}
-                else
-                {
-                }
+                //else
+                //{
+                //}
             }
 
             if (result.Color != null)
@@ -885,10 +898,10 @@ namespace WeixinServer.Helpers
             else if (age <= 16) title = "花季少女";
             else if (age <= 17) title = "雨季少女";
             else if (age <= 24) title = "软妹子";
-            else if (age <= 32) title = "轻熟女";
-            else if (age <= 42) title = "熟女";
+            else if (age <= 30) title = "圣女";
+            else if (age <= 42) title = "大圣女";
             else if (age <= 55) title = "大姐";
-            else if (age <= 75) title = "广场舞大妈";
+            else if (age <= 75) title = "大妈";
             else title = "奶奶";
             
             return title;

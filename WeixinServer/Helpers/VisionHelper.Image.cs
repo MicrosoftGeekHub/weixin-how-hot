@@ -176,12 +176,17 @@ namespace WeixinServer.Helpers
                     }
 
 
-                    if (mouthLargeRate > 1.1)
+                    if (mouthLargeRate > 1.4)
                     {
-                        eyeDescribion += "\n性感大嘴";
+                        eyeDescribion += "\n喷血大口";
 
                     }
-                    else if (mouthLargeRate < 0.9)
+                    if (mouthLargeRate > 1.2)
+                    {
+                        eyeDescribion += "\n性感红唇";
+
+                    }
+                    else if (mouthLargeRate < 1.1)
                     {
                         eyeDescribion += "\n樱桃小口";
                     }
@@ -192,7 +197,7 @@ namespace WeixinServer.Helpers
 
                     hotivity += emLargeRate * 100;
                     //hotivity = hotivity / 10
-                    string info = string.Format("{0:F0}万\nHots\n{1}\n", rectEmsize, eyeDescribion);
+                    string info = string.Format("{0:F0}万\nHots\n{1}\n", hotivity, eyeDescribion);
                     
                     Size room = new Size((int) (faceDetect.FaceRectangle.Width) , (int)(faceDetect.FaceRectangle.Height));
                     var ret = FindFont(g, info, room, new Font(ff, 36, FontStyle.Bold, GraphicsUnit.Pixel));
