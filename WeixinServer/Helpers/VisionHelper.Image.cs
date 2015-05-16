@@ -12,6 +12,7 @@ using System.Configuration;
 using System.Linq;
 using WeixinServer.Models;
 using System.Drawing.Drawing2D;
+using Microsoft.ProjectOxford.Face.Contract;
 namespace WeixinServer.Helpers
 {
     public partial class VisionHelper
@@ -69,6 +70,11 @@ namespace WeixinServer.Helpers
             return (Image)newImage;
         }
 
+        static double DistanceSquare(FeatureCoordinate p, FeatureCoordinate q)
+        {
+            return Math.Pow(p.X - q.X, 2) + Math.Pow(p.Y - q.Y, 2);
+        }
+
         private MemoryStream DrawRects(MemoryStream inStream, AnalysisResult analysisResult) 
         {
             var faceDetections = analysisResult.RichFaces;
@@ -105,7 +111,8 @@ namespace WeixinServer.Helpers
                     int topText = faceDetect.FaceRectangle.Top + faceDetect.FaceRectangle.Height + 5;
                     //int topText = faceDetect.FaceRectangle.Top - faceDetect.FaceRectangle.Height - 10;
                     topText = topText > 0 ? topText : 0;
-                    
+
+                    var nickName = "哥";
 
                     var colour = System.Drawing.Color.Magenta;
                     if (faceDetect.Attributes.Gender.ToLower().Equals("male"))
@@ -122,12 +129,47 @@ namespace WeixinServer.Helpers
                         genderInfo += "♀";
                         femelRectangles.Add(new System.Drawing.Rectangle(faceDetect.FaceRectangle.Left,
                             faceDetect.FaceRectangle.Top, faceDetect.FaceRectangle.Width, faceDetect.FaceRectangle.Height));
+                        nickName = "妹";
                         //femelRectangles.Add(new System.Drawing.Rectangle(leftText,
                         //    topText, faceDetect.FaceRectangle.Width, faceDetect.FaceRectangle.Top - topText));
                     }
                     //draw text 
-                    var hotivity = saoBility * faceDetect.Attributes.Age;
-                    string info = string.Format("{0:F1}万\nHots\n", saoBility / faceDetect.Attributes.Age);
+                    var hotivity = saoBility / faceDetect.Attributes.Age;
+                    
+                    //var hotivity = 100000 * (faceDetect.FaceRectangle.Height / faceDetect.FaceRectangle.Width - 1);
+                    var lm = faceDetect.FaceLandmarks;
+                    var emLargeRate = DistanceSquare(lm.EyeLeftBottom, lm.EyeLeftTop) / DistanceSquare(lm.EyeLeftInner, lm.EyeLeftOuter);
+                    //var mouthLargeRate = DistanceSquare(lm.UpperLipBottom, lm.UnderLipTop) / DistanceSquare(lm.EyeLeftInner, lm.EyeRightInner);
+                    var mouthLargeRate = DistanceSquare(lm.MouthRight, lm.MouthLeft) / DistanceSquare(lm.EyeLeftInner, lm.EyeRightInner);
+                    var eyeDescribion = "";
+                    if (emLargeRate > 0.08)
+                    {
+                        eyeDescribion = "大眼" + nickName;
+
+                    }
+                    else 
+                    {
+                        eyeDescribion = "丹凤眼";
+                    }
+
+
+                    if (mouthLargeRate > 1.1)
+                    {
+                        eyeDescribion += "\n性感大嘴" + nickName;
+
+                    }
+                    else if (mouthLargeRate < 0.9)
+                    {
+                        eyeDescribion += "\n樱桃小口" + nickName;
+                    }
+                    else
+                    {
+ 
+                    }
+
+                    hotivity += emLargeRate * 100;
+                    //hotivity = hotivity / 10
+                    string info = string.Format("{0:F0}万\nHots\n{1}\n", hotivity, eyeDescribion);
                     
                     Size room = new Size((int) (faceDetect.FaceRectangle.Width) , (int)(faceDetect.FaceRectangle.Height));
                     var ret = FindFont(g, info, room, new Font(ff, 36, FontStyle.Bold, GraphicsUnit.Pixel));
@@ -177,7 +219,7 @@ namespace WeixinServer.Helpers
                                                                     System.Drawing.Color.Aqua,
                                                                     System.Drawing.Color.DodgerBlue,
                                                                     90);
-                    var genderTop = faceDetect.FaceRectangle.Top - (int)(f.Height*1.5);
+                    var genderTop = faceDetect.FaceRectangle.Top - (int)(f.Height*3);
                     genderTop = genderTop > 0? genderTop : 0;
                     System.Drawing.Rectangle r2 = new System.Drawing.Rectangle(faceDetect.FaceRectangle.Left,
                            genderTop,
