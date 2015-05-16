@@ -117,7 +117,7 @@ for index, filename in enumerate(test_file_list):
         count_ok += 1
     else:
         count_fail += 1
-    print("#", index + 1, "-", url, valid, time_interval)
+    print("#", index + 1, "-", url, valid, time_interval, "!" * max(0, int(time_interval - 4)))
 
 count_all = count_ok + count_fail
 print("{} test in total, ok: {}, fail: {}, success rate: {:.2f}%, average secs: {:.4f}".format(count_all, count_ok, count_fail, count_ok / count_all * 100, total_time / count_all))
