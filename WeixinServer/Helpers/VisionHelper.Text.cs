@@ -879,8 +879,9 @@ namespace WeixinServer.Helpers
         {
             string title;
 
-            if (age <= 4) title = "学前女婴";
-            else if (age <= 10) title = "学龄萝莉";
+            if (age <= 4) title = "灵童";
+            else if (age <= 12) title = "萝莉";
+            else if (age <= 15) title = "少女";
             else if (age <= 16) title = "花季少女";
             else if (age <= 17) title = "雨季少女";
             else if (age <= 24) title = "软妹子";
@@ -897,14 +898,15 @@ namespace WeixinServer.Helpers
         {
             string title;
 
-            if (age <= 4) title = "学前灵童";
-            else if (age <= 10) title = "正太";
+            if (age <= 4) title = "神童";
+            else if (age <= 12) title = "正太";
+            else if (age <= 15) title = "少年";
             else if (age <= 16) title = "花季少年";
             else if (age <= 17) title = "雨季少年";
             else if (age <= 24) title = "小鲜肉";
-            else if (age <= 30) title = "为买房而奋斗的青年";
-            else if (age <= 35) title = "刚过而立之年的男神";
-            else if (age <= 40) title = "闯荡一番事业的大哥";
+            else if (age <= 30) title = "文青";
+            else if (age <= 35) title = "男神";
+            else if (age <= 40) title = "大哥";
             else if (age <= 55) title = "大叔";
             else if (age <= 70) title = "大爷";
             else title = "爷爷";

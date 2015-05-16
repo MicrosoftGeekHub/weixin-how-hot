@@ -139,6 +139,7 @@ namespace WeixinServer.Helpers
                     if (faceDetect.Attributes.Gender.ToLower().Equals("male"))
                     {
                         genderInfo += "♂";
+                        genderInfo += MaleTitleAsPerAge(faceDetect.Attributes.Age);
                         maleRectangles.Add(new System.Drawing.Rectangle(faceDetect.FaceRectangle.Left,
                             faceDetect.FaceRectangle.Top, faceDetect.FaceRectangle.Width, faceDetect.FaceRectangle.Height));
                         colour = System.Drawing.Color.Lime;
@@ -148,6 +149,7 @@ namespace WeixinServer.Helpers
                     else
                     {
                         genderInfo += "♀";
+                        genderInfo += FemaleTitleAsPerAge(faceDetect.Attributes.Age);
                         femelRectangles.Add(new System.Drawing.Rectangle(faceDetect.FaceRectangle.Left,
                             faceDetect.FaceRectangle.Top, faceDetect.FaceRectangle.Width, faceDetect.FaceRectangle.Height));
                         nickName = "妹";
@@ -176,12 +178,12 @@ namespace WeixinServer.Helpers
 
                     if (mouthLargeRate > 1.1)
                     {
-                        eyeDescribion += "\n性感大嘴" + nickName;
+                        eyeDescribion += "\n性感大嘴";
 
                     }
                     else if (mouthLargeRate < 0.9)
                     {
-                        eyeDescribion += "\n樱桃小口" + nickName;
+                        eyeDescribion += "\n樱桃小口";
                     }
                     else
                     {
@@ -261,7 +263,8 @@ namespace WeixinServer.Helpers
 
                     //look mom! no pre-wrapping!
                     gp.AddString(info, ff, (int)FontStyle.Bold, fontSize, r, sf);
-                    gp.AddString(string.Format("{0}{1}", genderInfo, faceDetect.Attributes.Age), ff, (int)FontStyle.Bold, fontSize, r2, sf);
+                    //string.Format("{0}{1}", genderInfo, faceDetect.Attributes.Age)
+                    gp.AddString(genderInfo, ff, (int)FontStyle.Bold, fontSize, r2, sf);
                     //gp.DrawString(info, f, new SolidBrush(colour), new Point(leftText, topText));
                     //gp.AddString(string.Format("{0}{1}", genderInfo, faceDetect.Attributes.Age), ff, (int)FontStyle.Bold, fontSize, r, sf);
                     //    new Point(faceDetect.FaceRectangle.Left, faceDetect.FaceRectangle.Top - f.Height - 5));
