@@ -111,7 +111,8 @@ namespace WeixinServer.Helpers
                     int topText = faceDetect.FaceRectangle.Top + faceDetect.FaceRectangle.Height + 5;
                     //int topText = faceDetect.FaceRectangle.Top - faceDetect.FaceRectangle.Height - 10;
                     topText = topText > 0 ? topText : 0;
-                    
+
+                    var nickName = "哥";
 
                     var colour = System.Drawing.Color.Magenta;
                     if (faceDetect.Attributes.Gender.ToLower().Equals("male"))
@@ -128,6 +129,7 @@ namespace WeixinServer.Helpers
                         genderInfo += "♀";
                         femelRectangles.Add(new System.Drawing.Rectangle(faceDetect.FaceRectangle.Left,
                             faceDetect.FaceRectangle.Top, faceDetect.FaceRectangle.Width, faceDetect.FaceRectangle.Height));
+                        nickName = "妹";
                         //femelRectangles.Add(new System.Drawing.Rectangle(leftText,
                         //    topText, faceDetect.FaceRectangle.Width, faceDetect.FaceRectangle.Top - topText));
                     }
@@ -140,7 +142,7 @@ namespace WeixinServer.Helpers
                     var eyeDescribion = "";
                     if (emLargeRate > 0.08)
                     {
-                        eyeDescribion = "大眼妹";
+                        eyeDescribion = "大眼" + nickName;
 
                     }
                     else 
