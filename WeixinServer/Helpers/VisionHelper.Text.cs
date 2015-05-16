@@ -681,7 +681,7 @@ namespace WeixinServer.Helpers
                     //if (categoryNameMapping.ContainsKey(category.Name) && ! category.Name.EndsWith("_"))
                     if (category.Name.Equals("others_"))
                     {
-                        postFix = string.Format("和{0}", categoryNameMapping[category.Name]);
+                        postFix = string.Format("{0}", categoryNameMapping[category.Name]);
                         continue;
                     }
                     if (categoryNameMapping.ContainsKey(category.Name))
@@ -692,7 +692,15 @@ namespace WeixinServer.Helpers
                 //{
                 //    sb += string.Format("{0}", categoryNameMapping[result.Categories[0].Name]);
                 //}
-                desStringWriter.Write(string.Format("{0}{1}", preFix.TrimEnd('、'), postFix));
+                if (result.Categories.Length == 1)
+                {
+                    desStringWriter.Write(string.Format("{0}{1}", preFix.TrimEnd('、'), postFix));
+                }
+                else if (preFix.Length > 0 && postFix.Length > 0)
+                {
+                    desStringWriter.Write(string.Format("{0}和{1}", preFix.TrimEnd('、'), postFix));
+                }
+                
                 if (result.Categories.Length > 1 && preFix.Length > 1)
                     desStringWriter.Write(string.Format("等内容"));
                 desStringWriter.Write(string.Format("。\n"));

@@ -12,6 +12,7 @@ using System.Configuration;
 using System.Linq;
 using WeixinServer.Models;
 using System.Drawing.Drawing2D;
+using Microsoft.ProjectOxford.Face.Contract;
 namespace WeixinServer.Helpers
 {
     public partial class VisionHelper
@@ -67,6 +68,11 @@ namespace WeixinServer.Helpers
                 gr.DrawImage(imgToResize, new System.Drawing.Rectangle(0, 0, size.Width, size.Height));
             }
             return (Image)newImage;
+        }
+
+        static double DistanceSquare(FeatureCoordinate p, FeatureCoordinate q)
+        {
+            return Math.Pow(p.X - q.X, 2) + Math.Pow(p.Y - q.Y, 2);
         }
 
         private MemoryStream DrawRects(MemoryStream inStream, AnalysisResult analysisResult) 
@@ -126,8 +132,24 @@ namespace WeixinServer.Helpers
                         //    topText, faceDetect.FaceRectangle.Width, faceDetect.FaceRectangle.Top - topText));
                     }
                     //draw text 
-                    var hotivity = saoBility * faceDetect.Attributes.Age;
-                    string info = string.Format("{0:F1}万\nHots\n", saoBility / faceDetect.Attributes.Age);
+                    var hotivity = saoBility / faceDetect.Attributes.Age;
+                    
+                    //var hotivity = 100000 * (faceDetect.FaceRectangle.Height / faceDetect.FaceRectangle.Width - 1);
+                    var lm = faceDetect.FaceLandmarks;
+                    var emLargeRate = DistanceSquare(lm.EyeLeftBottom, lm.EyeLeftTop) / DistanceSquare(lm.EyeLeftInner, lm.EyeLeftOuter);
+                    var eyeDescribion = "";
+                    if (emLargeRate > 0.08)
+                    {
+                        eyeDescribion = "大眼妹";
+
+                    }
+                    else 
+                    {
+                        eyeDescribion = "丹凤眼";
+                    }
+                    hotivity += emLargeRate * 100;
+                    //hotivity = hotivity / 10
+                    string info = string.Format("{0:F0}万\nHots\n{1}\n", hotivity, eyeDescribion);
                     
                     Size room = new Size((int) (faceDetect.FaceRectangle.Width) , (int)(faceDetect.FaceRectangle.Height));
                     var ret = FindFont(g, info, room, new Font(ff, 36, FontStyle.Bold, GraphicsUnit.Pixel));
