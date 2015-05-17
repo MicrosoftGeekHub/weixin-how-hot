@@ -46,7 +46,7 @@ function processRequest(n, t, i, r, u) {
         contentType: s,
         processData: !1,
         data: o,
-        success: function (n) {
+        success: function(n) {
             var t = JSON.parse(n);
 
             if (!t || !t.uploadedUrl) {
@@ -56,40 +56,17 @@ function processRequest(n, t, i, r, u) {
             }
 
             $("#thumbnail").attr("src", t.uploadedUrl);
-
+    
             $("#analyzingLabel").css("visibility", "hidden")
             $("#improvingLabel").css("visibility", "visible");
             t != null && (showViewSourceLink(), $("#jsonEvent").text(t.AnalyticsEvent))
-
-            (function () {
-                if (!t || !t.analyzeImageResult) {
-                    return;
-                }
-                var $thumbContainer = $("#thumbContainer");
-                var thumbnailWidth = 770;
-                var textWidth = 400;
-                var startLeft = thumbnailWidth + 100;
-                var endLeft = (textWidth + 100) * -1;
-                var timing = 4; // Sec
-                var $barrage =
-                    $("<p style='position: absolute; top: 50px; width: " + textWidth + "px; left:" + startLeft + "px; transition: all " + timing + "s linear;'>" + t.analyzeImageResult//"一天，男友骑摩托车到地铁口来接我，我故意问：“师傅，到花园小区多少钱？”男友说：“不要钱，只要亲我一下就好了。”于是我亲了他一下，上了他的车。旁边一个“摩的”师傅傻了眼，好心地提醒我：“小姑娘，不要上当啊！”" //t.analyzeImageResult
-                        + "</p>");
-                $thumbContainer.css("overflow", "hidden").append($barrage);
-
-                $barrage.animate({
-                    left: endLeft + "px"
-                }, timing, function () {
-                    $barrage.remove();
-                });
-            })();
-
         },
-        error: function () {
+        error: function() {
             $("#jsonEventDiv").hide();
             $("#analyzingLabel").html(e);
             $("#analyzingLabel").css("visibility", "visible")
         }
-    });
+    })
 }
 
 function viewSource() {
@@ -129,10 +106,10 @@ function analyzeUrl() {
 }
 
 function handleFileSelect(n) {
-    for (var u = n.target.files, t, r, i = 0; t = u[i]; i++) (!t.type || t.type.match("image.*")) && (r = new FileReader, r.onload = function (n) {
-        return function (t) {
+    for (var u = n.target.files, t, r, i = 0; t = u[i]; i++)(!t.type || t.type.match("image.*")) && (r = new FileReader, r.onload = function(n) {
+        return function(t) {
             updateThumbnail(t.target.result);
-            loadImage.parseMetaData(n, function (t) {
+            loadImage.parseMetaData(n, function(t) {
                 var i = 0,
                     r;
                 t && t.exif && (r = t.exif.get("Orientation"), r === 8 ? i = 90 : r === 3 ? i = 180 : r === 6 && (i = 270));
@@ -154,7 +131,7 @@ function drawFaceRects() {
             r = n.width() / image_orig_width,
             u = n.offset().left - t.offset().left,
             f = current_faces.length;
-        $.each(current_faces, function (t, e) {
+        $.each(current_faces, function(t, e) {
             var s = e.faceRectangle,
                 l = e.attributes.age,
                 a = e.attributes.gender,
@@ -184,7 +161,7 @@ function renderImageFaces(n, t) {
 function updateOrigImageDimensions(n, t) {
     var r = document.getElementById("thumbnail"),
         i = new Image;
-    i.onload = function () {
+    i.onload = function() {
         image_orig_width = iOS && (t === 270 || t === 90) ? i.height : i.width;
         image_orig_height = iOS && (t === 270 || t === 90) ? i.width : i.height;
         image_orig_rotation = t;
@@ -209,7 +186,7 @@ function updateSelectedImage() {
 
 function refresh() {
     myScroll.options.snap = myScroll.scroller.querySelectorAll("*");
-    $(".ImageSelector .ScrollArea *").on("tap", function () {
+    $(".ImageSelector .ScrollArea *").on("tap", function() {
         myScroll.currentPage.pageX != $(this).index() && ($(".ImageSelector .ScrollArea .selectedImage").removeClass("selectedImage"), myScroll.goToPage($(this).index(), 0, 400))
     });
     var n = $(".ImageSelector .ScrollArea *"),
@@ -242,14 +219,14 @@ function loaded() {
         bounce: !1
     });
     myScroll.goToPage((n.length / 2).toFixed(0) - 1, 0, 0, !1);
-    $(".ImageSelector .ScrollArea *").on("tap", function () {
+    $(".ImageSelector .ScrollArea *").on("tap", function() {
         myScroll.currentPage.pageX != $(this).index() && ($(".ImageSelector .ScrollArea .selectedImage").removeClass("selectedImage"), myScroll.goToPage($(this).index(), 0, 400))
     });
-    myScroll.on("flick", function () {
+    myScroll.on("flick", function() {
         this.x == this.startX && updateSelectedImage()
     });
     myScroll.on("scrollEnd", updateSelectedImage);
-    myScroll.on("scrollStart", function () {
+    myScroll.on("scrollStart", function() {
         $(".ImageSelector .ScrollArea .selectedImage").removeClass("selectedImage")
     });
     $(".ImageSelector").css("opacity", 1);
@@ -265,15 +242,15 @@ function searchImages() {
         data: {},
         contentType: !1,
         processData: !1,
-        success: function (n) {
+        success: function(n) {
             var t = JSON.parse(n),
                 i = $("#imageList");
-            t != null && t.length > 0 && (i.html(""), $.each(t, function (n, t) {
+            t != null && t.length > 0 && (i.html(""), $.each(t, function(n, t) {
                 var r = '<img src="' + t.scroll_image_url + '" data-url="' + t.main_image_url + '">';
                 $(r).appendTo(i)
             }), refresh())
         },
-        error: function (t) {
+        error: function(t) {
             t.status === 404 ? $("#searchError").html("We did not find any results for " + n + ".") : $("#searchError").html("Oops, something went wrong. Please try searching again.");
             $("#searchError").css("visibility", "visible")
         }
@@ -281,22 +258,22 @@ function searchImages() {
 }
 var iOS = !1,
     current_faces, image_orig_width, image_orig_height, image_orig_rotation, add_rect, selectedImage, myScroll;
-$(window).load(function () {
+$(window).load(function() {
     document.getElementById("uploadBtn").addEventListener("change", handleFileSelect, !1);
-    document.getElementById("uploadBtn").addEventListener("click", function () {
+    document.getElementById("uploadBtn").addEventListener("click", function() {
         this.value = null
     }, !1);
     window.location.hash = "";
     iOS = navigator.userAgent.match(/(iPad|iPhone|iPod)/g) ? !0 : !1
 });
-$(window).on("hashchange", function () {
+$(window).on("hashchange", function() {
     window.location.hash === "#results" ? showResultView() : showSelectionView()
 });
-$("#viewEvent").click(function () {
+$("#viewEvent").click(function() {
     return viewSource(), !1
 });
 current_faces = [];
-add_rect = function (n, t, i, r, u, f) {
+add_rect = function(n, t, i, r, u, f) {
     var o = "rect" + Math.round(Math.random() * 1e4),
         e = null,
         c = "n/a",
@@ -318,7 +295,7 @@ add_rect = function (n, t, i, r, u, f) {
     }), $("#" + o).tooltip("show"))
 };
 window.onresize = resize;
-document.getElementById("SelectorTag").addEventListener("mousedown", function (n) {
+document.getElementById("SelectorTag").addEventListener("mousedown", function(n) {
     n.cancelBubble = !0
 }, !1);
 loaded();
