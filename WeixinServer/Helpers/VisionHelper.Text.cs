@@ -298,18 +298,18 @@ namespace WeixinServer.Helpers
                 analysisResult.RichFaces = await taskGetFaces;
                 timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage taskGetFaces end {1}\n analysisResult.RichFaces.Length\n", DateTime.Now - this.startTime, analysisResult.RichFaces.Length));
                 var resTxt = this.ShowRichAnalysisResult(analysisResult);
-                var txtRichResult = new RichResult(timeLogger.ToString(), resTxt, errLogger.ToString());
-                if (string.IsNullOrEmpty(resTxt)) return txtRichResult;
+                var txtRichResult = new RichResult(timeLogger.ToString(), resTxt.Item2, errLogger.ToString());
+                if (string.IsNullOrEmpty(resTxt.Item1)) return txtRichResult;
 
                 photoBytes = await taskb;
                 timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage client.DownloadDataTaskAsync end\n", DateTime.Now - this.startTime));
 
-                var resImg = this.RenderAnalysisResultAsImage(analysisResult, resTxt);
+                var resImg = this.RenderAnalysisResultAsImage(analysisResult, resTxt.Item1, resTxt.Item2);
                 timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage\t RenderAnalysisResultAsImage end\n", DateTime.Now - this.startTime));
                 if (string.IsNullOrEmpty(resImg))
                 {
                     //return new RichResult(timeLogger.ToString(), resTxt, errLogger.ToString(), this.returnImageUrl, photoBytes);
-                    return new RichResult(timeLogger.ToString(), resTxt, errLogger.ToString(), this.returnImageUrl);
+                    return new RichResult(timeLogger.ToString(), resTxt.Item2, errLogger.ToString(), this.returnImageUrl);
                 }
 
                 return new RichResult(timeLogger.ToString(), resImg, errLogger.ToString(), this.returnImageUrl);
@@ -605,20 +605,21 @@ namespace WeixinServer.Helpers
         }
 
 
-        private string ShowRichAnalysisResult(AnalysisResult result)
+        private Tuple<string, string> ShowRichAnalysisResult(AnalysisResult result)
         {
             timeLogger.Append(string.Format("{0} VisionHelper::ShowRichAnalysisResult begin\n", DateTime.Now - this.startTime));
             //Console.ForegroundColor = ConsoleColor.Green;
             string res = "result";
             string des = "这幅图片";
             StringWriter desStringWriter = new StringWriter();
+            StringWriter commentStringWriter = new StringWriter();
             //Dictionary<string, string> map = new Dictionary<string, string>();
             if (result == null)
             {
                 //res = "NULL";
                 //des += "看不出任何东西";
-                desStringWriter.Write("看不出任何东西");
-                return des;
+                commentStringWriter.Write("看不出任何东西");
+                return new Tuple<string, string>(desStringWriter.ToString(), commentStringWriter.ToString());
             }
 
             if (result.Metadata != null)
@@ -697,26 +698,14 @@ namespace WeixinServer.Helpers
                 string postFix = "";
                 //MvcApplication.InitCateMap();
                 var cat2StoryMap = MvcApplication.GetCateMap();
+                var storyList = new List<Tuple<string, string>>();
                 foreach (var category in result.Categories)
                 {
                     //res += "   Name : " + category.Name;
                     //res += "; Score : " + category.Score;
                     if (cat2StoryMap.ContainsKey(category.Name))
                     {
-                        var storyList = cat2StoryMap[category.Name];
-                        var random = new Random();
-                        var getrandomIdx = random.Next(0, storyList.Count - 1);
-                        var storyTuple = storyList.ToArray()[getrandomIdx];
-                        var story = String.Format("{0}\n\n作为谈画机器人，我只能说，{1}", storyTuple.Item1, storyTuple.Item2);
-                        if (!string.IsNullOrEmpty(story))
-                        {
-                            //story += String.Format("\n\n我是谈画机器人--画说，{0}", cat2CommentMap[category.Name]);
-                            //story = Encoding.ASCII.GetString(Encoding.Unicode.GetBytes(story));
-                            char[] charArr = { '，', '。' };
-                            foreach (var line in story.Split(charArr))
-                                desStringWriter.WriteLine(line.Trim());
-                            break;
-                        }
+                        storyList.AddRange(cat2StoryMap[category.Name]);
                     }
                     //if (categoryNameMapping.ContainsKey(category.Name) && ! category.Name.EndsWith("_"))
                     if (category.Name.Equals("others_"))
@@ -728,6 +717,22 @@ namespace WeixinServer.Helpers
                         preFix += string.Format("{0}、", categoryNameMapping[category.Name]);
                 }
 
+                if (storyList.Count > 0)
+                {
+
+                    var random = new Random();
+                    var getrandomIdx = random.Next(0, storyList.Count - 1);
+                    var storyTuple = storyList.ToArray()[getrandomIdx];
+                    var story = String.Format("{0}\n\n作为谈画机器人，我只能说，{1}", storyTuple.Item1, storyTuple.Item2);
+                    if (!string.IsNullOrEmpty(story))
+                    {
+                        //story += String.Format("\n\n我是谈画机器人--画说，{0}", cat2CommentMap[category.Name]);
+                        //story = Encoding.ASCII.GetString(Encoding.Unicode.GetBytes(story));
+                        char[] charArr = { '，', '。' };
+                        foreach (var line in story.Split(charArr))
+                            commentStringWriter.WriteLine(line.Trim());
+                    }
+                }   
                 //if (result.Categories.Length == 1 || sb.Length < 2)
                 //{
                 //    sb += string.Format("{0}", categoryNameMapping[result.Categories[0].Name]);
@@ -894,7 +899,7 @@ namespace WeixinServer.Helpers
             //Console.ResetColor();
             noAdsTxtResult = desStringWriter.ToString();
             desStringWriter.Write("请关注极客家公众号geekplus-ms，点+号直接发图，我就跟您谈画\n");
-            return desStringWriter.ToString();
+            return new Tuple<string, string>(desStringWriter.ToString(), commentStringWriter.ToString());
         }
 
         private static string FemaleTitleAsPerAge(double age)

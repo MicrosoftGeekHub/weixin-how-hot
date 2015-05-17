@@ -176,23 +176,18 @@ namespace WeixinServer.Helpers
                     }
 
 
-                    if (mouthLargeRate > 1.4)
+                    if (mouthLargeRate > 2)
                     {
-                        eyeDescribion += "\n喷血大口";
+                        eyeDescribion += "\n姚晨嘴";
 
                     }
-                    else if (mouthLargeRate > 1.2)
+                    else if (mouthLargeRate < 1.2)
                     {
-                        eyeDescribion += "\n性感红唇";
-
-                    }
-                    else if (mouthLargeRate < 1.1)
-                    {
-                        eyeDescribion += "\n樱桃小口";
+                        eyeDescribion += "\n舒淇唇";
                     }
                     else
                     {
- 
+                        //eyeDescribion += "\n性感红唇";
                     }
 
                     hotivity += emLargeRate * 100;
@@ -542,11 +537,7 @@ namespace WeixinServer.Helpers
                           .ToArray());
 
         }
-        private string RenderAnalysisResultAsImage(AnalysisResult result, RichResult txtRichResult)
-        {
-            return RenderAnalysisResultAsImage(result, txtRichResult.analyzeImageResult);
-        }
-        private string RenderAnalysisResultAsImage(AnalysisResult result, string captionText)
+        private string RenderAnalysisResultAsImage(AnalysisResult result, string captionText, string commentText)
         {
             timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage::RenderAnalysisResultAsImage begin\n", DateTime.Now - this.startTime));
             string resultUrl = null;
@@ -597,7 +588,7 @@ namespace WeixinServer.Helpers
 
             //return string.Format("画说:\n{0}", resultUrl);
                 //return string.Format("谈画:\n{0}\n归图:\n{1}\n", noAdsTxtResult, resultUrl);
-             return string.Format("谈画:\n{0}\n想知道您上传的图片有多\"Hot\"么? 请看归图:\n{1}\n", noAdsTxtResult, resultUrl);
+                return string.Format("谈画:\n{0}\n想知道您上传的图片有多\"Hot\"么? 请看归图:\n{1}\n", commentText, resultUrl);
             //return string.Format("画说:\n{0}\n归图:\n{1}\n原图:\n{2}", captionText, resultUrl, this.originalImageUrl);
         }
     }
