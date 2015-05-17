@@ -39,7 +39,7 @@ function processRequest(n, t, i, r, u) {
         }
         o = l[0];
         s = "application/octet-stream"
-    } else f += "&faceUrl=" + encodeURIComponent(t) + "&faceName=" + i;
+    } else f += "&faceUrl=" + encodeURIComponent("http://how-old.net/" + t) + "&faceName=" + i;
     $.ajax({
         type: "POST",
         url: f,
@@ -48,7 +48,16 @@ function processRequest(n, t, i, r, u) {
         data: o,
         success: function(n) {
             var t = JSON.parse(n);
-            t == null || t.Faces == null || t.Faces.length === 0 ? ($("#analyzingLabel").html(c), $("#analyzingLabel").css("visibility", "visible")) : (renderImageFaces(t.Faces, u), $("#analyzingLabel").css("visibility", "hidden"));
+
+            if (!t || !t.uploadedUrl) {
+                $("#analyzingLabel").html(c);
+                $("#analyzingLabel").css("visibility", "visible");
+                return;
+            }
+
+            $("#thumbnail").attr("src", t.uploadedUrl);
+
+            $("#analyzingLabel").css("visibility", "hidden")
             $("#improvingLabel").css("visibility", "visible");
             t != null && (showViewSourceLink(), $("#jsonEvent").text(t.AnalyticsEvent))
         },
