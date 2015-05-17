@@ -181,7 +181,7 @@ namespace WeixinServer.Helpers
                         eyeDescribion += "\n喷血大口";
 
                     }
-                    if (mouthLargeRate > 1.2)
+                    else if (mouthLargeRate > 1.2)
                     {
                         eyeDescribion += "\n性感红唇";
 
