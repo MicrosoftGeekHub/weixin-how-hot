@@ -134,13 +134,157 @@ namespace WeixinServer.Helpers
         private int minNumPixs = 50;
         private int maxNumPixs = 800;
 
+
         /// <summary>
         /// Analyze the given image.
         /// </summary>
         /// <param name="imagePathOrUrl">The image path or url.</param>
-        public async Task<RichResult> AnalyzeImage(string imagePathOrUrl)
+        public async Task<RichResult> AnalyzeImage(Stream imageStream)
         {
             timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage\n", DateTime.Now));
+            
+            this.ShowInfo("Analyzing");
+            AnalysisResult analysisResult = null;
+            //Task<Byte[]> taskb = null;
+            Task<Microsoft.ProjectOxford.Face.Contract.Face[]> taskGetFaces = null;
+            string resultStr = string.Empty;
+            using (WebClient client = new WebClient())
+            {
+                try
+                {
+                        var visualFeatures = new string[] { "Categories", "Adult", "Color" };  //no ImageType , "Categories"
+                        timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage AnalyzeImageAsync url begin\n", DateTime.Now - this.startTime));
+
+                        using (var ms = new MemoryStream())
+                        {
+
+                            imageStream.CopyTo(ms);
+                            ms.Seek(0, SeekOrigin.Begin);
+                            photoBytes = ms.ToArray();
+                            ms.Seek(0, SeekOrigin.Begin);
+                            timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage AnalyzeImageAsync imageStream  Seek begin {1}\n", DateTime.Now - this.startTime, imageStream.ToString()));
+                            Image image = Image.FromStream(ms);
+                            timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage AnalyzeImageAsync stream begin\n", DateTime.Now - this.startTime));
+                            
+                            MemoryStream ms4face = new MemoryStream();
+                            image.Save(ms4face, image.RawFormat);
+                            timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage AnalyzeImageAsync stream begin\n", DateTime.Now - this.startTime));
+                            if (image.Height > maxNumPixs)
+                            {
+                                timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage AnalyzeImageAsync Resize begin\n", DateTime.Now - this.startTime));
+                                int height = maxNumPixs;
+                                int width = (int)((float)height * image.Width / image.Height);
+                                if (width < minNumPixs)
+                                {
+                                    width = minNumPixs;
+                                    height = (int)((float)width * image.Height / image.Width);
+                                }
+                                Image resizedImg = Resize(image, new Size(width, height));
+                                var resizedMemoryStream = new MemoryStream();
+                                var resizedMemoryStream2 = new MemoryStream();
+                                resizedImg.Save(resizedMemoryStream, image.RawFormat);
+                                resizedImg.Save(resizedMemoryStream2, image.RawFormat);
+
+                                timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage AnalyzeImageAsync Resize end\n", DateTime.Now - this.startTime));
+
+                                faceAgent fa = new faceAgent();
+                                resizedMemoryStream.Seek(0, SeekOrigin.Begin);
+                                taskGetFaces = fa.UploadStreamAndDetectFaces(resizedMemoryStream);
+                                timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage taskGetFaces begin\n", DateTime.Now - this.startTime));
+
+
+
+                                resizedMemoryStream2.Seek(0, SeekOrigin.Begin);
+                                var task = this.visionClient.AnalyzeImageAsync(resizedMemoryStream2, visualFeatures);
+                                analysisResult = await task;
+                                timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage AnalyzeImageAsync stream end\n", DateTime.Now - this.startTime));
+                            }
+                            else
+                            {
+                                faceAgent fa = new faceAgent();
+                                ms4face.Seek(0, SeekOrigin.Begin);
+                                ms.Seek(0, SeekOrigin.Begin);
+                                taskGetFaces = fa.UploadStreamAndDetectFaces(ms);
+                                timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage taskGetFaces begin\n", DateTime.Now - this.startTime));
+
+
+                                ms4face.Seek(0, SeekOrigin.Begin);
+                                ms.Seek(0, SeekOrigin.Begin);
+                                analysisResult = await this.visionClient.AnalyzeImageAsync(ms4face, visualFeatures); ;
+                               
+
+                                timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage AnalyzeImageAsync stream end\n", DateTime.Now - this.startTime));
+                            }
+                            //analysisResult = await taskAnalyzeUrl;
+
+                            // timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage AnalyzeImageAsync url end\n", DateTime.Now - this.startTime));
+                        }
+                    
+                
+                //return this.ShowRichAnalysisResult(analysisResult);
+                //Microsoft.ProjectOxford.Face.Contract.Face[] faces = await taskGetFaces;
+                analysisResult.RichFaces = await taskGetFaces;
+                timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage taskGetFaces end {1}\n analysisResult.RichFaces.Length\n", DateTime.Now - this.startTime, analysisResult.RichFaces.Length));
+                var resTxt = this.ShowRichAnalysisResult(analysisResult);
+               // return new RichResult(timeLogger.ToString(), resTxt.Item2, errLogger.ToString(), "http://geeekstore.blob.core.windows.net/cdn/weiTestCase/book1.jpg");
+
+                timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage ShowRichAnalysisResult end\n", DateTime.Now - this.startTime));
+                var txtRichResult = new RichResult(timeLogger.ToString(), resTxt.Item2, errLogger.ToString());
+                if (string.IsNullOrEmpty(resTxt.Item1)) return txtRichResult;
+                timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage txtRichResult end\n", DateTime.Now - this.startTime));
+                //photoBytes = await taskb;
+                timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage client.DownloadDataTaskAsync end\n", DateTime.Now - this.startTime));
+
+                var resImg = this.RenderAnalysisResultAsImage(analysisResult, resTxt.Item1, resTxt.Item2);
+                timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage\t RenderAnalysisResultAsImage end\n", DateTime.Now - this.startTime));
+                if (string.IsNullOrEmpty(resImg))
+                {
+                    //return new RichResult(timeLogger.ToString(), resTxt, errLogger.ToString(), this.returnImageUrl, photoBytes);
+                    return new RichResult(timeLogger.ToString(), resTxt.Item2, errLogger.ToString(), this.returnImageUrl);
+                }
+
+                return new RichResult(timeLogger.ToString(), resImg, errLogger.ToString(), this.returnImageUrl);
+                }
+                catch (Microsoft.ProjectOxford.Vision.ClientException e)
+                {
+                    if (e.Error != null)
+                    {
+                        var errMsg = string.Format("ClientException e.Error.Message:{0}", e.Error.Message);
+                        errLogger.Append(errMsg);
+                        return new RichResult(timeLogger.ToString(), errMsg, errLogger.ToString());
+                    }
+                    else
+                    {
+                        var errMsg = string.Format("ClientException e.Message:{0}", e.Message);
+                        errLogger.Append(errMsg);
+                        return new RichResult(timeLogger.ToString(), errMsg, errLogger.ToString());
+                    }
+
+
+                }
+                catch (Exception e)
+                {
+                    timeLogger.Append(string.Format("Exception Time: {0}\n ", DateTime.Now));
+                    var errMsg = string.Format("Exception e.Message:{0}", e.Message);
+                    errLogger.Append(errMsg);
+                    return new RichResult(timeLogger.ToString(), errMsg, errLogger.ToString());
+
+                }
+                finally
+                {
+                }
+            }
+        }
+
+        
+     /// <summary>
+        /// Analyze the given image.
+        /// </summary>
+        /// <param name="imagePathOrUrl">The image path or url.</param>
+        
+        public async Task<RichResult> AnalyzeImage(string imagePathOrUrl)
+        {
+            timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage {1}\n", DateTime.Now, imagePathOrUrl));
             this.originalImageUrl = imagePathOrUrl;
             this.ShowInfo("Analyzing");
             AnalysisResult analysisResult = null;

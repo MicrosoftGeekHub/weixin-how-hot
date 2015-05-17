@@ -1,14 +1,18 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Configuration;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 using System.Web.Security;
 using WeixinServer.Helpers;
 using WeixinServer.Models;
+using System.Drawing;
 
 //using UpYunLibrary;
 namespace WeixinServer.Controllers
@@ -343,5 +347,79 @@ namespace WeixinServer.Controllers
 
             return View();
         }
+
+
+        [HttpPost]
+        public async Task<ActionResult> Analyze(string faceUrl = "")
+        {
+            string requestId = Guid.NewGuid().ToString();
+            int? contentLength = null;
+            VisionHelper vision = new VisionHelper(GetVisionAPIkey(), fontPath, DateTime.Now, fontPath);
+            RichResult res = null;
+            try
+            {
+
+                string postString = string.Empty;
+
+                //using (Stream stream = Request.InputStream)
+                //{
+                //    byte[] postBytes = new byte[stream.Length];
+                //    stream.Read(postBytes, 0, (int)stream.Length);
+                //    postString = Encoding.Unicode.GetString(postBytes);
+                //    return Json(JsonConvert.SerializeObject(postString), "application/json");
+                //}
+
+                Stopwatch stopwatch = Stopwatch.StartNew();
+                //Trace.WriteLine(string.Format("Start Analyze Request: RequestId: {0};", requestId));
+                if (Request.ContentType == null)
+                {
+                    return new HttpStatusCodeResult(HttpStatusCode.BadRequest, "BadRequest");
+
+                }
+                if (string.Equals(Request.ContentType, "application/octet-stream"))
+                {
+                    contentLength = Request.ContentLength;
+                    Request.InputStream.Seek(0, System.IO.SeekOrigin.Begin);
+                    //var img = System.Drawing.Image.FromStream(Request.InputStream);
+
+                    //return Json(JsonConvert.SerializeObject(img.Width), "application/json");
+                    res = await vision.AnalyzeImage(Request.InputStream);
+
+                }
+                else if (!string.IsNullOrEmpty(faceUrl) && faceUrl != "undefined")
+                {
+                    res = await vision.AnalyzeImage(faceUrl);
+                }
+                
+
+                //Trace.WriteLine(string.Format("Completed Analyze Request: RequestId: {0};", requestId));
+                return Json(JsonConvert.SerializeObject(res), "application/json");
+            }
+            catch (Exception e)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.InternalServerError, e.Message);
+            }
+        }
+        //[HttpPost]
+        //public async Task<HttpResponseMessage> ImageSearch(string query)
+        //{
+        //    string requestId = Guid.NewGuid().ToString();
+        //    try
+        //    {
+        //        //Trace.WriteLine(string.Format("Start Search Request: RequestId: {0};", requestId));
+        //        var results = await MvcApplication.ImageSearchClient.SearchImages(query);
+        //        if (results == null || results.Length == 0)
+        //        {
+        //            return HttpNotFound();
+        //        }
+        //        //Trace.WriteLine(string.Format("Completed Search Request: RequestId: {0};", requestId));
+        //        return Json(JsonConvert.SerializeObject(results), "application/json");
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        Telemetry.TrackError(string.Format("Error While Searching: {0}; Error:{1}", query, e.ToString()), requestId);
+        //        return new HttpStatusCodeResult(HttpStatusCode.InternalServerError, "Error");
+        //    }
+        //}
     }
 }
