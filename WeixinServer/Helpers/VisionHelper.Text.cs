@@ -734,10 +734,7 @@ namespace WeixinServer.Helpers
                         commentStringWriter.WriteLine(story);
                     }
                 }
-                if (result.Categories.Length == 1 || sb.Length < 2)
-                {
-                    sb += string.Format("{0}", categoryNameMapping[result.Categories[0].Name]);
-                }
+                
                 if (result.Categories.Length == 1)
                 {
                     desStringWriter.Write(string.Format("{0}{1}", preFix.TrimEnd('、'), postFix));
