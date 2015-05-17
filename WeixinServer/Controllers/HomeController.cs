@@ -407,7 +407,7 @@ namespace WeixinServer.Controllers
         //    try
         //    {
         //        //Trace.WriteLine(string.Format("Start Search Request: RequestId: {0};", requestId));
-        //        var results = await MvcApplication.ImageSearchClient.SearchImages(query);
+        //        var results = await ImageSearchClient.SearchImages(query);
         //        if (results == null || results.Length == 0)
         //        {
         //            return HttpNotFound();
