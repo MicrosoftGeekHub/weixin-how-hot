@@ -149,6 +149,7 @@ namespace WeixinServer.Helpers
                     else
                     {
                         genderInfo += "♀";
+                        genderInfo = string.Format("♀{0}岁±{1}", faceDetect.Attributes.Age);
                         genderInfo += FemaleTitleAsPerAge(faceDetect.Attributes.Age);
                         femelRectangles.Add(new System.Drawing.Rectangle(faceDetect.FaceRectangle.Left,
                             faceDetect.FaceRectangle.Top, faceDetect.FaceRectangle.Width, faceDetect.FaceRectangle.Height));
@@ -570,7 +571,7 @@ namespace WeixinServer.Helpers
                 //string blobName = string.Format("{0}_{1}.jpg", this.curUserName, random_string(12));
                 int idx = this.curUserName.LastIndexOf('_');
                 idx = idx > -1? idx : 0;
-                string blobName = string.Format("{0}.jpg", random_string(12));
+                string blobName = string.Format("{0}/{1}.jpg", this.curUserName.Substring(idx), random_string(10));
                 CloudBlockBlob blockBlob = container.GetBlockBlobReference(blobName);
 
                 // Create or overwrite the "myblob" blob with contents from a local file.

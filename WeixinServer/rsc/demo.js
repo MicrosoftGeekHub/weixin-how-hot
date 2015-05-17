@@ -56,7 +56,7 @@ function processRequest(n, t, i, r, u) {
             }
 
             $("#thumbnail").attr("src", t.uploadedUrl);
-
+            
             $("#analyzingLabel").css("visibility", "hidden")
             $("#improvingLabel").css("visibility", "visible");
             t != null && (showViewSourceLink(), $("#jsonEvent").text(t.AnalyticsEvent))
