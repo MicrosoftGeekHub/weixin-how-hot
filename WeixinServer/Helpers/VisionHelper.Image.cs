@@ -192,7 +192,7 @@ namespace WeixinServer.Helpers
 
                     hotivity += emLargeRate * 100;
                     //hotivity = hotivity / 10
-                    string info = string.Format("{0:F0}万\nHots\n{1}\n", hotivity, eyeDescribion);
+                    string info = string.Format("{0:F0}万辣火\n{1}\n", hotivity, eyeDescribion);
                     
                     Size room = new Size((int) (faceDetect.FaceRectangle.Width) , (int)(faceDetect.FaceRectangle.Height));
                     var ret = FindFont(g, info, room, new Font(ff, 36, FontStyle.Bold, GraphicsUnit.Pixel));

@@ -828,15 +828,19 @@ namespace WeixinServer.Helpers
                 rscr = (int)(result.Adult.RacyScore * 5000);
                 saoBility = ascr + rscr;
             }
-            if (result.Adult.IsAdultContent) desStringWriter.Write("手哥：黄图, 滚粗~！\n");
-            desStringWriter.Write(string.Format("性感比例：Hots Rate={0:F2}%\n", saoBility / 10.0));//TODO 少量 or More by Score
+            if (result.Adult.IsAdultContent)
+            {
+                desStringWriter.Write("手哥：黄图, 滚粗~！\n");
+                return new Tuple<string, string>(desStringWriter.ToString(), commentStringWriter.ToString());
+            }
+            desStringWriter.Write(string.Format("辣火比：{0:F2}%\n", saoBility / 10.0));//TODO 少量 or More by Score
            // desStringWriter.Write(string.Format("手哥评分: {0:F0}\n", rscr));//TODO 少量 or More by Score
             var cat2StoryMap = MvcApplication.GetCateMap();
             //desStringWriter.Write(string.Format(": {0:F2}%\n", ascr));//TODO 少量 or More by Score
             if (result.Categories != null && result.Categories.Length > 0)
             {
                 //res += "Categories : ";
-                //desStringWriter.Write(string.Format("画面里有"));
+                desStringWriter.Write(string.Format("画面里有"));
                 //var sb = new StringBuilder();
                 string preFix = "";
                 string postFix = "";
@@ -1043,7 +1047,7 @@ namespace WeixinServer.Helpers
             timeLogger.Append(string.Format("{0} VisionHelper::ShowRichAnalysisResult end\n", DateTime.Now - this.startTime));
             //Console.ResetColor();
             noAdsTxtResult = desStringWriter.ToString();
-            desStringWriter.Write("请关注极客家公众号geekplus-ms，点+号直接发图，我就跟您谈画\n");
+            desStringWriter.Write("\n关注geekplus-ms，点+号发图片，我就跟您谈画\n");
             return new Tuple<string, string>(desStringWriter.ToString(), commentStringWriter.ToString());
         }
 
