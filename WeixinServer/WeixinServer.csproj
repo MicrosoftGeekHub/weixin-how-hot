@@ -204,9 +204,7 @@
     <Content Include="rsc\placeholder.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="rsc\qrcode.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
+    <Content Include="rsc\qrcode.jpg" />
     <Content Include="rsc\scroll000.jpg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
