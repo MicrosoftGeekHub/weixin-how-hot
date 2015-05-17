@@ -176,7 +176,7 @@ namespace WeixinServer.Helpers
                     }
 
 
-                    if (mouthLargeRate > 2)
+                    if (mouthLargeRate > 1.4)
                     {
                         eyeDescribion += "\n姚晨嘴";
 
