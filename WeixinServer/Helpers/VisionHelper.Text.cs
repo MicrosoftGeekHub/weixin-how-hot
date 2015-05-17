@@ -298,18 +298,18 @@ namespace WeixinServer.Helpers
                 analysisResult.RichFaces = await taskGetFaces;
                 timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage taskGetFaces end {1}\n analysisResult.RichFaces.Length\n", DateTime.Now - this.startTime, analysisResult.RichFaces.Length));
                 var resTxt = this.ShowRichAnalysisResult(analysisResult);
-                var txtRichResult = new RichResult(timeLogger.ToString(), resTxt, errLogger.ToString());
-                if (string.IsNullOrEmpty(resTxt)) return txtRichResult;
+                var txtRichResult = new RichResult(timeLogger.ToString(), resTxt.Item2, errLogger.ToString());
+                if (string.IsNullOrEmpty(resTxt.Item1)) return txtRichResult;
 
                 photoBytes = await taskb;
                 timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage client.DownloadDataTaskAsync end\n", DateTime.Now - this.startTime));
 
-                var resImg = this.RenderAnalysisResultAsImage(analysisResult, resTxt);
+                var resImg = this.RenderAnalysisResultAsImage(analysisResult, resTxt.Item1, resTxt.Item2);
                 timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage\t RenderAnalysisResultAsImage end\n", DateTime.Now - this.startTime));
                 if (string.IsNullOrEmpty(resImg))
                 {
                     //return new RichResult(timeLogger.ToString(), resTxt, errLogger.ToString(), this.returnImageUrl, photoBytes);
-                    return new RichResult(timeLogger.ToString(), resTxt, errLogger.ToString(), this.returnImageUrl);
+                    return new RichResult(timeLogger.ToString(), resTxt.Item2, errLogger.ToString(), this.returnImageUrl);
                 }
 
                 return new RichResult(timeLogger.ToString(), resImg, errLogger.ToString(), this.returnImageUrl);
@@ -605,20 +605,21 @@ namespace WeixinServer.Helpers
         }
 
 
-        private string ShowRichAnalysisResult(AnalysisResult result)
+        private Tuple<string, string> ShowRichAnalysisResult(AnalysisResult result)
         {
             timeLogger.Append(string.Format("{0} VisionHelper::ShowRichAnalysisResult begin\n", DateTime.Now - this.startTime));
             //Console.ForegroundColor = ConsoleColor.Green;
             string res = "result";
             string des = "这幅图片";
             StringWriter desStringWriter = new StringWriter();
+            StringWriter commentStringWriter = new StringWriter();
             //Dictionary<string, string> map = new Dictionary<string, string>();
             if (result == null)
             {
                 //res = "NULL";
                 //des += "看不出任何东西";
-                desStringWriter.Write("看不出任何东西");
-                return des;
+                commentStringWriter.Write("看不出任何东西");
+                return new Tuple<string, string>(desStringWriter.ToString(), commentStringWriter.ToString());
             }
 
             if (result.Metadata != null)
@@ -686,20 +687,26 @@ namespace WeixinServer.Helpers
             if (result.Adult.IsAdultContent) desStringWriter.Write("手哥：黄图, 滚粗~！\n");
             desStringWriter.Write(string.Format("性感比例：Hots Rate={0:F2}%\n", saoBility / 10.0));//TODO 少量 or More by Score
            // desStringWriter.Write(string.Format("手哥评分: {0:F0}\n", rscr));//TODO 少量 or More by Score
-
+            var cat2StoryMap = MvcApplication.GetCateMap();
             //desStringWriter.Write(string.Format(": {0:F2}%\n", ascr));//TODO 少量 or More by Score
             if (result.Categories != null && result.Categories.Length > 0)
             {
                 //res += "Categories : ";
-                desStringWriter.Write(string.Format("画面里有"));
+                //desStringWriter.Write(string.Format("画面里有"));
                 //var sb = new StringBuilder();
                 string preFix = "";
                 string postFix = "";
+                //MvcApplication.InitCateMap();
+                
+                var storyList = new List<Tuple<string, string>>();
                 foreach (var category in result.Categories)
                 {
                     //res += "   Name : " + category.Name;
                     //res += "; Score : " + category.Score;
-
+                    if (cat2StoryMap.ContainsKey(category.Name))
+                    {
+                        storyList.AddRange(cat2StoryMap[category.Name]);
+                    }
                     //if (categoryNameMapping.ContainsKey(category.Name) && ! category.Name.EndsWith("_"))
                     if (category.Name.Equals("others_"))
                     {
@@ -710,10 +717,27 @@ namespace WeixinServer.Helpers
                         preFix += string.Format("{0}、", categoryNameMapping[category.Name]);
                 }
 
-                //if (result.Categories.Length == 1 || sb.Length < 2)
-                //{
-                //    sb += string.Format("{0}", categoryNameMapping[result.Categories[0].Name]);
-                //}
+                
+                if (storyList.Count == 0)
+                {
+                    storyList.AddRange(cat2StoryMap["people_"]);
+                }
+                var random = new Random();
+                var getrandomIdx = random.Next(0, storyList.Count - 1);
+
+                var storyTuple = storyList.ToArray()[getrandomIdx];
+                var story = String.Format("{0}\n\n作为谈画机器人，我只能说，{1}", storyTuple.Item1, storyTuple.Item2);
+                if (!string.IsNullOrEmpty(story))
+                {
+                    //story += String.Format("\n\n我是谈画机器人--画说，{0}", cat2CommentMap[category.Name]);
+                    //story = Encoding.ASCII.GetString(Encoding.Unicode.GetBytes(story));
+                    //char[] charArr = { '，', '。' };
+                    //foreach (var line in story.Split(charArr))
+                    //    commentStringWriter.WriteLine(line.Trim());
+                    commentStringWriter.WriteLine(story);
+                }
+               
+                
                 if (result.Categories.Length == 1)
                 {
                     desStringWriter.Write(string.Format("{0}{1}", preFix.TrimEnd('、'), postFix));
@@ -722,7 +746,11 @@ namespace WeixinServer.Helpers
                 {
                     desStringWriter.Write(string.Format("{0}和{1}", preFix.TrimEnd('、'), postFix));
                 }
-                
+                else
+                {
+                    desStringWriter.Write(string.Format("{0}{1}", preFix.TrimEnd('、'), postFix));
+                }
+
                 if (result.Categories.Length > 1 && preFix.Length > 1)
                     desStringWriter.Write(string.Format("等内容"));
                 desStringWriter.Write(string.Format("。\n"));
@@ -730,8 +758,8 @@ namespace WeixinServer.Helpers
 
             if (result.RichFaces != null && result.RichFaces.Length > 0)
             {
-                var shenPrice = (result.Adult.AdultScore + 2 * result.Adult.RacyScore) * result.RichFaces.Length * 2500;
-                desStringWriter.Write(string.Format("集体肾价：${0:F0}万，打八折只要998！\n", shenPrice));//TODO 少量 or More by Score
+               // var shenPrice = (result.Adult.AdultScore + 2 * result.Adult.RacyScore) * result.RichFaces.Length * 2500;
+               // desStringWriter.Write(string.Format("集体肾价：${0:F0}万，打八折只要998！\n", shenPrice));//TODO 少量 or More by Score
                 res += "Faces : ";
                 int numFemale = 0, numMale = 0;
                 float avgAge = 0.0f, mAvgAge = 0.01f, fAvgAge = 0.01f;
@@ -774,13 +802,13 @@ namespace WeixinServer.Helpers
                 //这个大叔很幸福
                 if (numFemale >= numMale && numMale > 0)
                 {
-                    desStringWriter.Write(string.Format("画说，"));
+                    desStringWriter.Write(string.Format("画说，这"));
                     foreach (var key in maleAgeMap.Keys)
                     {
-                        desStringWriter.Write(string.Format("这{0}个{1}，",
+                        desStringWriter.Write(string.Format("{0}个{1}，",
                             NumberToChineseChar(maleAgeMap[key]), key));
                     }
-                    desStringWriter.Write(string.Format("看起来很幸福 :) \n因为身边有"));
+                    desStringWriter.Write(string.Format("看起来很幸福 :) ，因为身边有"));
                     foreach (var key in femaleAgeMap.Keys)
                     {
                         desStringWriter.Write(string.Format("{0}个{1}，",
@@ -841,16 +869,16 @@ namespace WeixinServer.Helpers
                 else { }
 
                 //老驴啃嫩草
-                float ratio = mAvgAge / fAvgAge;
-                if (ratio > 1.2 && numFemale > 0) desStringWriter.Write(string.Format("\n因为僧多粥少，所以{0}头老驴啃{1}棵嫩草", NumberToChineseChar(numMale), NumberToChineseChar(numFemale)));
-                else if (ratio < 0.8 && numMale > 0) desStringWriter.Write(string.Format("\n因为粥多僧少，所以{0}棵老草啃{1}头嫩驴", NumberToChineseChar(numFemale), NumberToChineseChar(numMale)));
+                //float ratio = mAvgAge / fAvgAge;
+                //if (ratio > 1.2 && numFemale > 0) desStringWriter.Write(string.Format("\n因为僧多粥少，所以{0}头老驴啃{1}棵嫩草", NumberToChineseChar(numMale), NumberToChineseChar(numFemale)));
+                //else if (ratio < 0.8 && numMale > 0) desStringWriter.Write(string.Format("\n因为粥多僧少，所以{0}棵老草啃{1}头嫩驴", NumberToChineseChar(numFemale), NumberToChineseChar(numMale)));
                 //else if (numFemale > 0 && numMale > 0)
                 //{
                 //    desStringWriter.Write(string.Format("{0}男{1}女，年轻的朋友们，今天来相会，荡起小船儿暖风轻轻吹", NumberToChineseChar(numMale), NumberToChineseChar(numFemale)));
                 //}
-                else
-                {
-                }
+                //else
+                //{
+                //}
             }
 
             if (result.Color != null)
@@ -871,23 +899,24 @@ namespace WeixinServer.Helpers
             timeLogger.Append(string.Format("{0} VisionHelper::ShowRichAnalysisResult end\n", DateTime.Now - this.startTime));
             //Console.ResetColor();
             noAdsTxtResult = desStringWriter.ToString();
-            desStringWriter.Write("\n我是谈画机器人，请关注极客家公众号geekplus-ms，\n点+号直接发图，我就跟您谈画\n");
-            return desStringWriter.ToString();
+            desStringWriter.Write("请关注极客家公众号geekplus-ms，点+号直接发图，我就跟您谈画\n");
+            return new Tuple<string, string>(desStringWriter.ToString(), commentStringWriter.ToString());
         }
 
         private static string FemaleTitleAsPerAge(double age)
         {
             string title;
 
-            if (age <= 4) title = "学前女婴";
-            else if (age <= 10) title = "学龄萝莉";
+            if (age <= 4) title = "灵童";
+            else if (age <= 12) title = "萝莉";
+            else if (age <= 15) title = "少女";
             else if (age <= 16) title = "花季少女";
             else if (age <= 17) title = "雨季少女";
             else if (age <= 24) title = "软妹子";
-            else if (age <= 32) title = "轻熟女";
-            else if (age <= 42) title = "熟女";
+            else if (age <= 30) title = "圣女";
+            else if (age <= 42) title = "大圣女";
             else if (age <= 55) title = "大姐";
-            else if (age <= 75) title = "广场舞大妈";
+            else if (age <= 75) title = "大妈";
             else title = "奶奶";
             
             return title;
@@ -897,14 +926,15 @@ namespace WeixinServer.Helpers
         {
             string title;
 
-            if (age <= 4) title = "学前灵童";
-            else if (age <= 10) title = "正太";
+            if (age <= 4) title = "神童";
+            else if (age <= 12) title = "正太";
+            else if (age <= 15) title = "少年";
             else if (age <= 16) title = "花季少年";
             else if (age <= 17) title = "雨季少年";
             else if (age <= 24) title = "小鲜肉";
-            else if (age <= 30) title = "为买房而奋斗的青年";
-            else if (age <= 35) title = "刚过而立之年的男神";
-            else if (age <= 40) title = "闯荡一番事业的大哥";
+            else if (age <= 30) title = "文青";
+            else if (age <= 35) title = "男神";
+            else if (age <= 40) title = "大哥";
             else if (age <= 55) title = "大叔";
             else if (age <= 70) title = "大爷";
             else title = "爷爷";

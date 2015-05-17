@@ -16,6 +16,7 @@ namespace WeixinServer
         public DbSet<Token> Tokens { get; set; }
         public DbSet<BlackValue> BlackList { get; set; }
         public DbSet<ImageStorage> ImageStorages { get; set; }
+        public DbSet<Story> Story { get; set; }
     }
 
     public sealed class Danmu
@@ -45,6 +46,20 @@ namespace WeixinServer
         public string TimeLog { get; set; }
     }
 
+    [Table("Jokes")]
+    public sealed class Story
+    {
+        public int Id { get; set; }
+        public string category { get; set; }
+        public string count_bury { get; set; }
+        public string count_comment { get; set; }
+        public string count_digg { get; set; }
+        public int count_diggcomm { get; set; }
+        public string count_favorite { get; set; }
+        public string source { get; set; }
+        public string text { get; set; }
+        public string text_comment { get; set; }
+    }
     public sealed class Token
     {
         [Key]

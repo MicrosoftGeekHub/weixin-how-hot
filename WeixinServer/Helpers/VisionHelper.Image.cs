@@ -139,6 +139,7 @@ namespace WeixinServer.Helpers
                     if (faceDetect.Attributes.Gender.ToLower().Equals("male"))
                     {
                         genderInfo += "♂";
+                        genderInfo += MaleTitleAsPerAge(faceDetect.Attributes.Age);
                         maleRectangles.Add(new System.Drawing.Rectangle(faceDetect.FaceRectangle.Left,
                             faceDetect.FaceRectangle.Top, faceDetect.FaceRectangle.Width, faceDetect.FaceRectangle.Height));
                         colour = System.Drawing.Color.Lime;
@@ -148,6 +149,7 @@ namespace WeixinServer.Helpers
                     else
                     {
                         genderInfo += "♀";
+                        genderInfo += FemaleTitleAsPerAge(faceDetect.Attributes.Age);
                         femelRectangles.Add(new System.Drawing.Rectangle(faceDetect.FaceRectangle.Left,
                             faceDetect.FaceRectangle.Top, faceDetect.FaceRectangle.Width, faceDetect.FaceRectangle.Height));
                         nickName = "妹";
@@ -174,23 +176,23 @@ namespace WeixinServer.Helpers
                     }
 
 
-                    if (mouthLargeRate > 1.1)
+                    if (mouthLargeRate > 1.4)
                     {
-                        eyeDescribion += "\n性感大嘴" + nickName;
+                        eyeDescribion += "\n姚晨嘴";
 
                     }
-                    else if (mouthLargeRate < 0.9)
+                    else if (mouthLargeRate < 1.2)
                     {
-                        eyeDescribion += "\n樱桃小口" + nickName;
+                        eyeDescribion += "\n舒淇唇";
                     }
                     else
                     {
- 
+                        //eyeDescribion += "\n性感红唇";
                     }
 
                     hotivity += emLargeRate * 100;
                     //hotivity = hotivity / 10
-                    string info = string.Format("{0:F0}万\nHots\n{1}\n", rectEmsize, eyeDescribion);
+                    string info = string.Format("{0:F0}万\nHots\n{1}\n", hotivity, eyeDescribion);
                     
                     Size room = new Size((int) (faceDetect.FaceRectangle.Width) , (int)(faceDetect.FaceRectangle.Height));
                     var ret = FindFont(g, info, room, new Font(ff, 36, FontStyle.Bold, GraphicsUnit.Pixel));
@@ -261,7 +263,8 @@ namespace WeixinServer.Helpers
 
                     //look mom! no pre-wrapping!
                     gp.AddString(info, ff, (int)FontStyle.Bold, fontSize, r, sf);
-                    gp.AddString(string.Format("{0}{1}", genderInfo, faceDetect.Attributes.Age), ff, (int)FontStyle.Bold, fontSize, r2, sf);
+                    //string.Format("{0}{1}", genderInfo, faceDetect.Attributes.Age)
+                    gp.AddString(genderInfo, ff, (int)FontStyle.Bold, fontSize, r2, sf);
                     //gp.DrawString(info, f, new SolidBrush(colour), new Point(leftText, topText));
                     //gp.AddString(string.Format("{0}{1}", genderInfo, faceDetect.Attributes.Age), ff, (int)FontStyle.Bold, fontSize, r, sf);
                     //    new Point(faceDetect.FaceRectangle.Left, faceDetect.FaceRectangle.Top - f.Height - 5));
@@ -534,11 +537,7 @@ namespace WeixinServer.Helpers
                           .ToArray());
 
         }
-        private string RenderAnalysisResultAsImage(AnalysisResult result, RichResult txtRichResult)
-        {
-            return RenderAnalysisResultAsImage(result, txtRichResult.analyzeImageResult);
-        }
-        private string RenderAnalysisResultAsImage(AnalysisResult result, string captionText)
+        private string RenderAnalysisResultAsImage(AnalysisResult result, string captionText, string commentText)
         {
             timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage::RenderAnalysisResultAsImage begin\n", DateTime.Now - this.startTime));
             string resultUrl = null;
@@ -589,7 +588,7 @@ namespace WeixinServer.Helpers
 
             //return string.Format("画说:\n{0}", resultUrl);
                 //return string.Format("谈画:\n{0}\n归图:\n{1}\n", noAdsTxtResult, resultUrl);
-             return string.Format("谈画:\n{0}\n想知道您上传的图片有多\"Hot\"么? 请看归图:\n{1}\n", noAdsTxtResult, resultUrl);
+                return string.Format("谈画:\n{0}\n想知道您上传的图片有多\"Hot\"么? 请看归图:\n{1}\n", commentText, resultUrl);
             //return string.Format("画说:\n{0}\n归图:\n{1}\n原图:\n{2}", captionText, resultUrl, this.originalImageUrl);
         }
     }
