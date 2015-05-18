@@ -70,16 +70,21 @@ function processRequest(n, t, i, r, u) {
                 }
                 var $thumbContainer = $("#thumbContainer");
                 var thumbnailWidth = $thumbContainer.width();
-                var textWidth = thumbnailWidth > 400 ? 400 : thumbnailWidth - 50;
+                var thumbnailHeight = $thumbContainer.height()
+                var textWidth = 4000//thumbnailWidth > 400 ? 400 : thumbnailWidth - 50;
+                var textHeight = 20//thumbnailWidth > 400 ? 400 : thumbnailWidth - 50;
                 var startLeft = thumbnailWidth;
-                var endLeft = 15;
-                var timing = 10; // Sec
+                var startTop = thumbnailHeight + textHeight + 50;
+                var endLeft = - textWidth;
+                var endTop = - textHeight - thumbnailHeight;
+                var timing = 20; // Sec
                 var $barrage =
                     $("<p style='position: absolute; top: 30px; font-size: 1.4em; color: #fff; text-shadow: 1px 1px 1px #000; width: " + textWidth + "px; left:" + startLeft + "px; transition: all " + timing + "s linear;'>" + t.analyzeImageResult
                         + "</p>");
                 $thumbContainer.css("overflow", "hidden").append($barrage);
 
                 $barrage.animate({
+                    //                    top: endTop + "px"
                     left: endLeft + "px"
                 }, timing*1000, function () {
                     //$barrage.remove();
