@@ -833,7 +833,7 @@ namespace WeixinServer.Helpers
                 desStringWriter.Write("手哥：黄图, 滚粗~！\n");
                 return new Tuple<string, string>(desStringWriter.ToString(), commentStringWriter.ToString());
             }
-            desStringWriter.Write(string.Format("辣火比：{0:F2}%\n", saoBility / 10.0));//TODO 少量 or More by Score
+            desStringWriter.Write(string.Format("画面辣度：Hot Rate = {0:F2}%\n", saoBility / 10.0));//TODO 少量 or More by Score
            // desStringWriter.Write(string.Format("手哥评分: {0:F0}\n", rscr));//TODO 少量 or More by Score
             var cat2StoryMap = MvcApplication.GetCateMap();
             var storyList = new List<Tuple<string, string>>();
@@ -1018,7 +1018,7 @@ namespace WeixinServer.Helpers
                 var getrandomIdx = random.Next(0, storyList.Count - 1);
 
                 var storyTuple = storyList.ToArray()[getrandomIdx];
-                var story = String.Format("--嗯，谈画我联想到一个笑话: {0}\n作为一个高冷机器人，我只能说，{1}", storyTuple.Item1, storyTuple.Item2);
+                var story = String.Format("--嗯，谈画我联想到一个笑话: \"{0}\"\n作为一个高冷机器人，我只能说，{1}", storyTuple.Item1, storyTuple.Item2);
                 if (!string.IsNullOrEmpty(story))
                 {
                     //story += String.Format("\n\n我是谈画机器人--画说，{0}", cat2CommentMap[category.Name]);

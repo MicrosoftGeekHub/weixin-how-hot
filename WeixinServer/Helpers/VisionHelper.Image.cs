@@ -140,7 +140,7 @@ namespace WeixinServer.Helpers
                     {
                         //genderInfo += "♂";
                         //genderInfo += MaleTitleAsPerAge(faceDetect.Attributes.Age);
-                        genderInfo = string.Format("♂{0}岁{1}", faceDetect.Attributes.Age, MaleTitleAsPerAge(faceDetect.Attributes.Age));
+                        genderInfo = string.Format("♂{0}岁{1}\n", faceDetect.Attributes.Age, MaleTitleAsPerAge(faceDetect.Attributes.Age));
                         maleRectangles.Add(new System.Drawing.Rectangle(faceDetect.FaceRectangle.Left,
                             faceDetect.FaceRectangle.Top, faceDetect.FaceRectangle.Width, faceDetect.FaceRectangle.Height));
                         colour = System.Drawing.Color.Lime;
@@ -150,7 +150,7 @@ namespace WeixinServer.Helpers
                     else
                     {
                         //genderInfo += "♀";
-                        genderInfo = string.Format("♀{0}岁{1}", faceDetect.Attributes.Age, FemaleTitleAsPerAge(faceDetect.Attributes.Age));
+                        genderInfo = string.Format("♀{0}岁{1}\n", faceDetect.Attributes.Age, FemaleTitleAsPerAge(faceDetect.Attributes.Age));
                         //genderInfo += FemaleTitleAsPerAge(faceDetect.Attributes.Age);
                         femelRectangles.Add(new System.Drawing.Rectangle(faceDetect.FaceRectangle.Left,
                             faceDetect.FaceRectangle.Top, faceDetect.FaceRectangle.Width, faceDetect.FaceRectangle.Height));
@@ -167,35 +167,40 @@ namespace WeixinServer.Helpers
                     //var mouthLargeRate = DistanceSquare(lm.UpperLipBottom, lm.UnderLipTop) / DistanceSquare(lm.EyeLeftInner, lm.EyeRightInner);
                     
                     var eyeDescribion = "";
-                    if (emLargeRate > 0.08)
+                    if (emLargeRate > 0.15)
                     {
-                        eyeDescribion = "大眼" + nickName;
+                        eyeDescribion = "铜铃眼";
 
                     }
-                    else 
+                    else if (emLargeRate < 0.08)
                     {
                         eyeDescribion = "丹凤眼";
                     }
-                    genderInfo += eyeDescribion; 
+                    else 
+                    {
+                        eyeDescribion = "桃花眼";
+                    }
+                    genderInfo += eyeDescribion;
+                    string mouthDescription = "";
                     var mouthLargeRate = DistanceSquare(lm.MouthRight, lm.MouthLeft) / DistanceSquare(lm.EyeLeftInner, lm.EyeRightInner);
                     if (mouthLargeRate > 1.6)
                     {
-                        eyeDescribion = "姚晨嘴";
+                        mouthDescription = "姚晨嘴";
 
                     }
                     else if (mouthLargeRate < 1.2)
                     {
-                        eyeDescribion = "舒淇唇";
+                        mouthDescription = "舒淇唇";
                     }
                     else
                     {
-                        eyeDescribion = "";
+                        mouthDescription = "姚明笑";
                         //eyeDescribion += "\n性感红唇";
                     }
 
                     hotivity += emLargeRate * 100;
                     //hotivity = hotivity / 10
-                    string info = string.Format("{1}\n{0:F0}万辣火\n", hotivity, eyeDescribion);
+                    string info = string.Format("{1}\n{0:F0}万辣火\n", hotivity, mouthDescription);
                     
                     Size room = new Size((int) (faceDetect.FaceRectangle.Width) , (int)(faceDetect.FaceRectangle.Height));
                     var ret = FindFont(g, info, room, new Font(ff, 36, FontStyle.Bold, GraphicsUnit.Pixel));

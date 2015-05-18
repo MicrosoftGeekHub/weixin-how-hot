@@ -180,6 +180,7 @@
     <Content Include="rsc\browse-icon.svg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="rsc\css.css" />
     <Content Include="rsc\demo.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
