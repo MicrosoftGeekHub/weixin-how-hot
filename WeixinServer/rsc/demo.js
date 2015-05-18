@@ -77,7 +77,7 @@ function processRequest(n, t, i, r, u) {
                 var startTop = thumbnailHeight + textHeight + 50;
                 var endLeft = - textWidth;
                 var endTop = - textHeight - thumbnailHeight;
-                var timing = 30; // Sec
+                var timing = 60; // Sec
                 var $barrage =
                     $("<p style='position: absolute; top: 30px; font-size: 1.4em; color: #fff; text-shadow: 1px 1px 1px #000; width: " + textWidth + "px; left:" + startLeft + "px; transition: all " + timing + "s linear;'>" + t.analyzeImageResult
                         + "</p>");
