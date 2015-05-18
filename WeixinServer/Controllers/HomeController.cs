@@ -350,7 +350,7 @@ namespace WeixinServer.Controllers
 
 
         [HttpPost]
-        public async Task<ActionResult> Analyze(string faceUrl = "")
+        public async Task<ActionResult> Analyze(string faceUrl = "", string photoName = "")
         {
             string requestId = Guid.NewGuid().ToString();
             int? contentLength = null;
