@@ -13,6 +13,7 @@ using System.Web.Security;
 using WeixinServer.Helpers;
 using WeixinServer.Models;
 using System.Drawing;
+using System.Net.Http.Headers;
 
 //using UpYunLibrary;
 namespace WeixinServer.Controllers
@@ -401,26 +402,27 @@ namespace WeixinServer.Controllers
                 return new HttpStatusCodeResult(HttpStatusCode.InternalServerError, e.Message);
             }
         }
-        //[HttpPost]
-        //public async Task<HttpResponseMessage> ImageSearch(string query)
-        //{
-        //    string requestId = Guid.NewGuid().ToString();
-        //    try
-        //    {
-        //        //Trace.WriteLine(string.Format("Start Search Request: RequestId: {0};", requestId));
-        //        var results = await ImageSearchClient.SearchImages(query);
-        //        if (results == null || results.Length == 0)
-        //        {
-        //            return HttpNotFound();
-        //        }
-        //        //Trace.WriteLine(string.Format("Completed Search Request: RequestId: {0};", requestId));
-        //        return Json(JsonConvert.SerializeObject(results), "application/json");
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        Telemetry.TrackError(string.Format("Error While Searching: {0}; Error:{1}", query, e.ToString()), requestId);
-        //        return new HttpStatusCodeResult(HttpStatusCode.InternalServerError, "Error");
-        //    }
-        //}
+        [HttpPost]
+        public async Task<HttpResponseMessage> ImageSearch(byte[] queryBytes)
+        {
+            String query = System.Text.Encoding.UTF8.GetString(queryBytes);
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create("http://how-old.net/Home/BingImageSearch?query=" + query);
+            request.Method = "POST";
+            request.ContentType = "text/plain;charset=UTF-8";
+
+            request.ContentLength = queryBytes.Length;
+            using (var stream = request.GetRequestStream())
+            {
+                stream.Write(queryBytes, 0, queryBytes.Length);
+            }
+
+            HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+            String responseString = new StreamReader(response.GetResponseStream()).ReadToEnd();
+
+            HttpResponseMessage result = new HttpResponseMessage(HttpStatusCode.OK);
+            result.Content = new StringContent(responseString);
+            result.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+            return result;
+        }
     }
 }

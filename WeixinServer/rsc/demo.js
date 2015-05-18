@@ -15,6 +15,30 @@ function getTrans(n) {
     }[n]["cn"]
 }
 
+function searchImages() {
+    var n = $("#searchText").val(),
+        t;
+    if (n != null && n.length !== 0) return $("#searchError").css("visibility", "hidden"), t = "/Home/ImageSearch?query=" + encodeURIComponent(n), $.ajax({
+        type: "POST",
+        url: t,
+        data: {},
+        contentType: !1,
+        processData: !1,
+        success: function (n) {
+            var t = JSON.parse(n),
+                i = $("#imageList");
+            t != null && t.length > 0 && (i.html(""), $.each(t, function (n, t) {
+                var r = '<img src="' + t.scroll_image_url + '" data-url="' + t.main_image_url + '">';
+                $(r).appendTo(i)
+            }), refresh())
+        },
+        error: function (t) {
+            t.status === 404 ? $("#searchError").html("We did not find any results for " + n + ".") : $("#searchError").html("Oops, something went wrong. Please try searching again.");
+            $("#searchError").css("visibility", "visible")
+        }
+    }), !1
+}
+
 function processRequest(n, t, i, r, u) {
     window.location.hash = "results";
     deleteFaceRects();
