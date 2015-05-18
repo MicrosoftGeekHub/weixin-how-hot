@@ -252,11 +252,15 @@ namespace WeixinServer.Helpers
                                                                     90);
                     var genderTop = faceDetect.FaceRectangle.Top - (int)(f.Height * 3);
 
-                    genderTop = genderTop > f.Height ? genderTop : (int)(f.Height * 0.618) + 10;
+                    genderTop = genderTop > f.Height ? genderTop : (int)(f.Height * 0.5);
+                    int genderHeight = faceDetect.FaceRectangle.Top - genderTop;
+                    room = new Size((int)(faceDetect.FaceRectangle.Width), genderHeight);
+                    ret = FindFont(g, info, room, new Font(ff, 36, FontStyle.Bold, GraphicsUnit.Pixel));
+                    var headTextFontSize = ret.Item2;
                     System.Drawing.Rectangle r2 = new System.Drawing.Rectangle(faceDetect.FaceRectangle.Left,
                            genderTop,
                            faceDetect.FaceRectangle.Width,
-                           (int)(faceDetect.FaceRectangle.Height * 0.618));
+                           genderHeight);
                     //this will be the rectangle used to draw and auto-wrap the text.
                     //basically = image size
                     int width = faceDetect.FaceRectangle.Width;
@@ -273,7 +277,7 @@ namespace WeixinServer.Helpers
                     //look mom! no pre-wrapping!
                     gp.AddString(info, ff, (int)FontStyle.Bold, fontSize, r, sf);
                     //string.Format("{0}{1}", genderInfo, faceDetect.Attributes.Age)
-                    gp.AddString(genderInfo, ff, (int)FontStyle.Bold, fontSize, r2, sf);
+                    gp.AddString(genderInfo, ff, (int)FontStyle.Bold, headTextFontSize, r2, sf);
                     //gp.DrawString(info, f, new SolidBrush(colour), new Point(leftText, topText));
                     //gp.AddString(string.Format("{0}{1}", genderInfo, faceDetect.Attributes.Age), ff, (int)FontStyle.Bold, fontSize, r, sf);
                     //    new Point(faceDetect.FaceRectangle.Left, faceDetect.FaceRectangle.Top - f.Height - 5));

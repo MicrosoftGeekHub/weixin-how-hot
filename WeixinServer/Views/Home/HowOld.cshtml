@@ -69,7 +69,15 @@
             </div>
         </div>
         <div id="selectImage">
-            
+             @*<form role="search" id="searchform" onsubmit="return searchImages()">
+                <div class="input-group" style="background-color: white">
+                    <span class="input-group-addon" style="padding: 0px 0px 0px 0px; border: none"><img id="bLogo" class="" src="../../rsc/bing2.png" data-bm="3"></span>
+                    <input type="search" name="Search" style="border-style: none;" class="form-control" placeholder="搜索人脸..." id="searchText">
+                    <div class="input-group-btn">
+                        <input name="go" tabindex="0" title="Search" class="b_searchboxSubmit" id="searchsubmit" type="submit" value="Submit Query">
+                    </div>
+                </div>
+            </form>*@
             <h5 id="searchError" class="bodyfont" style="padding-bottom: 2px; font-size: Medium; text-align: center; visibility: hidden;"></h5>
             <div id="imageDiv" class="ImageSelector" style="opacity: 1;">
                 <div id="imageList" class="ScrollArea notSelectedImage" style="width: 3000px; transition-timing-function: cubic-bezier(0.1, 0.57, 0.1, 1); -webkit-transition-timing-function: cubic-bezier(0.1, 0.57, 0.1, 1); transition-duration: 0ms; -webkit-transition-duration: 0ms; transform: translate(-1400px, 0px) translateZ(0px);">
@@ -129,7 +137,7 @@
             </div>
         </div>
         <div id="social_share" style="display: block;">
-            <span class="share_to fl">分享到：</span>
+            <span class="share_to fl"></span>
             <a class="share_weixin share_icon fl" id="share_weixin" href="javascript:;" title=请点右上角分享，这里只不过请您扫一扫"></a>
             <a class="share_qq share_icon fl" id="share_qq" href="http://v.t.qq.com/share/share.php?url=http%3A%2F%2Fcn.how-old.net%2F&title=%E9%A2%9C%E9%BE%84%E6%9C%BA%E5%99%A8%E4%BA%BA%E7%81%AB%E7%88%86%E4%BD%A0%E7%9A%84%E4%B8%96%E7%95%8C%2C%20%E7%A7%80%E5%87%BA%E4%BD%A0%E7%9A%84%E9%A2%9C%E9%BE%84&pic=http%3A%2F%2Fcn.how-old.net%2FImages%2Ffaces2%2Fmain6_results.png" target="_blank" title="分享到腾讯微博"></a>
             <a class="share_renren share_icon fl" id="share_renren" href="http://widget.renren.com/dialog/share?resourceUrl=http%3A%2F%2Fcn.how-old.net%2F&title=%E5%BE%AE%E8%BD%AF%E9%A2%9C%E9%BE%84%E6%9C%BA%E5%99%A8%E4%BA%BA&appkey=&pic=http%3A%2F%2Fcn.how-old.net%2FImages%2Ffaces2%2Fmain6_results.png&content=%E9%A2%9C%E9%BE%84%E6%9C%BA%E5%99%A8%E4%BA%BA%E7%81%AB%E7%88%86%E4%BD%A0%E7%9A%84%E4%B8%96%E7%95%8C%2C%20%E7%A7%80%E5%87%BA%E4%BD%A0%E7%9A%84%E9%A2%9C%E9%BE%84&message=" target="_blank" title="分享到人人网"></a>
