@@ -841,7 +841,7 @@ namespace WeixinServer.Helpers
             if (result.Categories != null && result.Categories.Length > 0)
             {
                 //res += "Categories : ";
-                desStringWriter.Write(string.Format("画面里有"));
+                commentStringWriter.Write(string.Format("画面里有"));
                 //var sb = new StringBuilder();
                 string preFix = "";
                 string postFix = "";
@@ -870,20 +870,20 @@ namespace WeixinServer.Helpers
                
                 if (result.Categories.Length == 1)
                 {
-                    desStringWriter.Write(string.Format("{0}{1}", preFix.TrimEnd('、'), postFix));
+                    commentStringWriter.Write(string.Format("{0}{1}", preFix.TrimEnd('、'), postFix));
                 }
                 else if (preFix.Length > 0 && postFix.Length > 0)
                 {
-                    desStringWriter.Write(string.Format("{0}和{1}", preFix.TrimEnd('、'), postFix));
+                    commentStringWriter.Write(string.Format("{0}和{1}", preFix.TrimEnd('、'), postFix));
                 }
                 else
                 {
-                    desStringWriter.Write(string.Format("{0}{1}", preFix.TrimEnd('、'), postFix));
+                    commentStringWriter.Write(string.Format("{0}{1}", preFix.TrimEnd('、'), postFix));
                 }
 
                 if (result.Categories.Length > 1 && preFix.Length > 1)
-                    desStringWriter.Write(string.Format("等内容"));
-                desStringWriter.Write(string.Format("。\n"));
+                    commentStringWriter.Write(string.Format("等内容"));
+                commentStringWriter.Write(string.Format("。\n"));
             }
 
             if (result.RichFaces != null && result.RichFaces.Length > 0)
@@ -983,7 +983,7 @@ namespace WeixinServer.Helpers
                 }
                 else if (numMale > 1 || numFemale > 1)
                 {
-                    desStringWriter.Write(string.Format("画说，"));
+                    commentStringWriter.Write(string.Format("画说，"));
                     foreach (var key in maleAgeMap.Keys)
                     {
                         commentStringWriter.Write(string.Format("这{0}个{1}，",
@@ -1050,7 +1050,7 @@ namespace WeixinServer.Helpers
             timeLogger.Append(string.Format("{0} VisionHelper::ShowRichAnalysisResult end\n", DateTime.Now - this.startTime));
             //Console.ResetColor();
             noAdsTxtResult = desStringWriter.ToString();
-            desStringWriter.Write("关注geekplus-ms，点+号发图片，我就跟您谈画\n");
+            commentStringWriter.Write("关注geekplus-ms，点+号发图片，我就跟您谈画\n");
 
 
             return new Tuple<string, string>(desStringWriter.ToString(), commentStringWriter.ToString());

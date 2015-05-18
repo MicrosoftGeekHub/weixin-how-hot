@@ -165,7 +165,7 @@ namespace WeixinServer.Helpers
                     var lm = faceDetect.FaceLandmarks;
                     var emLargeRate = DistanceSquare(lm.EyeLeftBottom, lm.EyeLeftTop) / DistanceSquare(lm.EyeLeftInner, lm.EyeLeftOuter);
                     //var mouthLargeRate = DistanceSquare(lm.UpperLipBottom, lm.UnderLipTop) / DistanceSquare(lm.EyeLeftInner, lm.EyeRightInner);
-                    var mouthLargeRate = DistanceSquare(lm.MouthRight, lm.MouthLeft) / DistanceSquare(lm.EyeLeftInner, lm.EyeRightInner);
+                    
                     var eyeDescribion = "";
                     if (emLargeRate > 0.08)
                     {
@@ -176,25 +176,26 @@ namespace WeixinServer.Helpers
                     {
                         eyeDescribion = "丹凤眼";
                     }
-
-
+                    genderInfo += eyeDescribion; 
+                    var mouthLargeRate = DistanceSquare(lm.MouthRight, lm.MouthLeft) / DistanceSquare(lm.EyeLeftInner, lm.EyeRightInner);
                     if (mouthLargeRate > 1.6)
                     {
-                        eyeDescribion += "\n姚晨嘴";
+                        eyeDescribion = "姚晨嘴";
 
                     }
                     else if (mouthLargeRate < 1.2)
                     {
-                        eyeDescribion += "\n舒淇唇";
+                        eyeDescribion = "舒淇唇";
                     }
                     else
                     {
+                        eyeDescribion = "";
                         //eyeDescribion += "\n性感红唇";
                     }
 
                     hotivity += emLargeRate * 100;
                     //hotivity = hotivity / 10
-                    string info = string.Format("{0:F0}万辣火\n{1}\n", hotivity, eyeDescribion);
+                    string info = string.Format("{1}\n{0:F0}万辣火\n", hotivity, eyeDescribion);
                     
                     Size room = new Size((int) (faceDetect.FaceRectangle.Width) , (int)(faceDetect.FaceRectangle.Height));
                     var ret = FindFont(g, info, room, new Font(ff, 36, FontStyle.Bold, GraphicsUnit.Pixel));
@@ -244,8 +245,9 @@ namespace WeixinServer.Helpers
                                                                     System.Drawing.Color.Aqua,
                                                                     System.Drawing.Color.DodgerBlue,
                                                                     90);
-                    var genderTop = faceDetect.FaceRectangle.Top - (int)(f.Height*3);
-                    genderTop = genderTop > 0? genderTop : 0;
+                    var genderTop = faceDetect.FaceRectangle.Top - (int)(f.Height * 3);
+
+                    genderTop = genderTop > f.Height ? genderTop : (int)(f.Height * 0.618) + 10;
                     System.Drawing.Rectangle r2 = new System.Drawing.Rectangle(faceDetect.FaceRectangle.Left,
                            genderTop,
                            faceDetect.FaceRectangle.Width,
@@ -254,8 +256,8 @@ namespace WeixinServer.Helpers
                     //basically = image size
                     int width = faceDetect.FaceRectangle.Width;
                     if (width + faceDetect.FaceRectangle.Left > image.Width) width = image.Width - faceDetect.FaceRectangle.Left - width;
-                    int height = faceDetect.FaceRectangle.Height;
-                    if (2 * height + faceDetect.FaceRectangle.Top > image.Height) height = image.Height - faceDetect.FaceRectangle.Top - height;
+                    int height = (int)(0.618 * faceDetect.FaceRectangle.Height);
+                    if (2 * height + faceDetect.FaceRectangle.Top > image.Height) height = (int)(0.618 * (image.Height - faceDetect.FaceRectangle.Top) - height);
                     System.Drawing.Rectangle r = new System.Drawing.Rectangle(faceDetect.FaceRectangle.Left,
                             faceDetect.FaceRectangle.Top + faceDetect.FaceRectangle.Height,
                             width,

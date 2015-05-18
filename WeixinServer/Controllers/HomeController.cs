@@ -154,8 +154,9 @@ namespace WeixinServer.Controllers
                 if (ret.errorLogs.Equals(""))
                 {
                     // Production mode
+                    var returnString = string.Format("{0} 想知道贵图有多火辣么? 请看归图:{1}", ret.analyzeImageResult, ret.uploadedUrl);
                     Response.Write(string.Format("<xml><ToUserName><![CDATA[{0}]]></ToUserName><FromUserName><![CDATA[{1}]]></FromUserName><CreateTime>12345678</CreateTime><MsgType><![CDATA[text]]></MsgType><Content><![CDATA[{2}]]></Content></xml>",
-                    msg.FromUserName, msg.ToUserName, ret.analyzeImageResult));
+                    msg.FromUserName, msg.ToUserName, returnString));
                     Response.End();
                     return ret;
                 }
