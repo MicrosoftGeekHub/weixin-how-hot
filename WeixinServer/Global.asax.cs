@@ -35,8 +35,8 @@ namespace WeixinServer
                 }
                 cate2ListMap[key].Add(val);
             }
-            cateMap = dbContext.Story.ToDictionary(p => p.category,p => p.text);
-            cate2CommentMap = dbContext.Story.ToDictionary(p => p.category, p => p.text_comment);
+            //cateMap = dbContext.Story.ToDictionary(p => p.category,p => p.text);
+            //cate2CommentMap = dbContext.Story.ToDictionary(p => p.category, p => p.text_comment);
             dbContext.Dispose();
         }
         protected void Application_Start()

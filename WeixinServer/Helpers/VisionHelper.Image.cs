@@ -51,7 +51,7 @@ namespace WeixinServer.Helpers
             float ScaleRatio = (HeightScaleRatio < WidthScaleRatio) ? ScaleRatio = HeightScaleRatio : ScaleRatio = WidthScaleRatio;
             float ScaleFontSize = PreferedFont.Size * ScaleRatio;
             //var intFontSize = ((int)ScaleFontSize / 4) * 4;
-            //if(intFontSize < 24) intFontSize = 24;
+            if (ScaleFontSize < 24) ScaleFontSize = 24;
             return new Tuple<Font, float>(new Font(PreferedFont.FontFamily, ScaleFontSize), ScaleFontSize);
         }
 

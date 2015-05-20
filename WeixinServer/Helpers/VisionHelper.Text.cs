@@ -1009,12 +1009,21 @@ namespace WeixinServer.Helpers
                 //else
                 //{
                 //}
+                var random = new Random();
 
                 if (storyList.Count == 0)
                 {
-                    storyList.AddRange(cat2StoryMap["people_"]);
+                    int numCate = 86;
+                    foreach (var key in cat2StoryMap.Keys)
+                    {
+                        var randomIdx = random.Next(0, numCate--);
+                        if (randomIdx == 0)
+                        {
+                            storyList.AddRange(cat2StoryMap[key]);
+                            break;
+                        }
+                    }
                 }
-                var random = new Random();
                 var getrandomIdx = random.Next(0, storyList.Count - 1);
 
                 var storyTuple = storyList.ToArray()[getrandomIdx];
