@@ -185,7 +185,7 @@ namespace WeixinServer.Helpers
                     var mouthLargeRate = DistanceSquare(lm.MouthRight, lm.MouthLeft) / DistanceSquare(lm.EyeLeftInner, lm.EyeRightInner);
                     if (mouthLargeRate > 1.6)
                     {
-                        mouthDescription = "姚晨嘴";
+                        mouthDescription = "姚晨吻";
 
                     }
                     else if (mouthLargeRate < 1.2)
@@ -194,7 +194,7 @@ namespace WeixinServer.Helpers
                     }
                     else
                     {
-                        mouthDescription = "姚明笑";
+                        mouthDescription = "姚明嘴";
                         //eyeDescribion += "\n性感红唇";
                     }
 
@@ -252,7 +252,7 @@ namespace WeixinServer.Helpers
                                                                     90);
                     var genderTop = faceDetect.FaceRectangle.Top - (int)(f.Height * 3);
 
-                    genderTop = genderTop > f.Height ? genderTop : (int)(f.Height * 0.5);
+                    genderTop = genderTop > f.Height ? genderTop : (int)(f.Height * 0.618);
                     int genderHeight = faceDetect.FaceRectangle.Top - genderTop;
                     room = new Size((int)(faceDetect.FaceRectangle.Width), genderHeight);
                     ret = FindFont(g, info, room, new Font(ff, 36, FontStyle.Bold, GraphicsUnit.Pixel));
