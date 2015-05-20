@@ -51,7 +51,7 @@ namespace WeixinServer.Helpers
             float ScaleRatio = (HeightScaleRatio < WidthScaleRatio) ? ScaleRatio = HeightScaleRatio : ScaleRatio = WidthScaleRatio;
             float ScaleFontSize = PreferedFont.Size * ScaleRatio;
             //var intFontSize = ((int)ScaleFontSize / 4) * 4;
-            if (ScaleFontSize < 24) ScaleFontSize = 24;
+            if (ScaleFontSize < 20) ScaleFontSize = 20;
             return new Tuple<Font, float>(new Font(PreferedFont.FontFamily, ScaleFontSize), ScaleFontSize);
         }
 
@@ -440,7 +440,7 @@ namespace WeixinServer.Helpers
 
         }
 
-        private MemoryStream DrawText(string text, int width, int height, Microsoft.ProjectOxford.Vision.Contract.Color color)
+        private MemoryStream DrawText(string text, int width, int leftOrRight, Microsoft.ProjectOxford.Vision.Contract.Color color)
         {
             const int RGBMAX = 255;
             PrivateFontCollection pfcoll = new PrivateFontCollection();
@@ -509,8 +509,28 @@ namespace WeixinServer.Helpers
 
                 //this will be the rectangle used to draw and auto-wrap the text.
                 //basically = image size
-                System.Drawing.Rectangle r = new System.Drawing.Rectangle(0, 0, bmp.Width, bmp.Height);
-
+                System.Drawing.Rectangle r;
+                switch (leftOrRight)
+                { case 0:     //leftTop
+                        r = new System.Drawing.Rectangle(0, 0, bmp.Width / 4, bmp.Height / 8);
+                        break;
+                  case 1:     //rightTop
+                        r = new System.Drawing.Rectangle(bmp.Width * 3 / 4, 0, bmp.Width / 4, bmp.Height / 8);
+                        break;
+                  case 2:            //rightBottom
+                        r = new System.Drawing.Rectangle(bmp.Width * 3 / 4, bmp.Height * 7 / 8, bmp.Width / 4, bmp.Height / 8);
+                        break;
+                  case 3:            //leftBottom
+                        r = new System.Drawing.Rectangle(0, bmp.Height * 7 / 8, bmp.Width / 4, bmp.Height / 8);
+                        break;
+                  default:
+                        r = new System.Drawing.Rectangle(0, 0, bmp.Width, bmp.Height);
+                        break;
+                }
+                if(leftOrRight == 0)
+                    r = new System.Drawing.Rectangle(0, 0, bmp.Width / 4, bmp.Height / 8);
+                else
+                    r = new System.Drawing.Rectangle(bmp.Width * 2 / 3, 0, bmp.Width / 3, bmp.Height);
                 GraphicsPath gp = new GraphicsPath();
 
                 //look mom! no pre-wrapping!
@@ -562,11 +582,13 @@ namespace WeixinServer.Helpers
                 midStream = new MemoryStream(photoBytes);
                 var outStream = new MemoryStream();
                 timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage::RenderAnalysisResultAsImage imageFactory.Load begin\n", DateTime.Now - this.startTime));
-                
-                outStream = DrawText(captionText, result.Metadata.Width, result.Metadata.Height, result.Color);
-                outStream.Seek(0, SeekOrigin.Begin);
-                midStream = DrawRects(outStream, result);
+
+                midStream = DrawText(captionText, result.Metadata.Width, 0, result.Color);
                 midStream.Seek(0, SeekOrigin.Begin);
+                midStream = DrawText(commentText, result.Metadata.Width, 1, result.Color);
+                midStream.Seek(0, SeekOrigin.Begin);
+                outStream = DrawRects(midStream, result);
+                outStream.Seek(0, SeekOrigin.Begin);
 
                 //var midStream = 
                 timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage::RenderAnalysisResultAsImage imageFactory.Load midStream generated\n", DateTime.Now - this.startTime));
@@ -590,7 +612,7 @@ namespace WeixinServer.Helpers
                 //midStream.Seek(0, SeekOrigin.Begin);
                 //blockBlob.UploadFromStream(midStream);
                 outStream.Seek(0, SeekOrigin.Begin);
-                blockBlob.UploadFromStream(midStream);
+                blockBlob.UploadFromStream(outStream);
                 resultUrl = "http://howhot.blob.core.windows.net/cdn/" + blobName;
                 //resultUrl = "http://geeekstore.blob.core.windows.net/cdn/" + blobName;
                 //resultUrl = upyun.UploadImageStream(outStream);

@@ -841,7 +841,7 @@ namespace WeixinServer.Helpers
             if (result.Categories != null && result.Categories.Length > 0)
             {
                 //res += "Categories : ";
-                commentStringWriter.Write(string.Format("画面里有"));
+                desStringWriter.Write(string.Format("画面里有"));
                 //var sb = new StringBuilder();
                 string preFix = "";
                 string postFix = "";
@@ -870,20 +870,20 @@ namespace WeixinServer.Helpers
                
                 if (result.Categories.Length == 1)
                 {
-                    commentStringWriter.Write(string.Format("{0}{1}", preFix.TrimEnd('、'), postFix));
+                    desStringWriter.Write(string.Format("{0}{1}", preFix.TrimEnd('、'), postFix));
                 }
                 else if (preFix.Length > 0 && postFix.Length > 0)
                 {
-                    commentStringWriter.Write(string.Format("{0}和{1}", preFix.TrimEnd('、'), postFix));
+                    desStringWriter.Write(string.Format("{0}和{1}", preFix.TrimEnd('、'), postFix));
                 }
                 else
                 {
-                    commentStringWriter.Write(string.Format("{0}{1}", preFix.TrimEnd('、'), postFix));
+                    desStringWriter.Write(string.Format("{0}{1}", preFix.TrimEnd('、'), postFix));
                 }
 
                 if (result.Categories.Length > 1 && preFix.Length > 1)
-                    commentStringWriter.Write(string.Format("等内容"));
-                commentStringWriter.Write(string.Format("。\n"));
+                    desStringWriter.Write(string.Format("等内容"));
+                desStringWriter.Write(string.Format("。\n"));
             }
 
             if (result.RichFaces != null && result.RichFaces.Length > 0)
@@ -930,73 +930,73 @@ namespace WeixinServer.Helpers
 
 
                 //这个大叔很幸福
-                if (numFemale >= numMale && numMale > 0)
-                {
-                    commentStringWriter.Write(string.Format("画说，这"));
-                    foreach (var key in maleAgeMap.Keys)
-                    {
-                        commentStringWriter.Write(string.Format("{0}个{1}，",
-                            NumberToChineseChar(maleAgeMap[key]), key));
-                    }
-                    commentStringWriter.Write(string.Format("看起来很幸福 :) ，因为身边有"));
-                    foreach (var key in femaleAgeMap.Keys)
-                    {
-                        commentStringWriter.Write(string.Format("{0}个{1}，",
-                            NumberToChineseChar(femaleAgeMap[key]), key));
-                    }
-                }
-                else if (numFemale < numMale && numFemale > 0)
-                {
+                //if (numFemale >= numMale && numMale > 0)
+                //{
+                //    desStringWriter.Write(string.Format("画说，这"));
+                //    foreach (var key in maleAgeMap.Keys)
+                //    {
+                //        desStringWriter.Write(string.Format("{0}个{1}，",
+                //            NumberToChineseChar(maleAgeMap[key]), key));
+                //    }
+                //    desStringWriter.Write(string.Format("看起来很幸福 :) ，因为身边有"));
+                //    foreach (var key in femaleAgeMap.Keys)
+                //    {
+                //        desStringWriter.Write(string.Format("{0}个{1}，",
+                //            NumberToChineseChar(femaleAgeMap[key]), key));
+                //    }
+                //}
+                //else if (numFemale < numMale && numFemale > 0)
+                //{
 
-                    foreach (var key in femaleAgeMap.Keys)
-                    {
-                        commentStringWriter.Write(string.Format("这{0}个{1}，",
-                            NumberToChineseChar(femaleAgeMap[key]), key));
-                    }
-                    commentStringWriter.Write(string.Format("看起来很满足:) \n因为身边有"));
-                    foreach (var key in maleAgeMap.Keys)
-                    {
-                        commentStringWriter.Write(string.Format("{0}个{1}，",
-                            NumberToChineseChar(maleAgeMap[key]), key));
-                    }
-                }
-                else if (numFemale == 0 && numMale == 1)
-                {
-                    commentStringWriter.Write(string.Format("画说，"));
-                    foreach (var key in maleAgeMap.Keys)
-                    {
-                        commentStringWriter.Write(string.Format("这{0}个{1}，",
-                            NumberToChineseChar(maleAgeMap[key]), key));
-                    }
-                    commentStringWriter.Write(string.Format("看起来很孤独 :)"));
+                //    foreach (var key in femaleAgeMap.Keys)
+                //    {
+                //        desStringWriter.Write(string.Format("这{0}个{1}，",
+                //            NumberToChineseChar(femaleAgeMap[key]), key));
+                //    }
+                //    desStringWriter.Write(string.Format("看起来很满足:) \n因为身边有"));
+                //    foreach (var key in maleAgeMap.Keys)
+                //    {
+                //        desStringWriter.Write(string.Format("{0}个{1}，",
+                //            NumberToChineseChar(maleAgeMap[key]), key));
+                //    }
+                //}
+                //else if (numFemale == 0 && numMale == 1)
+                //{
+                //    desStringWriter.Write(string.Format("画说，"));
+                //    foreach (var key in maleAgeMap.Keys)
+                //    {
+                //        desStringWriter.Write(string.Format("这{0}个{1}，",
+                //            NumberToChineseChar(maleAgeMap[key]), key));
+                //    }
+                //    desStringWriter.Write(string.Format("看起来很孤独 :)"));
 
-                }
-                else if (numMale == 0 && numFemale == 1)
-                {
-                    commentStringWriter.Write(string.Format("画说，"));
-                    foreach (var key in femaleAgeMap.Keys)
-                    {
-                        commentStringWriter.Write(string.Format("这{0}个{1}，",
-                            NumberToChineseChar(femaleAgeMap[key]), key));
-                    }
-                    commentStringWriter.Write(string.Format("看起来很无辜 :)"));
-                }
-                else if (numMale > 1 || numFemale > 1)
-                {
-                    commentStringWriter.Write(string.Format("画说，"));
-                    foreach (var key in maleAgeMap.Keys)
-                    {
-                        commentStringWriter.Write(string.Format("这{0}个{1}，",
-                            NumberToChineseChar(maleAgeMap[key]), key));
-                    }
-                    foreach (var key in femaleAgeMap.Keys)
-                    {
-                        commentStringWriter.Write(string.Format("这{0}个{1}，",
-                            NumberToChineseChar(femaleAgeMap[key]), key));
-                    }
-                    commentStringWriter.Write(string.Format("在一起很开心:)"));
-                }
-                else { }
+                //}
+                //else if (numMale == 0 && numFemale == 1)
+                //{
+                //    desStringWriter.Write(string.Format("画说，"));
+                //    foreach (var key in femaleAgeMap.Keys)
+                //    {
+                //        desStringWriter.Write(string.Format("这{0}个{1}，",
+                //            NumberToChineseChar(femaleAgeMap[key]), key));
+                //    }
+                //    desStringWriter.Write(string.Format("看起来很无辜 :)"));
+                //}
+                //else if (numMale > 1 || numFemale > 1)
+                //{
+                //    desStringWriter.Write(string.Format("画说，"));
+                //    foreach (var key in maleAgeMap.Keys)
+                //    {
+                //        desStringWriter.Write(string.Format("这{0}个{1}，",
+                //            NumberToChineseChar(maleAgeMap[key]), key));
+                //    }
+                //    foreach (var key in femaleAgeMap.Keys)
+                //    {
+                //        desStringWriter.Write(string.Format("这{0}个{1}，",
+                //            NumberToChineseChar(femaleAgeMap[key]), key));
+                //    }
+                //    desStringWriter.Write(string.Format("在一起很开心:)"));
+                //}
+                //else { }
 
                 //老驴啃嫩草
                 //float ratio = mAvgAge / fAvgAge;
@@ -1027,14 +1027,17 @@ namespace WeixinServer.Helpers
                 var getrandomIdx = random.Next(0, storyList.Count - 1);
 
                 var storyTuple = storyList.ToArray()[getrandomIdx];
-                var story = String.Format("--嗯，谈画我联想到一个笑话: \"{0}\"\n作为一个高冷机器人，我只能说，{1}", storyTuple.Item1, storyTuple.Item2);
-                if (!string.IsNullOrEmpty(story))
+
+                if (!string.IsNullOrEmpty(storyTuple.Item1))
                 {
                     //story += String.Format("\n\n我是谈画机器人--画说，{0}", cat2CommentMap[category.Name]);
                     //story = Encoding.ASCII.GetString(Encoding.Unicode.GetBytes(story));
                     //char[] charArr = { '，', '。' };
                     //foreach (var line in story.Split(charArr))
                     //    commentStringWriter.WriteLine(line.Trim());
+                    
+                    var story = String.Format("--嗯，谈画我联想到一个笑话: \"{0}\"\n作为一个高冷机器人，我只能说，{1}", storyTuple.Item1, storyTuple.Item2);
+                    
                     commentStringWriter.WriteLine(story);
                 }
                
