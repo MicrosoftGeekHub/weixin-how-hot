@@ -1009,41 +1009,39 @@ namespace WeixinServer.Helpers
                 //else
                 //{
                 //}
-                var random = new Random();
-
-                if (storyList.Count == 0)
-                {
-                    int numCate = 37;
-                    foreach (var key in cat2StoryMap.Keys)
-                    {
-                        var randomIdx = random.Next(0, numCate--);
-                        if (randomIdx == 0)
-                        {
-                            storyList.AddRange(cat2StoryMap[key]);
-                            break;
-                        }
-                    }
-                }
-                var getrandomIdx = random.Next(0, storyList.Count - 1);
-
-                var storyTuple = storyList.ToArray()[getrandomIdx];
-
-                if (!string.IsNullOrEmpty(storyTuple.Item1))
-                {
-                    //story += String.Format("\n\n我是谈画机器人--画说，{0}", cat2CommentMap[category.Name]);
-                    //story = Encoding.ASCII.GetString(Encoding.Unicode.GetBytes(story));
-                    //char[] charArr = { '，', '。' };
-                    //foreach (var line in story.Split(charArr))
-                    //    commentStringWriter.WriteLine(line.Trim());
-                    
-                    var story = String.Format("--嗯，谈画我联想到一个笑话: \"{0}\"\n作为一个高冷机器人，我只能说，{1}", storyTuple.Item1, storyTuple.Item2);
-                    
-                    commentStringWriter.WriteLine(story);
-                }
-               
                 
             }
+            var random = new Random();
 
+            if (storyList.Count == 0)
+            {
+                int numCate = 37;
+                foreach (var key in cat2StoryMap.Keys)
+                {
+                    var randomIdx = random.Next(0, numCate--);
+                    if (randomIdx == 0)
+                    {
+                        storyList.AddRange(cat2StoryMap[key]);
+                        break;
+                    }
+                }
+            }
+            var getrandomIdx = random.Next(0, storyList.Count - 1);
+
+            var storyTuple = storyList.ToArray()[getrandomIdx];
+
+            if (!string.IsNullOrEmpty(storyTuple.Item1))
+            {
+                //story += String.Format("\n\n我是谈画机器人--画说，{0}", cat2CommentMap[category.Name]);
+                //story = Encoding.ASCII.GetString(Encoding.Unicode.GetBytes(story));
+                //char[] charArr = { '，', '。' };
+                //foreach (var line in story.Split(charArr))
+                //    commentStringWriter.WriteLine(line.Trim());
+
+                var story = String.Format("--嗯，谈画我联想到一个笑话: \"{0}\"\n作为一个高冷机器人，我只能说，{1}", storyTuple.Item1, storyTuple.Item2);
+
+                commentStringWriter.WriteLine(story);
+            }
             if (result.Color != null)
             {
                 //res += "AccentColor : " + result.Color.AccentColor;
