@@ -14,6 +14,7 @@ using WeixinServer.Helpers;
 using WeixinServer.Models;
 using System.Drawing;
 using System.Net.Http.Headers;
+using System.Web.Http;
 
 //using UpYunLibrary;
 namespace WeixinServer.Controllers
@@ -351,7 +352,7 @@ namespace WeixinServer.Controllers
         }
 
 
-        [HttpPost]
+        [System.Web.Mvc.HttpPost]
         public async Task<ActionResult> Analyze(string faceUrl = "", string photoName = "")
         {
             string requestId = Guid.NewGuid().ToString();
@@ -402,18 +403,19 @@ namespace WeixinServer.Controllers
                 return new HttpStatusCodeResult(HttpStatusCode.InternalServerError, e.Message);
             }
         }
-        [HttpPost]
-        public async Task<HttpResponseMessage> ImageSearch(byte[] queryBytes)
+        private byte[] mDummyBytes = Encoding.ASCII.GetBytes("[object Object]");
+        [System.Web.Mvc.HttpPost]
+        public HttpResponseMessage ImageSearch([NakedBody] byte[] queryBytes)
         {
-            String query = System.Text.Encoding.UTF8.GetString(queryBytes);
+            String query = "";//System.Text.Encoding.UTF8.GetString(queryBytes);
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create("http://how-old.net/Home/BingImageSearch?query=" + query);
             request.Method = "POST";
             request.ContentType = "text/plain;charset=UTF-8";
 
-            request.ContentLength = queryBytes.Length;
+            request.ContentLength = mDummyBytes.Length;
             using (var stream = request.GetRequestStream())
             {
-                stream.Write(queryBytes, 0, queryBytes.Length);
+                stream.Write(mDummyBytes, 0, mDummyBytes.Length);
             }
 
             HttpWebResponse response = (HttpWebResponse)request.GetResponse();

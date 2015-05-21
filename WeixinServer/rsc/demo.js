@@ -18,10 +18,10 @@ function getTrans(n) {
 function searchImages() {
     var n = $("#searchText").val(),
         t;
-    if (n != null && n.length !== 0) return $("#searchError").css("visibility", "hidden"), t = "/Home/ImageSearch?queryBytes=" + encodeURIComponent(n), $.ajax({
+    if (n != null && n.length !== 0) return $("#searchError").css("visibility", "hidden"), t = "/HomeApi/ImageSearch", $.ajax({
         type: "POST",
         url: t,
-        data: {},
+        data: n,
         contentType: !1,
         processData: !1,
         success: function (n) {
@@ -51,7 +51,7 @@ function processRequest(n, t, i, r, u) {
     $("#analyzingLabel").html(h);
     var o = {},
         s = !1,
-        f = "/Home/Analyze",
+        f = "/HomeApi/Analyze",
         l = $("#uploadBtn").get(0).files,
         a = $("#isTest").val();
     if (f += "?isTest=" + a, n) {
@@ -101,7 +101,7 @@ function processRequest(n, t, i, r, u) {
                 var startLeft = thumbnailWidth * 2;
                 var startTop = thumbnailHeight + textHeight;
                 var endLeft = textWidth ;
-                var endTop = -textHeight;
+                var endTop = 0;
                 var timing = 20; // Sec
                 var jokeTop = 280 + thumbnailHeight;
                 var jokeLeft = thumbnailWidth - textWidth;
