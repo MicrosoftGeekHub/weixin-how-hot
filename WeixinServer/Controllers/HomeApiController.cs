@@ -73,56 +73,67 @@ namespace WeixinServer.Controllers
         }
         private string fontPath = System.Web.HttpContext.Current.Server.MapPath(@"~\App_Data\xujl-font.ttf");
         private string md5;
-        //[System.Web.Mvc.HttpPost]
-        //public async Task<ActionResult> Analyze(string faceUrl = "", string photoName = "")
-        //{
-        //    string requestId = Guid.NewGuid().ToString();
-        //    int? contentLength = null;
-        //    VisionHelper vision = new VisionHelper(GetVisionAPIkey(), fontPath, DateTime.Now, fontPath);
-        //    RichResult res = null;
-        //    try
-        //    {
+        [System.Web.Mvc.HttpPost]
+        public async Task<HttpResponseMessage> Analyze(string faceUrl = "", string photoName = "")
+        {
+            string requestId = Guid.NewGuid().ToString();
+            //int? contentLength = null;
+            VisionHelper vision = new VisionHelper(GetVisionAPIkey(), fontPath, DateTime.Now, fontPath);
+            RichResult res = null;
+            try
+            {
 
-        //        string postString = string.Empty;
+                string postString = string.Empty;
 
-        //        //using (Stream stream = Request.InputStream)
-        //        //{
-        //        //    byte[] postBytes = new byte[stream.Length];
-        //        //    stream.Read(postBytes, 0, (int)stream.Length);
-        //        //    postString = Encoding.Unicode.GetString(postBytes);
-        //        //    return Json(JsonConvert.SerializeObject(postString), "application/json");
-        //        //}
+                //using (Stream stream = Request.InputStream)
+                //{
+                //    byte[] postBytes = new byte[stream.Length];
+                //    stream.Read(postBytes, 0, (int)stream.Length);
+                //    postString = Encoding.Unicode.GetString(postBytes);
+                //    return Json(JsonConvert.SerializeObject(postString), "application/json");
+                //}
 
-        //        Stopwatch stopwatch = Stopwatch.StartNew();
-        //        //Trace.WriteLine(string.Format("Start Analyze Request: RequestId: {0};", requestId));
-        //        if (Request.Content.GetType() == null)
-        //        {
-        //            return new HttpStatusCodeResult(HttpStatusCode.BadRequest, "BadRequest");
+                Stopwatch stopwatch = Stopwatch.StartNew();
+                //Trace.WriteLine(string.Format("Start Analyze Request: RequestId: {0};", requestId));
+                //if (Request.Content.GetType() == null)
+                //{
+                //    return new HttpStatusCodeResult(HttpStatusCode.BadRequest, "BadRequest");
 
-        //        }
-        //        if (string.Equals(Request.Content.GetType(), "application/octet-stream"))
-        //        {
-        //           // contentLength = Request.Content.;
-        //            Request.InputStream.Seek(0, System.IO.SeekOrigin.Begin);
-        //            //var img = System.Drawing.Image.FromStream(Request.InputStream);
+                //}
+                if (string.Equals(Request.Content.GetType(), "application/octet-stream"))
+                {
+                    // contentLength = Request.Content.;
+                    var stream = new MemoryStream();
+                    await Request.Content.CopyToAsync(stream);
+                    stream.Seek(0, System.IO.SeekOrigin.Begin);
+                    //var img = System.Drawing.Image.FromStream(Request.InputStream);
+                    //return Json(JsonConvert.SerializeObject(img.Width), "application/json");
+                    res = await vision.AnalyzeImage(stream);
 
-        //            //return Json(JsonConvert.SerializeObject(img.Width), "application/json");
-        //            res = await vision.AnalyzeImage(Request.InputStream);
-
-        //        }
-        //        else if (!string.IsNullOrEmpty(faceUrl) && faceUrl != "undefined")
-        //        {
-        //            res = await vision.AnalyzeImage(faceUrl);
-        //        }
+                }
+                else if (!string.IsNullOrEmpty(faceUrl) && faceUrl != "undefined")
+                {
+                    res = await vision.AnalyzeImage(faceUrl);
+                }
 
 
-        //        //Trace.WriteLine(string.Format("Completed Analyze Request: RequestId: {0};", requestId));
-        //        return Json(JsonConvert.SerializeObject(res), "application/json");
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        return new HttpStatusCodeResult(HttpStatusCode.InternalServerError, e.Message);
-        //    }
-        //}
+                //Trace.WriteLine(string.Format("Completed Analyze Request: RequestId: {0};", requestId));
+                //return Json(JsonConvert.SerializeObject(res),(Newtonsoft.Json.JsonSerializerSettings) "application/json", System.Text.Encoding.UTF8);
+
+
+                HttpResponseMessage result = new HttpResponseMessage(HttpStatusCode.OK);
+                //return Json(JsonConvert.SerializeObject(Json(JsonConvert.SerializeObject(res)).Content));
+                result.Content = new StringContent(JsonConvert.SerializeObject(Json(JsonConvert.SerializeObject(res)).Content));//new StringContent(JsonConvert.SerializeObject(res));
+                result.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+                return result;
+
+                //Error	20	Argument 2: cannot convert from 'string' to 'Newtonsoft.Json.JsonSerializerSettings'
+
+            }
+            catch (Exception e)
+            {
+                return null;//new HttpStatusCodeResult(HttpStatusCode.InternalServerError, e.Message);
+            }
+        }
     }
 }

@@ -63,7 +63,8 @@ function processRequest(n, t, i, r, u) {
         }
         o = l[0];
         s = "application/octet-stream"
-    } else f += "&faceUrl=" + encodeURIComponent("http://how-old.net/" + t) + "&faceName=" + i;
+    } else f += "&faceUrl=" + encodeURIComponent(t) + "&faceName=" + i;
+//} else f += "&faceUrl=" + encodeURIComponent("http://how-old.net/" + t) + "&faceName=" + i;
     $.ajax({
         type: "POST",
         url: f,

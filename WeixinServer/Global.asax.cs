@@ -44,8 +44,10 @@ namespace WeixinServer
             AreaRegistration.RegisterAllAreas();
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             GlobalConfiguration.Configure(WebApiConfig.Register);//.RegisterGlobalFilters(GlobalFilters.Filters);
+            //GlobalConfiguration.Configure(HomeApiConfig.Register);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
+            
             InitCateMap();
         }
     }
