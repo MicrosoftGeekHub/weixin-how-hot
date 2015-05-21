@@ -51,7 +51,7 @@ namespace WeixinServer.Helpers
             float ScaleRatio = (HeightScaleRatio < WidthScaleRatio) ? ScaleRatio = HeightScaleRatio : ScaleRatio = WidthScaleRatio;
             float ScaleFontSize = PreferedFont.Size * ScaleRatio;
             //var intFontSize = ((int)ScaleFontSize / 4) * 4;
-            if (ScaleFontSize < 20) ScaleFontSize = 20;
+            //if (ScaleFontSize < 20) ScaleFontSize = 20;
             return new Tuple<Font, float>(new Font(PreferedFont.FontFamily, ScaleFontSize), ScaleFontSize);
         }
 
@@ -517,20 +517,24 @@ namespace WeixinServer.Helpers
                   case 1:     //rightTop
                         r = new System.Drawing.Rectangle(bmp.Width * 3 / 4, 0, bmp.Width / 4, bmp.Height / 8);
                         break;
-                  case 2:            //rightBottom
-                        r = new System.Drawing.Rectangle(bmp.Width * 3 / 4, bmp.Height * 7 / 8, bmp.Width / 4, bmp.Height / 8);
-                        break;
-                  case 3:            //leftBottom
+                  
+                 case 2:            //leftBottom
                         r = new System.Drawing.Rectangle(0, bmp.Height * 7 / 8, bmp.Width / 4, bmp.Height / 8);
                         break;
-                  default:
+                 case 3:            //rightBottom
+                        r = new System.Drawing.Rectangle(bmp.Width * 3 / 4, bmp.Height * 7 / 8, bmp.Width / 4, bmp.Height / 8);
+                        break;
+                 case 4:            //lowerCenter
+                        r = new System.Drawing.Rectangle(bmp.Width * 1 / 5, bmp.Height * 3 / 5, bmp.Width * 3 / 5, bmp.Height * 3 / 5);
+                        break;
+                 default:
                         r = new System.Drawing.Rectangle(0, 0, bmp.Width, bmp.Height);
                         break;
                 }
-                if(leftOrRight == 0)
-                    r = new System.Drawing.Rectangle(0, 0, bmp.Width / 4, bmp.Height / 8);
-                else
-                    r = new System.Drawing.Rectangle(bmp.Width * 2 / 3, 0, bmp.Width / 3, bmp.Height);
+                //if(leftOrRight == 0)
+                //    r = new System.Drawing.Rectangle(0, 0, bmp.Width / 4, bmp.Height / 8);
+                //else
+                //    r = new System.Drawing.Rectangle(bmp.Width * 2 / 3, 0, bmp.Width / 3, bmp.Height);
                 GraphicsPath gp = new GraphicsPath();
 
                 //look mom! no pre-wrapping!
@@ -583,12 +587,22 @@ namespace WeixinServer.Helpers
                 var outStream = new MemoryStream();
                 timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage::RenderAnalysisResultAsImage imageFactory.Load begin\n", DateTime.Now - this.startTime));
 
-                midStream = DrawText(captionText, result.Metadata.Width, 0, result.Color);
+                midStream = DrawRects(midStream, result);
                 midStream.Seek(0, SeekOrigin.Begin);
-                midStream = DrawText(commentText, result.Metadata.Width, 1, result.Color);
+
+                midStream = DrawText(captionText, result.Metadata.Width, 5, result.Color);
                 midStream.Seek(0, SeekOrigin.Begin);
-                outStream = DrawRects(midStream, result);
-                outStream.Seek(0, SeekOrigin.Begin);
+                //var len = commentText.Length;
+                //midStream = DrawText(commentText.Substring(0, len / 4), result.Metadata.Width, 0, result.Color);
+                //midStream.Seek(0, SeekOrigin.Begin);
+                //midStream = DrawText(commentText.Substring(len / 4, len / 4), result.Metadata.Width, 1, result.Color);
+                //midStream.Seek(0, SeekOrigin.Begin);
+                //midStream = DrawText(commentText.Substring(2 * (len / 4), len / 4), result.Metadata.Width, 2, result.Color);
+                //midStream.Seek(0, SeekOrigin.Begin);
+                //midStream = DrawText(commentText.Substring(3 * (len / 4)), result.Metadata.Width, 3, result.Color);
+                //midStream.Seek(0, SeekOrigin.Begin);
+                
+                //outStream.Seek(0, SeekOrigin.Begin);
 
                 //var midStream = 
                 timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage::RenderAnalysisResultAsImage imageFactory.Load midStream generated\n", DateTime.Now - this.startTime));
@@ -611,8 +625,8 @@ namespace WeixinServer.Helpers
                 // Create or overwrite the "myblob" blob with contents from a local file.
                 //midStream.Seek(0, SeekOrigin.Begin);
                 //blockBlob.UploadFromStream(midStream);
-                outStream.Seek(0, SeekOrigin.Begin);
-                blockBlob.UploadFromStream(outStream);
+                midStream.Seek(0, SeekOrigin.Begin);
+                blockBlob.UploadFromStream(midStream);
                 resultUrl = "http://howhot.blob.core.windows.net/cdn/" + blobName;
                 //resultUrl = "http://geeekstore.blob.core.windows.net/cdn/" + blobName;
                 //resultUrl = upyun.UploadImageStream(outStream);

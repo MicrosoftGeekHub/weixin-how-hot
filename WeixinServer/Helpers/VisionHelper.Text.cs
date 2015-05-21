@@ -1013,7 +1013,7 @@ namespace WeixinServer.Helpers
 
                 if (storyList.Count == 0)
                 {
-                    int numCate = 86;
+                    int numCate = 37;
                     foreach (var key in cat2StoryMap.Keys)
                     {
                         var randomIdx = random.Next(0, numCate--);
