@@ -100,16 +100,16 @@ function processRequest(n, t, i, r, u) {
                 var startLeft = thumbnailWidth * 2;
                 var startTop = thumbnailHeight + textHeight + 50;
                 var endLeft = textWidth ;
-                var endTop = - textHeight - thumbnailHeight;
-                var timing = 20; // Sec
+                var endTop = 0;
+                var timing = 30; // Sec
                 var jokeTop = 280 + thumbnailHeight;
-                var jokeLeft = textWidth / 2 ;
+                var jokeLeft = thumbnailWidth - textWidth / 2 - 30;
                 var $barrage =
                      $("<p style='position: absolute; left: " + jokeLeft + "px; font-size: 1.4em; color: #fff; text-shadow: 1px 1px 1px #000; width: " + textWidth + "px; top:" + startTop + "px; transition: all " + timing + "s linear;'>" + t.analyzeImageResult
                         + "</p>");
                     //$("<p style='position: absolute; top: " + jokeTop + "px; font-size: 1.4em; color: #fff; text-shadow: 1px 1px 1px #000; width: " + textWidth + "px; left:" + startLeft + "px; transition: all " + timing + "s linear;'>" + t.analyzeImageResult
                     //    + "</p>");
-                $thumbContainer.css("overflow", "hidden").append($barrage);
+                $thumbContainer.css("overflow", "hidden").after($barrage);
 
                 $barrage.animate({
                                         top: endTop + "px"
