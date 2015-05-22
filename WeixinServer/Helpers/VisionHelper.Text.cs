@@ -132,7 +132,7 @@ namespace WeixinServer.Helpers
         }
 
         private int minNumPixs = 50;
-        private int maxNumPixs = 800;
+        private int maxNumPixs = 1500;
 
 
         /// <summary>

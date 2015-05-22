@@ -102,7 +102,7 @@ function processRequest(n, t, i, r, u) {
                 var startLeft = thumbnailWidth * 2;
                 var startTop = thumbnailHeight + textHeight;
                 var endLeft = textWidth ;
-                var endTop = 0;
+                var endTop = - textHeight;
                 var timing = 20; // Sec
                 var jokeTop = 280 + thumbnailHeight;
                 var jokeLeft = 0;//thumbnailWidth - textWidth;
