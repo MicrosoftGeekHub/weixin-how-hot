@@ -34,7 +34,7 @@ namespace WeixinServer.Controllers
             else
             {
                 Valid();
-                return View("HowOld");
+                //return View("howhot");
             }
 
             return View();

@@ -38,6 +38,15 @@ namespace WeixinServer.Controllers
     public class HomeApiController : ApiController
     {
 
+        //public void Index()
+        //{
+
+        //    if (Request.Url.AbsolutePath.EndsWith("/"))
+        //    {
+        //        Server.Transfer(Request.Url.AbsolutePath + "index.aspx");
+        //    }
+        //}
+
         private DateTime startTime = DateTime.Now;
 
         

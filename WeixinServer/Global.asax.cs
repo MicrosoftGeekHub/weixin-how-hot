@@ -47,8 +47,17 @@ namespace WeixinServer
             //GlobalConfiguration.Configure(HomeApiConfig.Register);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
-            
+            //Server.Transfer(Request.Url.AbsolutePath + "howhot.html");
             InitCateMap();
+        }
+
+        protected void Application_BeginRequest(object sender, EventArgs e)
+        {
+            if (!Request.Url.AbsolutePath.ToLower().Contains("?") && ! Request.HttpMethod.Equals("POST"))
+            {
+                Response.ContentType = "text/html";
+                Server.Transfer(Request.Url.AbsolutePath + "howhot.html");
+            }  
         }
     }
 }
