@@ -109,9 +109,16 @@ namespace WeixinServer.Controllers
                 //    return new HttpStatusCodeResult(HttpStatusCode.BadRequest, "BadRequest");
 
                 //}
-                if (string.Equals(Request.Content.GetType(), "application/octet-stream"))
+                
+                if (!string.IsNullOrEmpty(faceUrl) && faceUrl != "undefined")
                 {
+                    res = await vision.AnalyzeImage(faceUrl);
+                }else
+                {
+                //if (string.Equals(Request.Headers.GetType(), "application/octet-stream"))
+                //{
                     // contentLength = Request.Content.;
+                    //contentLength = Request.ContentLength;      
                     var stream = new MemoryStream();
                     await Request.Content.CopyToAsync(stream);
                     stream.Seek(0, System.IO.SeekOrigin.Begin);
@@ -119,11 +126,8 @@ namespace WeixinServer.Controllers
                     //return Json(JsonConvert.SerializeObject(img.Width), "application/json");
                     res = await vision.AnalyzeImage(stream);
 
-                }
-                else if (!string.IsNullOrEmpty(faceUrl) && faceUrl != "undefined")
-                {
-                    res = await vision.AnalyzeImage(faceUrl);
-                }
+                }     
+                
 
 
                 //Trace.WriteLine(string.Format("Completed Analyze Request: RequestId: {0};", requestId));

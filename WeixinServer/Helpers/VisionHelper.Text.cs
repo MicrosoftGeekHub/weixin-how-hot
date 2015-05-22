@@ -132,7 +132,7 @@ namespace WeixinServer.Helpers
         }
 
         private int minNumPixs = 50;
-        private int maxNumPixs = 1500;
+        private int maxNumPixs = 800;
 
 
         /// <summary>
@@ -157,7 +157,7 @@ namespace WeixinServer.Helpers
 
                         using (var ms = new MemoryStream())
                         {
-
+                            imageStream.Seek(0, SeekOrigin.Begin);
                             imageStream.CopyTo(ms);
                             ms.Seek(0, SeekOrigin.Begin);
                             photoBytes = ms.ToArray();
@@ -833,7 +833,7 @@ namespace WeixinServer.Helpers
                 desStringWriter.Write("手哥：黄图, 滚粗~！\n");
                 return new Tuple<string, string>(desStringWriter.ToString(), commentStringWriter.ToString());
             }
-            desStringWriter.Write(string.Format("画面辣度：Hot Rate = {0:F2}%\n", saoBility / 10.0));//TODO 少量 or More by Score
+            desStringWriter.Write(string.Format("辣度：Hot Rate = {0:F2}%\n", saoBility / 10.0));//TODO 少量 or More by Score
            // desStringWriter.Write(string.Format("手哥评分: {0:F0}\n", rscr));//TODO 少量 or More by Score
             var cat2StoryMap = MvcApplication.GetCateMap();
             var storyList = new List<Tuple<string, string>>();
