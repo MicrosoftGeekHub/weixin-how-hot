@@ -186,6 +186,7 @@
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />
     <Content Include="howhot.html" />
+    <Content Include="images\ajax-loader_1.gif" />
     <Content Include="rsc\2873520318.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
