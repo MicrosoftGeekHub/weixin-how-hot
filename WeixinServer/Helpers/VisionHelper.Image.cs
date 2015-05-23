@@ -200,7 +200,7 @@ namespace WeixinServer.Helpers
 
                     hotivity += emLargeRate * 100;
                     //hotivity = hotivity / 10
-                    string info = string.Format("{1}\n{0:F0}万辣火\n", hotivity, mouthDescription);
+                    string info = string.Format("{0}\n{1:F0}分\n", mouthDescription, hotivity);
                     
                     Size room = new Size((int) (faceDetect.FaceRectangle.Width) , (int)(faceDetect.FaceRectangle.Height));
                     var ret = FindFont(g, info, room, new Font(ff, 36, FontStyle.Bold, GraphicsUnit.Pixel));
@@ -268,7 +268,7 @@ namespace WeixinServer.Helpers
                     int height = (int)(0.618 * faceDetect.FaceRectangle.Height);
                     if (2 * height + faceDetect.FaceRectangle.Top > image.Height) height = (int)(0.618 * (image.Height - faceDetect.FaceRectangle.Top) - height);
                     System.Drawing.Rectangle r = new System.Drawing.Rectangle(faceDetect.FaceRectangle.Left,
-                            faceDetect.FaceRectangle.Top + faceDetect.FaceRectangle.Height,
+                            faceDetect.FaceRectangle.Top + (int)(faceDetect.FaceRectangle.Height * 1.1),
                             width,
                             height);
 
@@ -587,11 +587,13 @@ namespace WeixinServer.Helpers
                 var outStream = new MemoryStream();
                 timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage::RenderAnalysisResultAsImage imageFactory.Load begin\n", DateTime.Now - this.startTime));
 
-                midStream = DrawRects(midStream, result);
+
+                outStream = DrawText(captionText, result.Metadata.Width, 5, result.Color);
+                outStream.Seek(0, SeekOrigin.Begin);
+
+                midStream = DrawRects(outStream, result);
                 midStream.Seek(0, SeekOrigin.Begin);
 
-                midStream = DrawText(captionText, result.Metadata.Width, 5, result.Color);
-                midStream.Seek(0, SeekOrigin.Begin);
                 //var len = commentText.Length;
                 //midStream = DrawText(commentText.Substring(0, len / 4), result.Metadata.Width, 0, result.Color);
                 //midStream.Seek(0, SeekOrigin.Begin);

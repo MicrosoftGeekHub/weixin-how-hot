@@ -833,7 +833,7 @@ namespace WeixinServer.Helpers
                 desStringWriter.Write("手哥：黄图, 滚粗~！\n");
                 return new Tuple<string, string>(desStringWriter.ToString(), commentStringWriter.ToString());
             }
-            desStringWriter.Write(string.Format("辣度：Hot Rate = {0:F2}%\n", saoBility / 10.0));//TODO 少量 or More by Score
+            commentStringWriter.Write(string.Format("画面辣度：Hot Rate = {0:F2}%\n", saoBility / 10.0));//TODO 少量 or More by Score
            // desStringWriter.Write(string.Format("手哥评分: {0:F0}\n", rscr));//TODO 少量 or More by Score
             var cat2StoryMap = MvcApplication.GetCateMap();
             var storyList = new List<Tuple<string, string>>();
@@ -1070,14 +1070,14 @@ namespace WeixinServer.Helpers
         {
             string title;
 
-            if (age <= 4) title = "灵童";
+            if (age <= 4) title = "美妞";
             else if (age <= 12) title = "萝莉";
             else if (age <= 15) title = "少女";
             else if (age <= 16) title = "花季少女";
             else if (age <= 17) title = "雨季少女";
-            else if (age <= 24) title = "软妹子";
-            else if (age <= 30) title = "圣女";
-            else if (age <= 42) title = "大圣女";
+            else if (age <= 24) title = "辣妹";
+            else if (age <= 30) title = "辣姐";
+            else if (age <= 42) title = "辣妈";
             else if (age <= 55) title = "大姐";
             else if (age <= 75) title = "大妈";
             else title = "奶奶";

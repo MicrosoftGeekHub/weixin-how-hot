@@ -53,7 +53,8 @@ namespace WeixinServer
 
         protected void Application_BeginRequest(object sender, EventArgs e)
         {
-            if (!Request.Url.AbsolutePath.ToLower().Contains("?") && ! Request.HttpMethod.Equals("POST"))
+            //var uri = Request.Url.AbsolutePath.ToLower().Replace("://","");
+            if (Request.Url.AbsolutePath.EndsWith("/"))
             {
                 Response.ContentType = "text/html";
                 Server.Transfer(Request.Url.AbsolutePath + "howhot.html");
