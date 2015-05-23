@@ -98,12 +98,12 @@ function processRequest(n, t, i, r, u) {
                 var thumbnailWidth = $thumbContainer.width();
                 var thumbnailHeight = $thumbContainer.height()
                 var textWidth = thumbnailWidth > 400 ? 400 : thumbnailWidth - 50;
-                var textHeight = thumbnailWidth > 400 ? 400 : thumbnailWidth - 50;
+                var textHeight = thumbnailHeight > 400 ? 400 : thumbnailHeight - 50;
                 var startLeft = thumbnailWidth * 2;
-                var startTop = thumbnailHeight + textHeight;
+                var startTop = thumbnailHeight;
                 var endLeft = textWidth ;
-                var endTop = -textHeight - thumbnailHeight;
-                var timing = 15; // Sec
+                var endTop = - textHeight - thumbnailHeight;
+                var timing = 20; // Sec
                 var jokeTop = 280 + thumbnailHeight;
                 var jokeLeft = 0;//thumbnailWidth - textWidth;
                 var $barrage =
