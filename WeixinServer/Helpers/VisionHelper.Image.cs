@@ -587,11 +587,11 @@ namespace WeixinServer.Helpers
                 var outStream = new MemoryStream();
                 timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage::RenderAnalysisResultAsImage imageFactory.Load begin\n", DateTime.Now - this.startTime));
 
+                midStream.Seek(0, SeekOrigin.Begin);
+                midStream = DrawText(captionText, result.Metadata.Width, 5, result.Color);
+                midStream.Seek(0, SeekOrigin.Begin);
 
-                outStream = DrawText(captionText, result.Metadata.Width, 5, result.Color);
-                outStream.Seek(0, SeekOrigin.Begin);
-
-                midStream = DrawRects(outStream, result);
+                midStream = DrawRects(midStream, result);
                 midStream.Seek(0, SeekOrigin.Begin);
 
                 //var len = commentText.Length;
