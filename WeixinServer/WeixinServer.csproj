@@ -277,6 +277,10 @@
     <Content Include="Scripts\bootstrap.min.js" />
     <Content Include="App_Data\xujl-font.ttf" />
     <Content Include="App_Data\MeoWu-font.ttf" />
+    <Content Include="fonts\glyphicons-halflings-regular.woff2" />
+    <Content Include="fonts\segoeui.ttf" />
+    <Content Include="fonts\segoeuil.ttf" />
+    <Content Include="fonts\seguisb.ttf" />
     <None Include="Properties\PublishProfiles\msftgeekblog - FTP.pubxml" />
     <None Include="Properties\PublishProfiles\msftgeekblog - Web Deploy.pubxml" />
     <None Include="Properties\PublishProfiles\msftgeekblog.pubxml" />
