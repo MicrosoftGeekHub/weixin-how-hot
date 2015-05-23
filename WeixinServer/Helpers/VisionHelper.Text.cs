@@ -144,7 +144,7 @@ namespace WeixinServer.Helpers
             timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage\n", DateTime.Now));
             
             this.ShowInfo("Analyzing");
-            AnalysisResult analysisResult = null;
+            AnalysisResult analysisResult = new AnalysisResult();
             //Task<Byte[]> taskb = null;
             Task<Microsoft.ProjectOxford.Face.Contract.Face[]> taskGetFaces = null;
             string resultStr = string.Empty;
@@ -287,7 +287,7 @@ namespace WeixinServer.Helpers
             timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage {1}\n", DateTime.Now, imagePathOrUrl));
             this.originalImageUrl = imagePathOrUrl;
             this.ShowInfo("Analyzing");
-            AnalysisResult analysisResult = null;
+            AnalysisResult analysisResult = new AnalysisResult();
             Task<Byte[]> taskb = null;
             Task<AnalysisResult> taskAnalyzeImageAsync = null;
             Task<Microsoft.ProjectOxford.Face.Contract.Face[]> taskGetFaces = null;
@@ -317,7 +317,7 @@ namespace WeixinServer.Helpers
                         //timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage client.DownloadDataTaskAsync begin\n url: {1}\n", DateTime.Now - this.startTime, imagePathOrUrl));
                         timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage AnalyzeImageAsync url begin\n", DateTime.Now - this.startTime));
                         var request = System.Net.WebRequest.Create(new Uri(imagePathOrUrl));
-                        request.Timeout = int.MaxValue;
+                        request.Timeout = 10000;
                         var response = request.GetResponse();
                         var streamToUpload = response.GetResponseStream();
 
@@ -383,7 +383,7 @@ namespace WeixinServer.Helpers
                                 
                                 ms4face.Seek(0, SeekOrigin.Begin);
                                 ms.Seek(0, SeekOrigin.Begin);
-                                analysisResult = await this.visionClient.AnalyzeImageAsync(ms4face, visualFeatures); ;
+                                analysisResult = await this.visionClient.AnalyzeImageAsync(ms4face, visualFeatures);
                                 ms.Seek(0, SeekOrigin.Begin);
                               //  photoBytes = ms.ToArray();
 
