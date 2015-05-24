@@ -6,7 +6,7 @@ using System.Web.Mvc;
 using System.Web.Optimization;
 using System.Web.Routing;
 using WeixinServer.Models;
-
+using System.Web.Http;
 namespace WeixinServer
 {
     public class MvcApplication : System.Web.HttpApplication
@@ -35,17 +35,30 @@ namespace WeixinServer
                 }
                 cate2ListMap[key].Add(val);
             }
-            cateMap = dbContext.Story.ToDictionary(p => p.category,p => p.text);
-            cate2CommentMap = dbContext.Story.ToDictionary(p => p.category, p => p.text_comment);
+            //cateMap = dbContext.Story.ToDictionary(p => p.category,p => p.text);
+            //cate2CommentMap = dbContext.Story.ToDictionary(p => p.category, p => p.text_comment);
             dbContext.Dispose();
         }
         protected void Application_Start()
         {
             AreaRegistration.RegisterAllAreas();
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
+            GlobalConfiguration.Configure(WebApiConfig.Register);//.RegisterGlobalFilters(GlobalFilters.Filters);
+            //GlobalConfiguration.Configure(HomeApiConfig.Register);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
+            //Server.Transfer(Request.Url.AbsolutePath + "howhot.html");
             InitCateMap();
+        }
+
+        protected void Application_BeginRequest(object sender, EventArgs e)
+        {
+            //var uri = Request.Url.AbsolutePath.ToLower().Replace("://","");
+            if (Request.Url.AbsolutePath.EndsWith("/"))
+            {
+                Response.ContentType = "text/html";
+                Server.Transfer(Request.Url.AbsolutePath + "howhot.html");
+            }  
         }
     }
 }

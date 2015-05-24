@@ -74,6 +74,10 @@
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Net.Http.Formatting, Version=5.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.Client.5.0.0\lib\net45\System.Net.Http.Formatting.dll</HintPath>
+    </Reference>
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Spatial, Version=5.6.2.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -85,6 +89,14 @@
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Web.Http, Version=5.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.Core.5.0.0\lib\net45\System.Web.Http.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Http.WebHost, Version=5.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.WebHost.5.0.0\lib\net45\System.Web.Http.WebHost.dll</HintPath>
+    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Web" />
     <Reference Include="System.Web.Extensions" />
@@ -141,8 +153,11 @@
   <ItemGroup />
   <ItemGroup>
     <Compile Include="App_Start\BundleConfig.cs" />
+    <Compile Include="App_Start\HomeApiConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
+    <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Controllers\HomeApiController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Helpers\ImageSearchClient.cs" />
     <Compile Include="Helpers\UpYun.cs" />
@@ -153,6 +168,8 @@
     <Compile Include="Helpers\VisionHelper.Image.cs" />
     <Compile Include="Helpers\VisionHelper.Text.cs" />
     <Compile Include="Models\MsgObject.cs" />
+    <Compile Include="Models\NakedBodyAttribute.cs" />
+    <Compile Include="Models\NakedBodyParameterBinding.cs" />
     <Compile Include="Models\RichResult.cs" />
     <Compile Include="Models\WeixinDBContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -168,6 +185,9 @@
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />
+    <Content Include="howhot.html" />
+    <Content Include="images\ajax-loader_1.gif" />
+    <Content Include="images\bing1.png" />
     <Content Include="rsc\2873520318.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -180,6 +200,8 @@
     <Content Include="rsc\browse-icon.svg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="rsc\cat.jpg" />
+    <Content Include="rsc\css.css" />
     <Content Include="rsc\demo.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -256,6 +278,10 @@
     <Content Include="Scripts\bootstrap.min.js" />
     <Content Include="App_Data\xujl-font.ttf" />
     <Content Include="App_Data\MeoWu-font.ttf" />
+    <Content Include="fonts\glyphicons-halflings-regular.woff2" />
+    <Content Include="fonts\segoeui.ttf" />
+    <Content Include="fonts\segoeuil.ttf" />
+    <Content Include="fonts\seguisb.ttf" />
     <None Include="Properties\PublishProfiles\msftgeekblog - FTP.pubxml" />
     <None Include="Properties\PublishProfiles\msftgeekblog - Web Deploy.pubxml" />
     <None Include="Properties\PublishProfiles\msftgeekblog.pubxml" />
@@ -266,6 +292,7 @@
     <Content Include="Scripts\respond.js" />
     <Content Include="Scripts\respond.min.js" />
     <Content Include="Scripts\_references.js" />
+    <Content Include="Views\Home\HowOld.cshtml" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
@@ -284,7 +311,6 @@
     <Content Include="Views\Home\Contact.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Scripts\jquery-1.10.2.min.map" />
-    <Content Include="Views\Home\HowOld.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="fonts\glyphicons-halflings-regular.woff" />

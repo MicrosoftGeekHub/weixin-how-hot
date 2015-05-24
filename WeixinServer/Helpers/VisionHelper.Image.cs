@@ -51,7 +51,7 @@ namespace WeixinServer.Helpers
             float ScaleRatio = (HeightScaleRatio < WidthScaleRatio) ? ScaleRatio = HeightScaleRatio : ScaleRatio = WidthScaleRatio;
             float ScaleFontSize = PreferedFont.Size * ScaleRatio;
             //var intFontSize = ((int)ScaleFontSize / 4) * 4;
-            //if(intFontSize < 24) intFontSize = 24;
+            //if (ScaleFontSize < 20) ScaleFontSize = 20;
             return new Tuple<Font, float>(new Font(PreferedFont.FontFamily, ScaleFontSize), ScaleFontSize);
         }
 
@@ -138,8 +138,9 @@ namespace WeixinServer.Helpers
                     var colour = System.Drawing.Color.Magenta;
                     if (faceDetect.Attributes.Gender.ToLower().Equals("male"))
                     {
-                        genderInfo += "♂";
-                        genderInfo += MaleTitleAsPerAge(faceDetect.Attributes.Age);
+                        //genderInfo += "♂";
+                        //genderInfo += MaleTitleAsPerAge(faceDetect.Attributes.Age);
+                        genderInfo = string.Format("♂{0}岁{1}\n", faceDetect.Attributes.Age, MaleTitleAsPerAge(faceDetect.Attributes.Age));
                         maleRectangles.Add(new System.Drawing.Rectangle(faceDetect.FaceRectangle.Left,
                             faceDetect.FaceRectangle.Top, faceDetect.FaceRectangle.Width, faceDetect.FaceRectangle.Height));
                         colour = System.Drawing.Color.Lime;
@@ -148,8 +149,9 @@ namespace WeixinServer.Helpers
                     }
                     else
                     {
-                        genderInfo += "♀";
-                        genderInfo += FemaleTitleAsPerAge(faceDetect.Attributes.Age);
+                        //genderInfo += "♀";
+                        genderInfo = string.Format("♀{0}岁{1}\n", faceDetect.Attributes.Age, FemaleTitleAsPerAge(faceDetect.Attributes.Age));
+                        //genderInfo += FemaleTitleAsPerAge(faceDetect.Attributes.Age);
                         femelRectangles.Add(new System.Drawing.Rectangle(faceDetect.FaceRectangle.Left,
                             faceDetect.FaceRectangle.Top, faceDetect.FaceRectangle.Width, faceDetect.FaceRectangle.Height));
                         nickName = "妹";
@@ -163,36 +165,42 @@ namespace WeixinServer.Helpers
                     var lm = faceDetect.FaceLandmarks;
                     var emLargeRate = DistanceSquare(lm.EyeLeftBottom, lm.EyeLeftTop) / DistanceSquare(lm.EyeLeftInner, lm.EyeLeftOuter);
                     //var mouthLargeRate = DistanceSquare(lm.UpperLipBottom, lm.UnderLipTop) / DistanceSquare(lm.EyeLeftInner, lm.EyeRightInner);
-                    var mouthLargeRate = DistanceSquare(lm.MouthRight, lm.MouthLeft) / DistanceSquare(lm.EyeLeftInner, lm.EyeRightInner);
+                    
                     var eyeDescribion = "";
-                    if (emLargeRate > 0.08)
+                    if (emLargeRate > 0.15)
                     {
-                        eyeDescribion = "大眼" + nickName;
+                        eyeDescribion = "铜铃眼";
 
                     }
-                    else 
+                    else if (emLargeRate < 0.08)
                     {
                         eyeDescribion = "丹凤眼";
                     }
-
-
+                    else 
+                    {
+                        eyeDescribion = "桃花眼";
+                    }
+                    genderInfo += eyeDescribion;
+                    string mouthDescription = "";
+                    var mouthLargeRate = DistanceSquare(lm.MouthRight, lm.MouthLeft) / DistanceSquare(lm.EyeLeftInner, lm.EyeRightInner);
                     if (mouthLargeRate > 1.6)
                     {
-                        eyeDescribion += "\n姚晨嘴";
+                        mouthDescription = "姚晨吻";
 
                     }
                     else if (mouthLargeRate < 1.2)
                     {
-                        eyeDescribion += "\n舒淇唇";
+                        mouthDescription = "舒淇唇";
                     }
                     else
                     {
+                        mouthDescription = "姚明嘴";
                         //eyeDescribion += "\n性感红唇";
                     }
 
                     hotivity += emLargeRate * 100;
                     //hotivity = hotivity / 10
-                    string info = string.Format("{0:F0}万辣火\n{1}\n", hotivity, eyeDescribion);
+                    string info = string.Format("{0}\n{1:F0}分\n", mouthDescription, hotivity);
                     
                     Size room = new Size((int) (faceDetect.FaceRectangle.Width) , (int)(faceDetect.FaceRectangle.Height));
                     var ret = FindFont(g, info, room, new Font(ff, 36, FontStyle.Bold, GraphicsUnit.Pixel));
@@ -242,20 +250,25 @@ namespace WeixinServer.Helpers
                                                                     System.Drawing.Color.Aqua,
                                                                     System.Drawing.Color.DodgerBlue,
                                                                     90);
-                    var genderTop = faceDetect.FaceRectangle.Top - (int)(f.Height*3);
-                    genderTop = genderTop > 0? genderTop : 0;
+                    var genderTop = faceDetect.FaceRectangle.Top - (int)(f.Height * 3);
+
+                    genderTop = genderTop > f.Height ? genderTop : (int)(f.Height * 0.618);
+                    int genderHeight = faceDetect.FaceRectangle.Top - genderTop;
+                    room = new Size((int)(faceDetect.FaceRectangle.Width), genderHeight);
+                    ret = FindFont(g, info, room, new Font(ff, 36, FontStyle.Bold, GraphicsUnit.Pixel));
+                    var headTextFontSize = ret.Item2;
                     System.Drawing.Rectangle r2 = new System.Drawing.Rectangle(faceDetect.FaceRectangle.Left,
                            genderTop,
                            faceDetect.FaceRectangle.Width,
-                           (int)(faceDetect.FaceRectangle.Height * 0.618));
+                           genderHeight);
                     //this will be the rectangle used to draw and auto-wrap the text.
                     //basically = image size
                     int width = faceDetect.FaceRectangle.Width;
-                    if (width + faceDetect.FaceRectangle.Left > image.Width) width = image.Width - faceDetect.FaceRectangle.Left;
-                    int height = faceDetect.FaceRectangle.Height;
-                    if (2 * height + faceDetect.FaceRectangle.Top > image.Height) height = image.Height - faceDetect.FaceRectangle.Top;
+                    if (width + faceDetect.FaceRectangle.Left > image.Width) width = image.Width - faceDetect.FaceRectangle.Left - width;
+                    int height = (int)(0.618 * faceDetect.FaceRectangle.Height);
+                    if (2 * height + faceDetect.FaceRectangle.Top > image.Height) height = (int)(0.618 * (image.Height - faceDetect.FaceRectangle.Top) - height);
                     System.Drawing.Rectangle r = new System.Drawing.Rectangle(faceDetect.FaceRectangle.Left,
-                            faceDetect.FaceRectangle.Top + faceDetect.FaceRectangle.Height,
+                            faceDetect.FaceRectangle.Top + (int)(faceDetect.FaceRectangle.Height * 1.1),
                             width,
                             height);
 
@@ -264,7 +277,7 @@ namespace WeixinServer.Helpers
                     //look mom! no pre-wrapping!
                     gp.AddString(info, ff, (int)FontStyle.Bold, fontSize, r, sf);
                     //string.Format("{0}{1}", genderInfo, faceDetect.Attributes.Age)
-                    gp.AddString(genderInfo, ff, (int)FontStyle.Bold, fontSize, r2, sf);
+                    gp.AddString(genderInfo, ff, (int)FontStyle.Bold, headTextFontSize, r2, sf);
                     //gp.DrawString(info, f, new SolidBrush(colour), new Point(leftText, topText));
                     //gp.AddString(string.Format("{0}{1}", genderInfo, faceDetect.Attributes.Age), ff, (int)FontStyle.Bold, fontSize, r, sf);
                     //    new Point(faceDetect.FaceRectangle.Left, faceDetect.FaceRectangle.Top - f.Height - 5));
@@ -427,7 +440,7 @@ namespace WeixinServer.Helpers
 
         }
 
-        private MemoryStream DrawText(string text, int width, int height, Microsoft.ProjectOxford.Vision.Contract.Color color)
+        private MemoryStream DrawText(string text, int width, int leftOrRight, Microsoft.ProjectOxford.Vision.Contract.Color color)
         {
             const int RGBMAX = 255;
             PrivateFontCollection pfcoll = new PrivateFontCollection();
@@ -496,8 +509,32 @@ namespace WeixinServer.Helpers
 
                 //this will be the rectangle used to draw and auto-wrap the text.
                 //basically = image size
-                System.Drawing.Rectangle r = new System.Drawing.Rectangle(0, 0, bmp.Width, bmp.Height);
-
+                System.Drawing.Rectangle r;
+                switch (leftOrRight)
+                { case 0:     //leftTop
+                        r = new System.Drawing.Rectangle(0, 0, bmp.Width / 4, bmp.Height / 8);
+                        break;
+                  case 1:     //rightTop
+                        r = new System.Drawing.Rectangle(bmp.Width * 3 / 4, 0, bmp.Width / 4, bmp.Height / 8);
+                        break;
+                  
+                 case 2:            //leftBottom
+                        r = new System.Drawing.Rectangle(0, bmp.Height * 7 / 8, bmp.Width / 4, bmp.Height / 8);
+                        break;
+                 case 3:            //rightBottom
+                        r = new System.Drawing.Rectangle(bmp.Width * 3 / 4, bmp.Height * 7 / 8, bmp.Width / 4, bmp.Height / 8);
+                        break;
+                 case 4:            //lowerCenter
+                        r = new System.Drawing.Rectangle(bmp.Width * 1 / 5, bmp.Height * 3 / 5, bmp.Width * 3 / 5, bmp.Height * 3 / 5);
+                        break;
+                 default:
+                        r = new System.Drawing.Rectangle(0, 0, bmp.Width, bmp.Height);
+                        break;
+                }
+                //if(leftOrRight == 0)
+                //    r = new System.Drawing.Rectangle(0, 0, bmp.Width / 4, bmp.Height / 8);
+                //else
+                //    r = new System.Drawing.Rectangle(bmp.Width * 2 / 3, 0, bmp.Width / 3, bmp.Height);
                 GraphicsPath gp = new GraphicsPath();
 
                 //look mom! no pre-wrapping!
@@ -549,11 +586,25 @@ namespace WeixinServer.Helpers
                 midStream = new MemoryStream(photoBytes);
                 var outStream = new MemoryStream();
                 timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage::RenderAnalysisResultAsImage imageFactory.Load begin\n", DateTime.Now - this.startTime));
-                
-                outStream = DrawText(captionText, result.Metadata.Width, result.Metadata.Height, result.Color);
-                outStream.Seek(0, SeekOrigin.Begin);
-                midStream = DrawRects(outStream, result);
+
                 midStream.Seek(0, SeekOrigin.Begin);
+                midStream = DrawText(captionText, result.Metadata.Width, 5, result.Color);
+                midStream.Seek(0, SeekOrigin.Begin);
+
+                midStream = DrawRects(midStream, result);
+                midStream.Seek(0, SeekOrigin.Begin);
+
+                //var len = commentText.Length;
+                //midStream = DrawText(commentText.Substring(0, len / 4), result.Metadata.Width, 0, result.Color);
+                //midStream.Seek(0, SeekOrigin.Begin);
+                //midStream = DrawText(commentText.Substring(len / 4, len / 4), result.Metadata.Width, 1, result.Color);
+                //midStream.Seek(0, SeekOrigin.Begin);
+                //midStream = DrawText(commentText.Substring(2 * (len / 4), len / 4), result.Metadata.Width, 2, result.Color);
+                //midStream.Seek(0, SeekOrigin.Begin);
+                //midStream = DrawText(commentText.Substring(3 * (len / 4)), result.Metadata.Width, 3, result.Color);
+                //midStream.Seek(0, SeekOrigin.Begin);
+                
+                //outStream.Seek(0, SeekOrigin.Begin);
 
                 //var midStream = 
                 timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage::RenderAnalysisResultAsImage imageFactory.Load midStream generated\n", DateTime.Now - this.startTime));
@@ -570,13 +621,13 @@ namespace WeixinServer.Helpers
                 //string blobName = string.Format("{0}_{1}.jpg", this.curUserName, random_string(12));
                 int idx = this.curUserName.LastIndexOf('_');
                 idx = idx > -1? idx : 0;
-                string blobName = string.Format("{0}.jpg", random_string(12));
+                string blobName = string.Format("{0}/{1}.jpg", this.curUserName.Substring(idx), random_string(13));
                 CloudBlockBlob blockBlob = container.GetBlockBlobReference(blobName);
 
                 // Create or overwrite the "myblob" blob with contents from a local file.
                 //midStream.Seek(0, SeekOrigin.Begin);
                 //blockBlob.UploadFromStream(midStream);
-                outStream.Seek(0, SeekOrigin.Begin);
+                midStream.Seek(0, SeekOrigin.Begin);
                 blockBlob.UploadFromStream(midStream);
                 resultUrl = "http://howhot.blob.core.windows.net/cdn/" + blobName;
                 //resultUrl = "http://geeekstore.blob.core.windows.net/cdn/" + blobName;
@@ -586,9 +637,11 @@ namespace WeixinServer.Helpers
                 timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage::RenderAnalysisResultAsImage Upload to image CDN end\n", DateTime.Now - this.startTime));
             //}
 
+
             //return string.Format("画说:\n{0}", resultUrl);
                 //return string.Format("谈画:\n{0}\n归图:\n{1}\n", noAdsTxtResult, resultUrl);
-                return string.Format("谈画:\n{0}\n想知道您上传的图片有多\"Hot\"么? 请看归图:\n{1}\n", commentText, resultUrl);
+                //return string.Format("谈画:\n{0}\n想知道您上传的图片有多\"Hot\"么? 请看归图:\n{1}\n", commentText, resultUrl);
+                return string.Format("谈画:\n{0}", commentText);
             //return string.Format("画说:\n{0}\n归图:\n{1}\n原图:\n{2}", captionText, resultUrl, this.originalImageUrl);
         }
     }

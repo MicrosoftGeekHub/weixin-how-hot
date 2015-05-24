@@ -13,6 +13,8 @@ using System.Web.Security;
 using WeixinServer.Helpers;
 using WeixinServer.Models;
 using System.Drawing;
+using System.Net.Http.Headers;
+using System.Web.Http;
 
 //using UpYunLibrary;
 namespace WeixinServer.Controllers
@@ -32,7 +34,7 @@ namespace WeixinServer.Controllers
             else
             {
                 Valid();
-                return View("HowOld");
+                //return View("howhot");
             }
 
             return View();
@@ -154,8 +156,9 @@ namespace WeixinServer.Controllers
                 if (ret.errorLogs.Equals(""))
                 {
                     // Production mode
+                    var returnString = string.Format("{0} 想知道贵图有多火辣么? 请看归图:{1}", ret.analyzeImageResult, ret.uploadedUrl);
                     Response.Write(string.Format("<xml><ToUserName><![CDATA[{0}]]></ToUserName><FromUserName><![CDATA[{1}]]></FromUserName><CreateTime>12345678</CreateTime><MsgType><![CDATA[text]]></MsgType><Content><![CDATA[{2}]]></Content></xml>",
-                    msg.FromUserName, msg.ToUserName, ret.analyzeImageResult));
+                    msg.FromUserName, msg.ToUserName, returnString));
                     Response.End();
                     return ret;
                 }
@@ -349,8 +352,8 @@ namespace WeixinServer.Controllers
         }
 
 
-        [HttpPost]
-        public async Task<ActionResult> Analyze(string faceUrl = "")
+        [System.Web.Mvc.HttpPost]
+        public async Task<ActionResult> Analyze(string faceUrl = "", string photoName = "")
         {
             string requestId = Guid.NewGuid().ToString();
             int? contentLength = null;
@@ -400,26 +403,28 @@ namespace WeixinServer.Controllers
                 return new HttpStatusCodeResult(HttpStatusCode.InternalServerError, e.Message);
             }
         }
-        //[HttpPost]
-        //public async Task<HttpResponseMessage> ImageSearch(string query)
-        //{
-        //    string requestId = Guid.NewGuid().ToString();
-        //    try
-        //    {
-        //        //Trace.WriteLine(string.Format("Start Search Request: RequestId: {0};", requestId));
-        //        var results = await ImageSearchClient.SearchImages(query);
-        //        if (results == null || results.Length == 0)
-        //        {
-        //            return HttpNotFound();
-        //        }
-        //        //Trace.WriteLine(string.Format("Completed Search Request: RequestId: {0};", requestId));
-        //        return Json(JsonConvert.SerializeObject(results), "application/json");
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        Telemetry.TrackError(string.Format("Error While Searching: {0}; Error:{1}", query, e.ToString()), requestId);
-        //        return new HttpStatusCodeResult(HttpStatusCode.InternalServerError, "Error");
-        //    }
-        //}
+        private byte[] mDummyBytes = Encoding.ASCII.GetBytes("[object Object]");
+        [System.Web.Mvc.HttpPost]
+        public HttpResponseMessage ImageSearch([NakedBody] byte[] queryBytes)
+        {
+            String query = "";//System.Text.Encoding.UTF8.GetString(queryBytes);
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create("http://how-old.net/Home/BingImageSearch?query=" + query);
+            request.Method = "POST";
+            request.ContentType = "text/plain;charset=UTF-8";
+
+            request.ContentLength = mDummyBytes.Length;
+            using (var stream = request.GetRequestStream())
+            {
+                stream.Write(mDummyBytes, 0, mDummyBytes.Length);
+            }
+
+            HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+            String responseString = new StreamReader(response.GetResponseStream()).ReadToEnd();
+
+            HttpResponseMessage result = new HttpResponseMessage(HttpStatusCode.OK);
+            result.Content = new StringContent(responseString);
+            result.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+            return result;
+        }
     }
 }
