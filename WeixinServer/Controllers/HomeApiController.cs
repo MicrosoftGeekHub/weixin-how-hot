@@ -55,7 +55,7 @@ namespace WeixinServer.Controllers
         public HttpResponseMessage ImageSearch([NakedBody] byte[] queryBytes)
         {
             String query = System.Text.Encoding.UTF8.GetString(queryBytes);
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create("http://how-old.net/Home/BingImageSearch?query=" + query);
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create("http://cn.how-old.net/Home/BingImageSearch?query=" + query);
             request.Method = "POST";
             request.ContentType = "text/plain;charset=UTF-8";
 

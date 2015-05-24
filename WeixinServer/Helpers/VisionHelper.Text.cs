@@ -1038,7 +1038,7 @@ namespace WeixinServer.Helpers
                 //foreach (var line in story.Split(charArr))
                 //    commentStringWriter.WriteLine(line.Trim());
 
-                var story = String.Format("--嗯，谈画我联想到一个笑话: \"{0}\"\n作为一个高冷机器人，我只能说，{1}", storyTuple.Item1, storyTuple.Item2);
+                var story = String.Format(";--嗯，谈画我联想到一个笑话: \"{0}\";\n作为一个高冷机器人，我只能说，{1}", storyTuple.Item1, storyTuple.Item2);
 
                 commentStringWriter.WriteLine(story);
             }
@@ -1060,7 +1060,7 @@ namespace WeixinServer.Helpers
             timeLogger.Append(string.Format("{0} VisionHelper::ShowRichAnalysisResult end\n", DateTime.Now - this.startTime));
             //Console.ResetColor();
             noAdsTxtResult = desStringWriter.ToString();
-            commentStringWriter.Write("关注geekplus-ms，点+号发图片，我就跟您谈画\n");
+            //commentStringWriter.Write("关注geekplus-ms，点+号发图片，我就跟您谈画\n");
 
 
             return new Tuple<string, string>(desStringWriter.ToString(), commentStringWriter.ToString());
