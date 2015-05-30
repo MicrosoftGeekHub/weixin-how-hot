@@ -19,7 +19,7 @@ namespace WeixinServer
             config.Routes.MapHttpRoute(
                 name: "secApi",
                 routeTemplate: "{controller}/{action}",
-                defaults: new { controller = "HomeApi", action = "Analyze",}
+                defaults: new { controller = "Home", action = "Analyze",}
             );
         }
     }

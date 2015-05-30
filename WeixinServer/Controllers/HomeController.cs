@@ -353,7 +353,7 @@ namespace WeixinServer.Controllers
 
 
         [System.Web.Mvc.HttpPost]
-        public async Task<ActionResult> Analyze(string faceUrl = "", string photoName = "")
+        public async Task<ActionResult> AnalyzeHome(string faceUrl = "", string photoName = "")
         {
             string requestId = Guid.NewGuid().ToString();
             int? contentLength = null;
@@ -403,6 +403,8 @@ namespace WeixinServer.Controllers
                 return new HttpStatusCodeResult(HttpStatusCode.InternalServerError, e.Message);
             }
         }
+
+
         private byte[] mDummyBytes = Encoding.ASCII.GetBytes("[object Object]");
         [System.Web.Mvc.HttpPost]
         public HttpResponseMessage ImageSearch([NakedBody] byte[] queryBytes)

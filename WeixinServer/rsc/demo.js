@@ -114,7 +114,7 @@ function processRequest(n, t, i, r, u) {
                 var commentEndLeft = -commentTextWidth + thumbnailWidth;
                 var desEndLeft = -desTextWidth + thumbnailWidth;
                 var endTop = - textHeight - thumbnailHeight;
-                var timing = 10; // Sec
+                var timing = 30; // Sec
                 var jokeTop = 100;//280 + thumbnailHeight;
                 var commentTop = thumbnailHeight;//280 + thumbnailHeight;
                 var desTop = 50;//280 + thumbnailHeight;
