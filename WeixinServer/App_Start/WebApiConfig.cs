@@ -17,13 +17,13 @@ namespace WeixinServer
             // Web API routes
             config.MapHttpAttributeRoutes();
 
-            config.Routes.MapHttpRoute(
-                name: "DefaultApi",
-                routeTemplate: "api/{controller}/{action}",
-                defaults: new { controller = "Home", action = "AnalyzeHome"}
-                //constraints: new { httpMethod = new HttpMethodConstraint("GET") }
+            //config.Routes.MapHttpRoute(
+            //    name: "DefaultApi",
+            //    routeTemplate: "api/{controller}/{action}",
+            //    defaults: new { controller = "Home", action = "AnalyzeHome"}
+            //    //constraints: new { httpMethod = new HttpMethodConstraint("GET") }
 
-            );
+            //);
 
             config.Routes.MapHttpRoute(
                 name: "firstHomeApi",

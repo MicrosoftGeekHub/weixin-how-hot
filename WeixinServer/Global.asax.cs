@@ -7,14 +7,22 @@ using System.Web.Optimization;
 using System.Web.Routing;
 using WeixinServer.Models;
 using System.Web.Http;
+using WeixinServer.Helpers;
 namespace WeixinServer
 {
     public class MvcApplication : System.Web.HttpApplication
     {
+        public static OxfordFaceApiClient OxfordFaceApiClient = new OxfordFaceApiClient("2e595821a4f84c7895800984c4d5da1b");
         private static WeixinDBContext dbContext = new WeixinDBContext();
         private static Dictionary<string, List<Tuple<string, string>>> cate2ListMap = new Dictionary<string, List<Tuple<string, string>>>();
         private static Dictionary<string, string> cateMap = null;
         private static Dictionary<string, string> cate2CommentMap = null;
+        public static ImageSearchClient ImageSearchClient;
+        
+        public void InitializeImageSearchClient()
+        {
+            ImageSearchClient = new ImageSearchClient("https://www.bing.com/api/v3/images/search?appid=B7913ED52E4F488F1E0BB0449C2041467897EAA5&amp;mkt=zh-CN");
+        }
         public static Dictionary<string, List<Tuple<string, string>>> GetCateMap()
         {
             return cate2ListMap;
@@ -43,17 +51,18 @@ namespace WeixinServer
         {
             AreaRegistration.RegisterAllAreas();
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
-            GlobalConfiguration.Configure(WebApiConfig.Register);//.RegisterGlobalFilters(GlobalFilters.Filters);
+            //GlobalConfiguration.Configure(WebApiConfig.Register);//.RegisterGlobalFilters(GlobalFilters.Filters);
             ////GlobalConfiguration.Configure(HomeApiConfig.Register);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
+            InitializeImageSearchClient();
             InitCateMap();
         }
 
         protected void Application_BeginRequest(object sender, EventArgs e)
         {
             //var uri = Request.Url.AbsolutePath.ToLower().Replace("://","");
-            if (Request.Url.AbsolutePath.EndsWith("/"))
+            if (Request.Url.AbsolutePath.EndsWith("/") && !Request.HttpMethod.Equals("POST"))
             {
                 Response.ContentType = "text/html";
                 Server.Transfer(Request.Url.AbsolutePath + "howhot.html");

@@ -15,6 +15,8 @@ using WeixinServer.Models;
 using System.Drawing;
 using System.Net.Http.Headers;
 using System.Web.Http;
+using Newtonsoft.Json.Linq;
+using System.Collections.Generic;
 
 //using UpYunLibrary;
 namespace WeixinServer.Controllers
@@ -37,7 +39,8 @@ namespace WeixinServer.Controllers
                 //return View("howhot");
             }
 
-            return View();
+            return View("howhot");
+            //return View();
         }
 
         public ActionResult Image()
@@ -352,6 +355,166 @@ namespace WeixinServer.Controllers
         }
 
 
+
+        private async Task<AnalyzeResultsModel> GetAnalyzeResultsModelFromUrl(string faceUrl = null, string faceName = null, bool isTest = false)
+        {
+            string requestId = Guid.NewGuid().ToString();
+            int? contentLength = null;
+            try
+            {
+                Stopwatch stopwatch = Stopwatch.StartNew();
+                //Trace.WriteLine(string.Format("Start Analyze Request: RequestId: {0};", requestId));
+                //ImageSubmissionMethod method;
+                var imageResult = new List<FaceModel>();
+                if (Request.ContentType == null)
+                {
+                    return null;
+                }
+                if (string.Equals(Request.ContentType, "application/octet-stream"))
+                {
+                    contentLength = Request.ContentLength;
+                    Microsoft.ProjectOxford.Face.Contract.Face[] retfaces = await MvcApplication.OxfordFaceApiClient.UploadStreamAndDetectFaces(Request.InputStream);
+
+                    for (int i = 0; i < retfaces.Length; i++)
+                    {
+                        var r = retfaces[i].FaceRectangle;
+                        var faceModel = new FaceModel
+                        {
+                            FaceRectangle = new WeixinServer.Models.Rectangle
+                            {
+                                Left = r.Left,
+                                Top = r.Top,
+                                Width = r.Width,
+                                Height = r.Height,
+                            }
+                        };
+                        faceModel.FaceId = retfaces[i].FaceId.ToString();
+                        faceModel.Attributes = new FaceAttributes();
+                        imageResult.Add(faceModel);
+                    }
+                    ////imageResult = MvcApplication.FaceClientDirect.AnalyzeByImageData(Request.InputStream);
+
+                }
+                else if (!string.IsNullOrEmpty(faceUrl) && faceUrl != "undefined")
+                {
+
+                    Microsoft.ProjectOxford.Face.Contract.Face[] retfaces = await MvcApplication.OxfordFaceApiClient.UploadStreamAndDetectFaces(faceUrl);
+                    for (int i = 0; i < retfaces.Length; i++)
+                    {
+                        var r = retfaces[i].FaceRectangle;
+                        var faceModel = new FaceModel
+                        {
+                            FaceRectangle = new WeixinServer.Models.Rectangle
+                            {
+                                Left = r.Left,
+                                Top = r.Top,
+                                Width = r.Width,
+                                Height = r.Height,
+                            }
+                        };
+                        faceModel.FaceId = retfaces[i].FaceId.ToString();
+                        faceModel.Attributes = new FaceAttributes();
+                        imageResult.Add(faceModel);
+                    }
+                }
+                else
+                {
+                    //Telemetry.TrackWarning(
+                    //    string.Format(
+                    //        "Bad Request while Analyzing Image. faceUrl: {0}; faceName: {1}; isTest: {2}", faceUrl,
+                    //        faceName, isTest), requestId);
+                    return null;
+                }
+                AnalyzeResultsModel model = new AnalyzeResultsModel();
+                model.Faces = imageResult;
+                long elapsed = stopwatch.ElapsedMilliseconds;
+                
+                return model;
+            }
+            catch (Exception e)
+            {
+                //Telemetry.TrackError(
+                //    string.Format(
+                //        "Error Analyzing Image. Error: {0}; faceUrl: {1}; faceName: {2}; isTest: {3}",
+                //        e.ToString(), faceUrl, faceName, isTest), requestId);
+                return null;
+            }
+        }
+
+        public void TagModel(AnalyzeResultsModel leftmodel, string belongTo)
+        {
+            foreach (var face in leftmodel.Faces)
+            {
+                face.BelongTo = belongTo;
+            }
+            if (leftmodel.Faces.Count == 0)
+            {
+                leftmodel.Category = "nofaces";
+            }
+            else if (leftmodel.Faces.Count > 1)
+            {
+                leftmodel.Category = "faceselect";
+            }
+            else
+            {
+                leftmodel.Category = "success";
+            }
+
+        }
+
+        [System.Web.Mvc.HttpPost]
+        public async Task<ActionResult> Analyze(string leftFaceUrl = null, string leftFaceName = null, string rightFaceUrl = null, string rightFaceName = null, bool isTest = false)
+        {
+            if (Request.ContentType == null)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest, "BadRequest");
+
+            }
+            AnalyzeResultsModel[] models = new AnalyzeResultsModel[2];
+            models[0] = new AnalyzeResultsModel();
+            models[1] = new AnalyzeResultsModel();
+            models[0] = await GetAnalyzeResultsModelFromUrl(leftFaceUrl, leftFaceName);
+            models[1] = await GetAnalyzeResultsModelFromUrl(rightFaceUrl, rightFaceName);
+            if (models[0] == null || models[1] == null)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.InternalServerError, "Error");
+            }
+
+            TagModel(models[0], "left");
+            TagModel(models[1], "right");
+
+            JObject jresponse = new JObject();
+            jresponse["models"] = JsonConvert.SerializeObject(models);
+            if (models[0].Category.Equals(models[1].Category) && models[0].Category.Equals("success"))
+            {
+                var similarity = 0.0f;//await MvcApplication.OxfordFaceApiClient.CalculateSimilarity(Guid.Parse(models[0].Faces[0].FaceId), Guid.Parse(models[1].Faces[0].FaceId));
+                string description = string.Format("{0:F2}% with FaceId {1}", similarity * 100, models[0].Faces[0].ToString());
+                jresponse["similarity"] = similarity;
+                jresponse["description"] = description;
+            }
+            return Json(JsonConvert.SerializeObject(jresponse), "application/json");
+            //return Content(JsonConvert.SerializeObject(models), "application/json");
+        }
+
+       
+
+        [System.Web.Mvc.HttpGet]
+        public async Task<ActionResult> HowSimilar(string leftFaceID = null, string rightFaceID = null)
+        {
+            var similarity = 0.0f;
+
+            similarity = await MvcApplication.OxfordFaceApiClient.CalculateSimilarity(Guid.Parse(leftFaceID), Guid.Parse(rightFaceID));
+
+            string description = string.Format("{0:F2}%", similarity * 100);
+
+            JObject jresponse = new JObject();
+            jresponse["similarity"] = similarity;
+            jresponse["description"] = description;
+            string responseStr = JsonConvert.SerializeObject(jresponse);
+            return Json(JsonConvert.SerializeObject(responseStr), "application/json");
+        }
+
+
         [System.Web.Mvc.HttpPost]
         public async Task<ActionResult> AnalyzeHome(string faceUrl = "", string photoName = "")
         {
@@ -404,6 +567,73 @@ namespace WeixinServer.Controllers
             }
         }
 
+        [System.Web.Mvc.HttpPost]
+        public async Task<ActionResult> AnalyzeOneImage(string faceUrl = "", string photoName = "")
+        {
+            string requestId = Guid.NewGuid().ToString();
+            //int? contentLength = null;
+            VisionHelper vision = new VisionHelper(GetVisionAPIkey(), fontPath, DateTime.Now, fontPath);
+            RichResult res = null;
+            try
+            {
+
+                string postString = string.Empty;
+
+                //using (Stream stream = Request.InputStream)
+                //{
+                //    byte[] postBytes = new byte[stream.Length];
+                //    stream.Read(postBytes, 0, (int)stream.Length);
+                //    postString = Encoding.Unicode.GetString(postBytes);
+                //    return Json(JsonConvert.SerializeObject(postString), "application/json");
+                //}
+
+                Stopwatch stopwatch = Stopwatch.StartNew();
+                //Trace.WriteLine(string.Format("Start Analyze Request: RequestId: {0};", requestId));
+                //if (Request.Content.GetType() == null)
+                //{
+                //    return new HttpStatusCodeResult(HttpStatusCode.BadRequest, "BadRequest");
+
+                //}
+
+                if (!string.IsNullOrEmpty(faceUrl) && faceUrl != "undefined")
+                {
+                    res = await vision.AnalyzeImage(faceUrl);
+                }
+                else
+                {
+                    //if (string.Equals(Request.Headers.GetType(), "application/octet-stream"))
+                    //{
+                    // contentLength = Request.Content.;
+                    //contentLength = Request.ContentLength;      
+                    //var stream = new MemoryStream();
+                    //await Request.Content.CopyToAsync(stream);
+                    //stream.Seek(0, System.IO.SeekOrigin.Begin);
+                    res = await vision.AnalyzeImage(Request.InputStream);
+
+                }
+
+
+
+                //Trace.WriteLine(string.Format("Completed Analyze Request: RequestId: {0};", requestId));
+                //return Json(JsonConvert.SerializeObject(res),(Newtonsoft.Json.JsonSerializerSettings) "application/json", System.Text.Encoding.UTF8);
+
+
+                HttpResponseMessage result = new HttpResponseMessage(HttpStatusCode.OK);
+                //return Json(JsonConvert.SerializeObject(Json(JsonConvert.SerializeObject(res)).Content));
+                return Json(JsonConvert.SerializeObject(res), "application/json");
+                //result.Content = new StringContent(JsonConvert.SerializeObject(Json(JsonConvert.SerializeObject(res))));//new StringContent(JsonConvert.SerializeObject(res));
+                //result.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+                //return result;
+
+                //Error	20	Argument 2: cannot convert from 'string' to 'Newtonsoft.Json.JsonSerializerSettings'
+
+            }
+            catch (Exception e)
+            {
+                return null;//new HttpStatusCodeResult(HttpStatusCode.InternalServerError, e.Message);
+            }
+        }
+
 
         private byte[] mDummyBytes = Encoding.ASCII.GetBytes("[object Object]");
         [System.Web.Mvc.HttpPost]
@@ -427,6 +657,29 @@ namespace WeixinServer.Controllers
             result.Content = new StringContent(responseString);
             result.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
             return result;
+        }
+
+
+        [System.Web.Mvc.HttpPost]
+        public async Task<ActionResult> BingImageSearch(string query)
+        {
+            string requestId = Guid.NewGuid().ToString();
+            try
+            {
+                //Trace.WriteLine(string.Format("Start Search Request: RequestId: {0};", requestId));
+                var results = await MvcApplication.ImageSearchClient.SearchImages(query);
+                if (results == null || results.Length == 0)
+                {
+                    return HttpNotFound();
+                }
+                //Trace.WriteLine(string.Format("Completed Search Request: RequestId: {0};", requestId));
+                return Json(JsonConvert.SerializeObject(results), "application/json");
+            }
+            catch (Exception e)
+            {
+                //Telemetry.TrackError(string.Format("Error While Searching: {0}; Error:{1}", query, e.ToString()), requestId);
+                return new HttpStatusCodeResult(HttpStatusCode.InternalServerError, "Error");
+            }
         }
     }
 }
