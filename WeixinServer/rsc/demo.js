@@ -137,7 +137,7 @@ function processRequest(n, t, i, r, u) {
                 if (typeof t === "undefined" || !t.analyzeImageResult) {
                     return;
                 }
-
+                return;
                 var danmus = t.analyzeImageResult.split(";")
                 
                 var $thumbContainer = $("#thumbContainer");

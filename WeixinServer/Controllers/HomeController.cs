@@ -496,7 +496,37 @@ namespace WeixinServer.Controllers
             //return Content(JsonConvert.SerializeObject(models), "application/json");
         }
 
-       
+
+        [System.Web.Mvc.HttpPost]
+        public async Task<ActionResult> RelationShipAnalyze(string faceUrl = null, string faceName = null, bool isTest = false)
+        {
+            if (Request.ContentType == null)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest, "BadRequest");
+
+            }
+            AnalyzeResultsModel[] models = new AnalyzeResultsModel[1];
+            models[0] = new AnalyzeResultsModel();
+            models[0] = await GetAnalyzeResultsModelFromUrl(faceUrl, faceName);
+            if (models[0] == null)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.InternalServerError, "Error");
+            }
+
+            JObject jresponse = new JObject();
+            foreach (var face in models[0].Faces)
+            { 
+                jresponse["models"] = JsonConvert.SerializeObject(models);
+                var similarity = await MvcApplication.OxfordFaceApiClient.CalculateSimilarity(Guid.Parse(models[0].Faces[0].FaceId), Guid.Parse(models[1].Faces[0].FaceId));
+                string description = string.Format("{0:F2}% with FaceId {1}", similarity * 100, models[0].Faces[0].FaceId.ToString());
+                jresponse["similarity"] = similarity;
+                jresponse["description"] = description;
+            }
+            return Json(JsonConvert.SerializeObject(jresponse), "application/json");
+            //return Content(JsonConvert.SerializeObject(models), "application/json");
+        }
+
+
 
         [System.Web.Mvc.HttpGet]
         public async Task<ActionResult> HowSimilar(string leftFaceID = null, string rightFaceID = null)
