@@ -643,18 +643,20 @@ namespace WeixinServer.Controllers
 
                 }
 
-                res.stepSize = 5;
-                res.minAge = res.stepSize * (int)((int)res.analysisResult.RichFaces[0].Attributes.Age / (float)res.stepSize) + res.stepSize;
-                res.maxAge = 90;
-
-                var urls = new List<string>();
-                for (var age = res.minAge; age <= res.maxAge; age += res.stepSize)
+                if (res.analysisResult.RichFaces.Length > 0)
                 {
-                    var url = GetImageUrlByAge(age, res.analysisResult.RichFaces[0]);
-                    urls.Add(!string.IsNullOrEmpty(url) ? url : "");
-                }
-                res.agingImgUrls = urls.ToArray();
+                    res.stepSize = 5;
+                    res.minAge = res.stepSize * (int)((int)res.analysisResult.RichFaces[0].Attributes.Age / (float)res.stepSize);
+                    res.maxAge = 90;
 
+                    var urls = new List<string>();
+                    for (var age = res.minAge; age <= res.maxAge; age += res.stepSize)
+                    {
+                        var url = GetImageUrlByAge(age, res.analysisResult.RichFaces[0]);
+                        urls.Add(!string.IsNullOrEmpty(url) ? url : "");
+                    }
+                    res.agingImgUrls = urls.ToArray();
+                }
                 HttpResponseMessage result = new HttpResponseMessage(HttpStatusCode.OK);
                 return Json(JsonConvert.SerializeObject(res), "application/json");
             }
@@ -718,6 +720,9 @@ namespace WeixinServer.Controllers
             {
                 var list = MvcApplication.Age2FaceListMap[age];
                 string url = "";
+                var urlList = new List<string>();
+                var random = new Random();
+                int idx = 0;
                 foreach (var line in list)
                 {
                     var gender = line.Item1;
@@ -725,10 +730,16 @@ namespace WeixinServer.Controllers
                     if (! face.Attributes.Gender.Equals("male"))
                         faceGender = 2;
                     if (gender != faceGender) continue;
-                    url = line.Item5;
-                    return url;
+                    urlList.Add(line.Item5);
+                    idx = random.Next(0, urlList.Count);
+                    if (idx > 10 - urlList.Count)
+                    {
+                        return urlList[idx];
+                    }
+
                 }
-                return url;
+                var getrandomIdx = random.Next(0, urlList.Count - 1);
+                return urlList[getrandomIdx];
             }
             catch (Exception e)
             {

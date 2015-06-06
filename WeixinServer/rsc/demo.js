@@ -119,9 +119,7 @@ function processRequest(n, t, i, r, u) {
                 $("#analyzingLabel").css("visibility", "visible");
                 return;
             }
-
             $("#thumbnail").attr("src", t.uploadedUrl);
-
             $("#analyzingLabel").css("visibility", "hidden")
             $("#improvingLabel").css("visibility", "visible");
             if (t != null) {
@@ -134,14 +132,23 @@ function processRequest(n, t, i, r, u) {
             }
 
             console.log(t);
-
+            if (!t.agingImgUrls) {
+                return;
+            }
             $("#slider").slider({
                 value: t.minAge,
                 min: t.minAge,
                 max: t.maxAge,
-                step: 50,
+                step: t.stepSize,
                 slide: function (event, ui) {
-                    $("#amount").val("$" + ui.value);
+                    $("#age").text(ui.value + "岁");
+                    $("#thumbnail").attr("width", 400);
+                    if (ui.value == t.minAge) {
+                        $("#thumbnail").attr("src", t.uploadedUrl);
+                    }
+                    else {
+                        $("#thumbnail").attr("src", t.agingImgUrls[(ui.value - t.minAge) / t.stepSize]);
+                    }
                 }
             });
 

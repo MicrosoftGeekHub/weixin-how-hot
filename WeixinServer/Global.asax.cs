@@ -36,7 +36,7 @@ namespace WeixinServer
             var ret = dbContext.Faces.Select(p => new { p.age, p.gender, p.smile, p.wearingGlasses, p.headPose, p.url }).AsEnumerable();
             foreach (var line in ret)
             {
-                var key = 10 * (line.age / 10);
+                var key = 5 * (line.age / 5);
                 var val = new Tuple<int, int, int, int, string>(line.gender, line.smile, line.wearingGlasses, line.headPose, line.url);
                 if (!Age2FaceListMap.ContainsKey(key))
                 {
