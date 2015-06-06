@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.ProjectOxford.Vision.Contract;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -22,6 +23,23 @@ namespace WeixinServer.Models
             this.uploadedUrl = uploadedUrl;
         }
 
+        public RichResult(string timeLogs, string analyzeImageResult, string errorLogs, string uploadedUrl, AnalysisResult analysisResult)
+        {
+            this.timeLogs = timeLogs;
+            this.analyzeImageResult = analyzeImageResult;
+            this.errorLogs = errorLogs;
+            this.uploadedUrl = uploadedUrl;
+            this.analysisResult = analysisResult;
+        }
+
+        public RichResult(string timeLogs, string analyzeImageResult, string errorLogs, AnalysisResult analysisResult)
+        {
+            this.timeLogs = timeLogs;
+            this.analyzeImageResult = analyzeImageResult;
+            this.errorLogs = errorLogs;
+            this.analysisResult = analysisResult;
+        }
+
         public RichResult(string timeLogs, string analyzeImageResult, string errorLogs, string uploadedUrl, byte[] rawImage)
         {
             this.timeLogs = timeLogs;
@@ -38,6 +56,14 @@ namespace WeixinServer.Models
         /// timestamp Logs.
         /// </value>
         public string timeLogs { get; set; }
+
+        /// <summary>
+        /// Gets or sets the timeLogs.
+        /// </summary>
+        /// <value>
+        /// timestamp Logs.
+        /// </value>
+        public string[] agingImgUrls { get; set; }
 
         /// <summary>
         /// Gets or sets the errorLogs.
@@ -78,5 +104,11 @@ namespace WeixinServer.Models
         /// The processed Image.
         /// </value>
         public byte[] rawImage { get; set; }
+
+        public AnalysisResult analysisResult { get; set; }
+
+        public int minAge { get; set; }
+        public int maxAge { get; set; }
+        public int stepSize { get; set; }
     }
 }

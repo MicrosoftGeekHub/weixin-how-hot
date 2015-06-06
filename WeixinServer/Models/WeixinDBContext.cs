@@ -17,6 +17,7 @@ namespace WeixinServer
         public DbSet<BlackValue> BlackList { get; set; }
         public DbSet<ImageStorage> ImageStorages { get; set; }
         public DbSet<Story> Story { get; set; }
+        public DbSet<Faces> Faces { get; set; }
     }
 
     public sealed class Danmu
@@ -60,6 +61,19 @@ namespace WeixinServer
         public string text { get; set; }
         public string text_comment { get; set; }
     }
+
+    [Table("Faces")]
+    public sealed class Faces
+    {
+        public int Id { get; set; }
+        public int gender { get; set; }
+        public int smile { get; set; }
+        public int wearingGlasses { get; set; }
+        public int headPose { get; set; }
+        public int age { get; set; }
+        public string url { get; set; }
+    }
+
     public sealed class Token
     {
         [Key]

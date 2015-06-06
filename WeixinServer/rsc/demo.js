@@ -119,9 +119,7 @@ function processRequest(n, t, i, r, u) {
                 $("#analyzingLabel").css("visibility", "visible");
                 return;
             }
-
             $("#thumbnail").attr("src", t.uploadedUrl);
-
             $("#analyzingLabel").css("visibility", "hidden")
             $("#improvingLabel").css("visibility", "visible");
             if (t != null) {
@@ -133,70 +131,26 @@ function processRequest(n, t, i, r, u) {
                 for (var t = Date.now() ; Date.now() - t <= d;);
             }
 
-            (function () {
-                if (typeof t === "undefined" || !t.analyzeImageResult) {
-                    return;
-                }
+            console.log(t);
+            if (!t.agingImgUrls) {
                 return;
-                var danmus = t.analyzeImageResult.split(";")
-                
-                var $thumbContainer = $("#thumbContainer");
-                var thumbnailWidth = $thumbContainer.width();
-                var thumbnailHeight = $thumbContainer.height()
-                var emWidth = 30;
-                var jokeTextWidth = danmus[1].length * emWidth;//4000;//thumbnailWidth > 400 ? 400 : thumbnailWidth - 50;
-                var commentTextWidth = danmus[2].length * emWidth;
-                var desTextWidth = danmus[0].length * emWidth;
-                var textHeight = thumbnailHeight > 400 ? 400 : thumbnailHeight - 50;
-                var startLeft = thumbnailWidth;
-                var startTop = thumbnailHeight;
-                var endLeft = -jokeTextWidth + thumbnailWidth;
-                var commentEndLeft = -commentTextWidth + thumbnailWidth;
-                var desEndLeft = -desTextWidth + thumbnailWidth;
-                var endTop = - textHeight - thumbnailHeight;
-                var timing = 30; // Sec
-                var jokeTop = 100;//280 + thumbnailHeight;
-                var commentTop = thumbnailHeight;//280 + thumbnailHeight;
-                var desTop = 50;//280 + thumbnailHeight;
-                var jokeLeft = 0; //jokeTextWidth / 2;//thumbnailWidth - textWidth;
-                var $barrage =
-                     $("<p class='barrage' style='position: absolute; left: " + jokeLeft + "px; font-size: 1.4em; color: #fff; text-shadow: 1px 1px 1px #000; height: " + jokeTextWidth + "px; top:" + startTop + "px; transition: all " + timing + "s linear;'>" + danmus[1]
-                        + "</p>");
-                    //$("<p style='position: absolute; top: " + jokeTop + "px; font-size: 1.4em; color: #fff; text-shadow: 1px 1px 1px #000; width: " + jokeTextWidth + "px; left:" + startLeft + "px; transition: all " + timing + "s linear;'>" + danmus[0]
-                    //+ "</p>");
-                $thumbContainer.siblings(".barrage").remove();
-                $thumbContainer.css("overflow", "hidden").append($barrage);
-                $barrage.animate({
-                                        top: endTop + "px"
-                    //left: endLeft + "px"
-                }, timing*1000, function () {
-                });
-                
-                var $barrage =
-                $("<p style='position: absolute; top: " + commentTop + "px; font-size: 1.4em; color: #fff; text-shadow: 1px 1px 1px #000; width: " + commentTextWidth + "px; left:" + startLeft + "px; transition: all " + timing + "s linear;'>" + danmus[2]
-                + "</p>");
-                $thumbContainer.css("overflow", "hidden").after($barrage);
-
-                $barrage.animate({
-                    //                  top: endTop + "px"
-                    left: commentEndLeft + "px"
-                }, timing * 500 * jokeTextWidth / commentTextWidth, function () {
-                   // sleep(timing * 500);
-                });
-                
-                var $barrage =
-               $("<p style='position: absolute; top: " + desTop + "px; font-size: 1.4em; color: #fff; text-shadow: 1px 1px 1px #000; width: " + desTextWidth + "px; left:" + startLeft + "px; transition: all " + timing + "s linear;'>" + danmus[0]
-               + "</p>");
-                $thumbContainer.css("overflow", "hidden").after($barrage);
-
-                $barrage.animate({
-                    //                  top: endTop + "px"
-                    left: desEndLeft + "px"
-                }, timing * 1000, function () {
-
-                });
-
-            })();
+            }
+            $("#slider").slider({
+                value: t.minAge,
+                min: t.minAge,
+                max: t.maxAge,
+                step: t.stepSize,
+                slide: function (event, ui) {
+                    $("#age").text(ui.value + "岁");
+                    $("#thumbnail").attr("width", 400);
+                    if (ui.value == t.minAge) {
+                        $("#thumbnail").attr("src", t.uploadedUrl);
+                    }
+                    else {
+                        $("#thumbnail").attr("src", t.agingImgUrls[(ui.value - t.minAge) / t.stepSize]);
+                    }
+                }
+            });
 
         },
         error: function () {
