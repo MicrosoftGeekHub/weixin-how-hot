@@ -1,34 +1,39 @@
 ﻿using Microsoft.ProjectOxford.Face;
 using Microsoft.ProjectOxford.Face.Contract;
-using Microsoft.ProjectOxford.Vision;
-using Microsoft.ProjectOxford.Vision.Contract;
 using System;
 using System.IO;
 using System.Net;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Linq;
-using WeixinServer;
+using System.Collections;
+using System.Collections.Generic;
+using System.Text;
+using System.Threading;
+
 namespace WeixinServer.Helpers
 {
-    /// <summary>
-    /// The class is used to access vision APIs.
-    /// </summary>
-    public partial class VisionHelper
+    public class OxfordFaceApiClient
     {
-        private IVisionServiceClient visionClient;
+        /// <summary>
+        /// Initializes a new instance of the <see cref="VisionHelper"/> class.
+        /// </summary>
+        /// <param name="subscriptionKey">The subscription key.</param>
+        /// <param name="frameImageUri">The frame image URI.</param>
+        public OxfordFaceApiClient(string subscriptionKey)
+        {
+            this.faceServiceClient = new FaceServiceClient(subscriptionKey);
+        }
 
-        private Dictionary<string, string> categoryNameMapping = null;
-        
-        private string frontImageUri;
+        private readonly IFaceServiceClient faceServiceClient;
 
-        private string meoWuFontUri;
-        
-        private string originalImageUrl;
-        
-        private byte[] photoBytes;
 
-        private readonly IFaceServiceClient faceServiceClient = new FaceServiceClient("f0a551fcd16a461a89f29647817399c1");
+        public async Task<float> CalculateSimilarity(Guid faceId1, Guid faceId2)
+        { 
+            var verifyResult = await faceServiceClient.VerifyAsync(faceId1, faceId2);
+            return (float)verifyResult.Confidence;
+        }
+
         public async Task<Microsoft.ProjectOxford.Face.Contract.FaceRectangle[]> UploadAndDetectFaces(string imageFilePath)
         {
 
@@ -73,7 +78,7 @@ namespace WeixinServer.Helpers
                 request.Timeout = int.MaxValue;
                 var response = request.GetResponse();
                 var streamToUpload = response.GetResponseStream();
-                var faces = await faceServiceClient.DetectAsync(streamToUpload);
+                var faces = await faceServiceClient.DetectAsync(streamToUpload, true, true, true, false);
                 return faces.ToArray();
             }
 
@@ -137,28 +142,6 @@ namespace WeixinServer.Helpers
 
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="VisionHelper"/> class.
-        /// </summary>
-        /// <param name="subscriptionKey">The subscription key.</param>
-        /// <param name="frameImageUri">The frame image URI.</param>
-        public VisionHelper(string subscriptionKey, string frontImageUri, DateTime startTime)
-        {
-            this.startTime = startTime;
-            timeLogger.Append(string.Format("{0} VisionHelper::InitializePropertiesForText\n", DateTime.Now));
-            InitializePropertiesForAzure();
-            this.InitializePropertiesForText(subscriptionKey);
-            this.InitializePropertiesForImage(frontImageUri);
-        }
-
-        public VisionHelper(string subscriptionKey, string frontImageUri, DateTime startTime, string meoWuFontUri)
-        {
-            this.startTime = startTime;
-            this.meoWuFontUri = meoWuFontUri;
-            timeLogger.Append(string.Format("{0} VisionHelper::InitializePropertiesForText\n", DateTime.Now));
-            InitializePropertiesForAzure();
-            this.InitializePropertiesForText(subscriptionKey);
-            this.InitializePropertiesForImage(frontImageUri);
-        }
     }
+
 }

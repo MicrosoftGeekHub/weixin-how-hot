@@ -160,6 +160,7 @@
     <Compile Include="Controllers\HomeApiController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Helpers\ImageSearchClient.cs" />
+    <Compile Include="Helpers\OxfordFaceApiClient.cs" />
     <Compile Include="Helpers\UpYun.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -167,6 +168,7 @@
     <Compile Include="Helpers\VisionHelper.cs" />
     <Compile Include="Helpers\VisionHelper.Image.cs" />
     <Compile Include="Helpers\VisionHelper.Text.cs" />
+    <Compile Include="Models\AnalyzeResultsModel.cs" />
     <Compile Include="Models\MsgObject.cs" />
     <Compile Include="Models\NakedBodyAttribute.cs" />
     <Compile Include="Models\NakedBodyParameterBinding.cs" />
@@ -292,6 +294,7 @@
     <Content Include="Scripts\respond.js" />
     <Content Include="Scripts\respond.min.js" />
     <Content Include="Scripts\_references.js" />
+    <None Include="Views\Home\howhot.cshtml" />
     <Content Include="Views\Home\HowOld.cshtml" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>

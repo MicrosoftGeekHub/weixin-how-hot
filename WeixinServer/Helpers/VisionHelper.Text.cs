@@ -10,6 +10,7 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using WeixinServer.Models;
+
 namespace WeixinServer.Helpers
 {
     public partial class VisionHelper
@@ -84,7 +85,7 @@ namespace WeixinServer.Helpers
                 { "people_", "人" },
                 { "people_baby", "宝宝" },
                 { "people_crowd", "群众" },
-                { "people_group", "人群" },
+                { "people_group", "人" },
                 { "people_hand", "手" },
                 { "people_many", "许多人" },
                 { "people_portrait", "肖像" },
@@ -187,9 +188,8 @@ namespace WeixinServer.Helpers
 
                                 timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage AnalyzeImageAsync Resize end\n", DateTime.Now - this.startTime));
 
-                                faceAgent fa = new faceAgent();
                                 resizedMemoryStream.Seek(0, SeekOrigin.Begin);
-                                taskGetFaces = fa.UploadStreamAndDetectFaces(resizedMemoryStream);
+                                taskGetFaces = this.UploadStreamAndDetectFaces(resizedMemoryStream);
                                 timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage taskGetFaces begin\n", DateTime.Now - this.startTime));
 
 
@@ -201,10 +201,9 @@ namespace WeixinServer.Helpers
                             }
                             else
                             {
-                                faceAgent fa = new faceAgent();
                                 ms4face.Seek(0, SeekOrigin.Begin);
                                 ms.Seek(0, SeekOrigin.Begin);
-                                taskGetFaces = fa.UploadStreamAndDetectFaces(ms);
+                                taskGetFaces = this.UploadStreamAndDetectFaces(ms);
                                 timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage taskGetFaces begin\n", DateTime.Now - this.startTime));
 
 
@@ -361,9 +360,8 @@ namespace WeixinServer.Helpers
                           //      photoBytes = resizedMemoryStream.ToArray();
                           //      timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage AnalyzeImageAsync read Bytes end\n", DateTime.Now - this.startTime));
                                 
-                                faceAgent fa = new faceAgent();
                                 resizedMemoryStream.Seek(0, SeekOrigin.Begin);
-                                taskGetFaces = fa.UploadStreamAndDetectFaces(resizedMemoryStream);
+                                taskGetFaces = this.UploadStreamAndDetectFaces(resizedMemoryStream);
                                 timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage taskGetFaces begin\n", DateTime.Now - this.startTime));
 
 
@@ -374,10 +372,9 @@ namespace WeixinServer.Helpers
                             }
                             else
                             {
-                                faceAgent fa = new faceAgent();
                                 ms4face.Seek(0, SeekOrigin.Begin);
                                 ms.Seek(0, SeekOrigin.Begin);
-                                taskGetFaces = fa.UploadStreamAndDetectFaces(ms);
+                                taskGetFaces = this.UploadStreamAndDetectFaces(ms);
                                 timeLogger.Append(string.Format("{0} VisionHelper::AnalyzeImage taskGetFaces begin\n", DateTime.Now - this.startTime));
                                 
                                 
@@ -749,6 +746,179 @@ namespace WeixinServer.Helpers
         }
 
 
+        private async Task<string> RelationShipPredict(Face leftFace, Face rgtFace)
+        {
+            var ret = await this.faceServiceClient.VerifyAsync(leftFace.FaceId, rgtFace.FaceId);
+            if(ret.Confidence > 0.5)
+            {
+                if (leftFace.Attributes.Gender.Equals(rgtFace.Attributes.Gender))
+                {
+                    return "双胞胎么";
+                }
+                else 
+                {
+                    return "龙凤胎么";
+                }
+                
+            }
+            else if (ret.Confidence > 0.2)
+            {
+                if (leftFace.Attributes.Gender.Equals(rgtFace.Attributes.Gender))
+                {
+                    if (leftFace.Attributes.Gender.Equals("male"))
+                    {
+                        if (Math.Abs(leftFace.Attributes.Age - rgtFace.Attributes.Age) > 15 && Math.Max(leftFace.Attributes.Age, rgtFace.Attributes.Age) > 18)
+                        {
+                            return "父子？";
+                        }
+                        return "兄弟?";
+                    }
+                    else
+                    {
+                        if (Math.Abs(leftFace.Attributes.Age - rgtFace.Attributes.Age) > 15 && Math.Max(leftFace.Attributes.Age, rgtFace.Attributes.Age) > 18)
+                        {
+                            return "母女？";
+                        }
+                        return "姐妹?";
+
+                    }
+                }
+                else
+                {
+                    //var maxAge = Math.Max(leftFace.Attributes.Age, rgtFace.Attributes.Age);
+                    //var minAge = Math.Min(leftFace.Attributes.Age, rgtFace.Attributes.Age);
+
+                    if (leftFace.Attributes.Gender.Equals("male"))
+                    {
+                        if (leftFace.Attributes.Age - rgtFace.Attributes.Age > 15)
+                        {
+                            return "父女?";
+                        }
+                        else if (rgtFace.Attributes.Age - leftFace.Attributes.Age > 15)
+                        {
+                            return "母子?";
+                        }
+                        else if (leftFace.Attributes.Age > rgtFace.Attributes.Age)
+                        {
+                            return "兄妹?";
+                        }
+                        else
+                        {
+                            return "姐弟?";
+                        }
+                      
+                    }
+                    else
+                    {
+                        if (leftFace.Attributes.Age - rgtFace.Attributes.Age > 15)
+                        {
+                            return "母子?";
+                        }
+                        else if (rgtFace.Attributes.Age - leftFace.Attributes.Age > 15)
+                        {
+                            return "父女?";
+                        }
+                        else if (leftFace.Attributes.Age > rgtFace.Attributes.Age)
+                        {
+                            return "姐弟?";
+                        }
+                        else
+                        {
+                            return "兄妹?";
+                        }
+                    }
+                }
+            }
+            else if (ret.Confidence > 0.1)
+            {
+                if (leftFace.Attributes.Gender.Equals(rgtFace.Attributes.Gender))
+                {
+                    if (leftFace.Attributes.Gender.Equals("male"))
+                    {
+                        if (Math.Abs(leftFace.Attributes.Age - rgtFace.Attributes.Age) < 8)
+                        {
+                            return "表兄弟?";
+                        }
+                        return "外甥照舅？";
+                    }
+                    else
+                    {
+                        if (Math.Abs(leftFace.Attributes.Age - rgtFace.Attributes.Age) < 8)
+                        {
+                            return "表姐妹?";
+                        }
+                        return "母女？";
+                    }
+                }
+                else
+                {
+                    if (leftFace.Attributes.Gender.Equals("male"))
+                    {
+                        if (Math.Abs(leftFace.Attributes.Age - rgtFace.Attributes.Age) < 8)
+                        {
+                            return "青梅竹马?";
+                        }
+                        else if (leftFace.Attributes.Age - rgtFace.Attributes.Age > 15)
+                        {
+                            return "父女?";
+                        }
+                        else if (leftFace.Attributes.Age - rgtFace.Attributes.Age > 15)
+                        {
+                            return "母子?";
+                        }
+                        else
+                        {
+                            return "代沟";
+                        }
+                    }
+                    else
+                    {
+                        if (Math.Abs(leftFace.Attributes.Age - rgtFace.Attributes.Age) < 8)
+                        {
+                            return "青梅竹马?";
+                        }
+                        else if (leftFace.Attributes.Age - rgtFace.Attributes.Age > 15)
+                        {
+                            return "母子?";
+                        }
+                        else if (leftFace.Attributes.Age - rgtFace.Attributes.Age > 15)
+                        {
+                            return "父女?";
+                        }
+                        else
+                        {
+                            return "代沟";
+                        }
+                    }
+                }
+            }
+            else
+            {
+                if (leftFace.Attributes.Gender.Equals(rgtFace.Attributes.Gender))
+                {
+                    if (leftFace.Attributes.Gender.Equals("male"))
+                    {
+                        return "异姓兄弟?";
+                    }
+                    else
+                    {
+                        return "异姓姐妹？";
+                    }
+                }
+                else 
+                {
+                    if (Math.Abs(leftFace.Attributes.Age - rgtFace.Attributes.Age) < 8)
+                    {
+                        return "情侣?";
+                    }
+                    else return "隔壁老王？";
+                }
+            }
+            return "不是一个娘养的";
+            
+        }
+
+
         private Tuple<string, string> ShowRichAnalysisResult(AnalysisResult result)
         {
             timeLogger.Append(string.Format("{0} VisionHelper::ShowRichAnalysisResult begin\n", DateTime.Now - this.startTime));
@@ -841,7 +1011,7 @@ namespace WeixinServer.Helpers
             if (result.Categories != null && result.Categories.Length > 0)
             {
                 //res += "Categories : ";
-                desStringWriter.Write(string.Format("画面里有"));
+                desStringWriter.Write(string.Format("画里有"));
                 //var sb = new StringBuilder();
                 string preFix = "";
                 string postFix = "";
@@ -888,6 +1058,11 @@ namespace WeixinServer.Helpers
 
             if (result.RichFaces != null && result.RichFaces.Length > 0)
             {
+                //group faces
+                List<Guid> faceIds = new List<Guid>() ;
+                
+
+
                // var shenPrice = (result.Adult.AdultScore + 2 * result.Adult.RacyScore) * result.RichFaces.Length * 2500;
                // desStringWriter.Write(string.Format("集体肾价：${0:F0}万，打八折只要998！\n", shenPrice));//TODO 少量 or More by Score
                 res += "Faces : ";
@@ -895,8 +1070,11 @@ namespace WeixinServer.Helpers
                 float avgAge = 0.0f, mAvgAge = 0.01f, fAvgAge = 0.01f;
                 var maleAgeMap = new Dictionary<string, int>();
                 var femaleAgeMap = new Dictionary<string, int>();
+                var faceId2FaceMap = new Dictionary<Guid, Face>();
                 foreach (var face in result.RichFaces)
                 {
+                    faceIds.Add(face.FaceId);
+                    faceId2FaceMap[face.FaceId] = face;
                     res += "   Age : " + face.Attributes.Age;
                     avgAge += (float)face.Attributes.Age;
                     res += " Gender : " + face.Attributes.Gender;
@@ -925,9 +1103,33 @@ namespace WeixinServer.Helpers
                     //face.FaceLandmarks.
                 }
 
+                if (result.RichFaces.Length > 1)
+                {
+                    Task.Run(async () =>
+                     {
+                         var ret = await RelationShipPredict(result.RichFaces[0], result.RichFaces[1]);
+                         var hasOrIs = result.RichFaces.Length > 2 ? "有" : "是";
+                         desStringWriter.Write("我猜这{0}个人{1}{2}", NumberToChineseChar(result.RichFaces.Length), hasOrIs, ret);
+                         commentStringWriter.Write("我猜这{0}个人{1}{2}", NumberToChineseChar(result.RichFaces.Length), hasOrIs, ret);
+                     }).Wait();
+                }
+
+                //GroupResult groupResult = null;
+                //Task.Run(async () =>
+                //{
+                //    groupResult = await this.faceServiceClient.GroupAsync(faceIds.ToArray());
+                //}).Wait();
 
 
-
+                //var groups = groupResult.Groups;
+                ////calculate the similarity among different group
+                //foreach (var group in groups)
+                //{
+                //    foreach (var faceId in group)
+                //    {
+                //        var face = faceId2FaceMap[faceId];
+                //    }
+                //}
 
                 //这个大叔很幸福
                 //if (numFemale >= numMale && numMale > 0)

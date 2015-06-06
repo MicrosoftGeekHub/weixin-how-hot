@@ -15,10 +15,10 @@ function getTrans(n) {
     }[n]["cn"]
 }
 
-function searchImages() {
+function searchImagesHacked() {
     var n = $("#searchText").val(),
         t;
-    if (n != null && n.length !== 0) return $("#searchError").css("visibility", "hidden"), t = "/HomeApi/ImageSearch", $.ajax({
+    if (n != null && n.length !== 0) return $("#searchError").css("visibility", "hidden"), t = "/Home/ImageSearch", $.ajax({
         type: "POST",
         url: t,
         data: n,
@@ -39,6 +39,46 @@ function searchImages() {
     }), !1
 }
 
+function searchImages() {
+    var query = $("#searchText").val();
+    if (query == null || query.length === 0) {
+        return;
+    }
+    $("#searchError").css("visibility", "hidden");
+    var servicePath = "/Home/BingImageSearch?query=" + encodeURIComponent(query);
+    $.ajax({
+        type: "POST",
+        url: servicePath,
+        data: {},
+        contentType: false,
+        processData: false,
+        success: function (response) {
+            var jresponse = JSON.parse(response);
+            var imageList = $("#imageList");
+            if (jresponse != null && jresponse.length > 0) {
+                imageList.html("");
+                $.each(jresponse, function (index, element) {
+                    var image = '<img src="' + element.scroll_image_url + '" data-url="' + element.main_image_url + '">';
+                    $(image).appendTo(imageList);
+                    //$(image).attr("url", element.url2);
+
+                });
+                refresh();
+            }
+        },
+        error: function (xhr, status, error) {
+            if (xhr.status === 404) {
+                $("#searchError").html("We did not find any results for " + query + ".");
+            } else {
+                $("#searchError").html("Oops, something went wrong. Please try searching again.");
+            }
+            $("#searchError").css("visibility", "visible");
+        }
+    });
+    return false;
+}
+
+
 function processRequest(n, t, i, r, u) {
     window.location.hash = "results";
     deleteFaceRects();
@@ -51,7 +91,7 @@ function processRequest(n, t, i, r, u) {
     $("#analyzingLabel").html(h);
     var o = {},
         s = !1,
-        f = "/HomeApi/Analyze",
+        f = "/Home/AnalyzeOneImage",
         l = $("#uploadBtn").get(0).files,
         a = $("#isTest").val();
     if (f += "?isTest=" + a, n) {
@@ -97,7 +137,7 @@ function processRequest(n, t, i, r, u) {
                 if (typeof t === "undefined" || !t.analyzeImageResult) {
                     return;
                 }
-
+                return;
                 var danmus = t.analyzeImageResult.split(";")
                 
                 var $thumbContainer = $("#thumbContainer");
@@ -114,7 +154,7 @@ function processRequest(n, t, i, r, u) {
                 var commentEndLeft = -commentTextWidth + thumbnailWidth;
                 var desEndLeft = -desTextWidth + thumbnailWidth;
                 var endTop = - textHeight - thumbnailHeight;
-                var timing = 10; // Sec
+                var timing = 30; // Sec
                 var jokeTop = 100;//280 + thumbnailHeight;
                 var commentTop = thumbnailHeight;//280 + thumbnailHeight;
                 var desTop = 50;//280 + thumbnailHeight;
