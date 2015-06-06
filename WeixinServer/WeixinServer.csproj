@@ -232,6 +232,7 @@
     <Content Include="rsc\jquery.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="rsc\jquery.ui.touch-punch.min.js" />
     <Content Include="rsc\logo1.geekClub.round.png" />
     <Content Include="rsc\microsoft-rev-01.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
