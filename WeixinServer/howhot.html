@@ -4,7 +4,7 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta property="og:image" content="../../rsc/main6_results.png">
-    <meta property="og:site_name" content=你的身材有多火辣?">
+    <meta property="og:site_name" content="你的身材有多火辣?">
     <meta name="description" content="谈画机器人火爆你的世界, 秀出你的火值辣肚!">
     <meta property="og:description" content="谈画机器人火爆你的世界, 秀出你的火值辣肚!">
     <meta property=" og:url" content="http://How-Hot.Me/">
@@ -12,36 +12,38 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>我这么辣，你知道么?</title>
     <link href="../../rsc/css.css" rel="stylesheet">
+    <link href="../../rsc/jquery-ui.min.css" rel="stylesheet">
+    <link href="../../rsc/jquery-ui.theme.min.css" rel="stylesheet">
     <!--<script src="../../rsc/modernizr"></script>-->
     <script type="text/javascript">
-    var appInsights = window.appInsights || function(config) {
-        function s(config) {
-            t[config] = function() {
-                var i = arguments;
-                t.queue.push(function() {
-                    t[config].apply(t, i)
-                })
+        var appInsights = window.appInsights || function (config) {
+            function s(config) {
+                t[config] = function () {
+                    var i = arguments;
+                    t.queue.push(function () {
+                        t[config].apply(t, i)
+                    })
+                }
             }
-        }
-        var t = {
+            var t = {
                 config: config
             },
-            r = document,
-            f = window,
-            e = "script",
-            o = r.createElement(e),
-            i, u;
-        for (o.src = config.url || "//az416426.vo.msecnd.net/scripts/a/ai.0.js", r.getElementsByTagName(e)[0].parentNode.appendChild(o), t.cookie = r.cookie, t.queue = [], i = ["Event", "Exception", "Metric", "PageView", "Trace"]; i.length;) s("track" + i.pop());
-        return config.disableExceptionTracking || (i = "onerror", s("_" + i), u = f[i], f[i] = function(config, r, f, e, o) {
-            var s = u && u(config, r, f, e, o);
-            return s !== !0 && t["_" + i](config, r, f, e, o), s
-        }), t
-    }({
-        instrumentationKey: "cab4fee1-f928-4a15-a726-75cf729d7c21"
-    });
+                r = document,
+                f = window,
+                e = "script",
+                o = r.createElement(e),
+                i, u;
+            for (o.src = config.url || "//az416426.vo.msecnd.net/scripts/a/ai.0.js", r.getElementsByTagName(e)[0].parentNode.appendChild(o), t.cookie = r.cookie, t.queue = [], i = ["Event", "Exception", "Metric", "PageView", "Trace"]; i.length;) s("track" + i.pop());
+            return config.disableExceptionTracking || (i = "onerror", s("_" + i), u = f[i], f[i] = function (config, r, f, e, o) {
+                var s = u && u(config, r, f, e, o);
+                return s !== !0 && t["_" + i](config, r, f, e, o), s
+            }), t
+        }({
+            instrumentationKey: "cab4fee1-f928-4a15-a726-75cf729d7c21"
+        });
 
-    window.appInsights = appInsights;
-    appInsights.trackPageView();
+        window.appInsights = appInsights;
+        appInsights.trackPageView();
     </script>
     <script src="../../rsc/ai.0.js"></script>
     <script src="../../rsc/2873520318.js"></script>
@@ -60,17 +62,16 @@
 
 <body>
     <div style="position: absolute; top: -1000px; left: -1000px;">
-        <img src="../../rsc/logo1.geekClub.round.png" width="268" height="262" alt="">
+        <img src="../../rsc/logo1.geekClub.round.png" width="268" height="262" alt="" />
     </div>
-    <div class="container" style="max-width: 800px;text-align: center ">
+    <div class="container" style="max-width: 800px; text-align: center">
         <div id="header" class="row center-block">
-            <img id="headerimage" src="../../rsc/logo1.geekClub.round.png">
+            <img id="headerimage" src="../../rsc/logo1.geekClub.round.png" />
             <div id="headertext">
                 <div class="row">
                     <div>
-                        <h1 id="picmeh1id">
-                    How-Hot.Me
-                </h1>
+                        <h1 id="picmeh1id">How-Hot.Me
+                        </h1>
                     </div>
                     <div class="subheader">
                         我有多辣? <span id="demoSpan">#谈画机器人</span>
@@ -79,12 +80,14 @@
             </div>
         </div>
         <div id="selectImage">
-             <form role="search" id="searchform" onsubmit="return searchImages()">
+            <form role="search" id="searchform" onsubmit="return searchImages()">
                 <div class="input-group" style="background-color: white">
-                    <span class="input-group-addon" style="padding: 0px 0px 0px 0px; border: none"><img id="bLogo" class="" src="../../rsc/bing2.png" data-bm="3"></span>
-                    <input type="search" name="Search" style="border-style: none;" class="form-control" placeholder="搜索任何图片，人，狗，猫，车..." id="searchText">
+                    <span class="input-group-addon" style="padding: 0px 0px 0px 0px; border: none">
+                        <img id="bLogo" class="" src="../../rsc/bing2.png" data-bm="3" />
+                    </span>
+                    <input type="search" name="Search" style="border-style: none;" class="form-control" placeholder="搜索任何图片，人，狗，猫，车..." id="searchText" />
                     <div class="input-group-btn">
-                        <input name="go" tabindex="0" title="Search" class="b_searchboxSubmit" id="searchsubmit" type="submit" value="Submit Query">
+                        <input name="go" tabindex="0" title="Search" class="b_searchboxSubmit" id="searchsubmit" type="submit" value="Submit Query" />
                     </div>
                 </div>
             </form>
@@ -120,27 +123,30 @@
             <label id="uploadLabel" class="center-block" style="width: 230px;">
                 <button id="uploadFileId" class="btn btn-default action" style="background-color: rgb(174, 117, 11); border-radius: 0" onclick=" document.getElementById(&#39;uploadBtn&#39;).click(); ">
                     <span>
-                <object style="width: 25px; height: 25px" data="../../rsc/browse-icon.svg" type="image/svg+xml">
-                </object>
-            </span> 使用您的玉照
+                        <object style="width: 25px; height: 25px" data="../../rsc/browse-icon.svg" type="image/svg+xml">
+                        </object>
+                    </span>使用您的玉照
                 </button>
-                <input id="uploadBtn" type="file" accept="image/*" style="visibility: hidden; width: 0px; height: 0px">
+                <input id="uploadBtn" type="file" accept="image/*" style="visibility: hidden; width: 0px; height: 0px" />
             </label>
             <p id="maxImageSize" class="help-block center-block bodyfont">
         </div>
         <div id="results" hidden="">
             <h5 id="analyzingLabel" class="bodyfont" style="font-size: Medium; text-align: center; visibility: hidden;"></h5>
             <div id="thumbContainer" class="center-block" style="padding-left: 0px; position: relative;">
-                <img id="thumbnail" src="../../rsc/logo1.geekClub.round.png" class="img-responsive center-block" onerror=" this.onerror = null;this.src = &#39;../../rsc/logo1.geekClub.round.png&#39;;">
+                <img id="thumbnail" src="../../rsc/logo1.geekClub.round.png" class="img-responsive center-block" onerror=" this.onerror = null;this.src = &#39;../../rsc/logo1.geekClub.round.png&#39;;" />
                 <div id="faces">
                     <div></div>
                 </div>
             </div>
-            
-            <button class="btn btn-default center-block action" style="margin-top: 20px; background-color: rgb(174, 117, 11);border-radius:0" onclick=" history.go(-1); ">
-                <span>
-            <img src="../../rsc/photo-icon.png" style="width: 25px; height: 25px">
-        </span> 来张更火辣的!
+
+            <br />
+            <div class="center-block" id="Div1"></div>
+            <br />
+            <div class="center-block" id="slider"></div>
+
+            <button class="btn btn-default center-block action" style="margin-top: 20px; background-color: rgb(174, 117, 11); border-radius: 0" onclick=" history.go(-1); ">
+                <span><img src="../../rsc/photo-icon.png" style="width: 25px; height: 25px" /></span>来张更火辣的!
             </button>
             <div id="jsonEventDiv" style="margin-top: 30px;" hidden="">
                 <pre id="jsonEvent" style="text-align: left"></pre>
@@ -148,24 +154,23 @@
         </div>
         <div id="social_share" style="display: block;">
             <span class="share_to fl"></span>
-            
+
             <div class="weixin_container" id="weixin_container">
-                <!--<div class="weixin_container_head">
-                    <span>关注极客家微信公众号</span>
-                   
-                --></div>
                 <div class="weixin_container_main">
-                    <img src="../../rsc/qrcode.jpg">
+                    <img src="../../rsc/qrcode.jpg" />
                 </div>
-                <div class="weixin_container_foot">打开微信，点击底部的“发现”，
-                    <br>使用“扫一扫”即可关注。</div>
+                <div class="weixin_container_foot">
+                    打开微信，点击底部的“发现”，
+                    <br />
+                    使用“扫一扫”即可关注。
+                </div>
             </div>
         </div>
 
-        
-        <input data-val="true" data-val-required="The IsTest field is required." id="isTest" name="isTest" type="hidden" value="False">
+        <input data-val="true" data-val-required="The IsTest field is required." id="isTest" name="isTest" type="hidden" value="False" />
     </div>
     <script src="../../rsc/jquery.js"></script>
+    <script src="../../rsc/jquery-ui.min.js"></script>
     <script src="../../rsc/bootstrap.js"></script>
     <script src="../../rsc/javascript.js"></script>
     <script src="../../rsc/demo.js"></script>

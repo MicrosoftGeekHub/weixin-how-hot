@@ -239,10 +239,10 @@ namespace WeixinServer.Helpers
                 if (string.IsNullOrEmpty(resImg))
                 {
                     //return new RichResult(timeLogger.ToString(), resTxt, errLogger.ToString(), this.returnImageUrl, photoBytes);
-                    return new RichResult(timeLogger.ToString(), resTxt.Item2, errLogger.ToString(), this.returnImageUrl);
+                    return new RichResult(timeLogger.ToString(), resTxt.Item2, errLogger.ToString(), this.returnImageUrl, analysisResult);
                 }
 
-                return new RichResult(timeLogger.ToString(), resImg, errLogger.ToString(), this.returnImageUrl);
+                return new RichResult(timeLogger.ToString(), resImg, errLogger.ToString(), this.returnImageUrl, analysisResult);
                 }
                 catch (Microsoft.ProjectOxford.Vision.ClientException e)
                 {
@@ -250,13 +250,13 @@ namespace WeixinServer.Helpers
                     {
                         var errMsg = string.Format("ClientException e.Error.Message:{0}", e.Error.Message);
                         errLogger.Append(errMsg);
-                        return new RichResult(timeLogger.ToString(), errMsg, errLogger.ToString());
+                        return new RichResult(timeLogger.ToString(), errMsg, errLogger.ToString(), analysisResult);
                     }
                     else
                     {
                         var errMsg = string.Format("ClientException e.Message:{0}", e.Message);
                         errLogger.Append(errMsg);
-                        return new RichResult(timeLogger.ToString(), errMsg, errLogger.ToString());
+                        return new RichResult(timeLogger.ToString(), errMsg, errLogger.ToString(), analysisResult);
                     }
 
 
@@ -266,7 +266,7 @@ namespace WeixinServer.Helpers
                     timeLogger.Append(string.Format("Exception Time: {0}\n ", DateTime.Now));
                     var errMsg = string.Format("Exception e.Message:{0}", e.Message);
                     errLogger.Append(errMsg);
-                    return new RichResult(timeLogger.ToString(), errMsg, errLogger.ToString());
+                    return new RichResult(timeLogger.ToString(), errMsg, errLogger.ToString(), analysisResult);
 
                 }
                 finally
@@ -403,7 +403,7 @@ namespace WeixinServer.Helpers
                     {
                         var errMsg = string.Format("Invalid image path or Url:{0}\n" + imagePathOrUrl);
                         errLogger.Append(errMsg);
-                        return new RichResult(timeLogger.ToString(), errMsg, errLogger.ToString());
+                        return new RichResult(timeLogger.ToString(), errMsg, errLogger.ToString(), analysisResult);
                     }
                 }
                 catch (Microsoft.ProjectOxford.Vision.ClientException e)
@@ -412,13 +412,13 @@ namespace WeixinServer.Helpers
                     {
                         var errMsg = string.Format("ClientException e.Error.Message:{0}", e.Error.Message);
                         errLogger.Append(errMsg);
-                        return new RichResult(timeLogger.ToString(), errMsg, errLogger.ToString());
+                        return new RichResult(timeLogger.ToString(), errMsg, errLogger.ToString(), analysisResult);
                     }
                     else
                     {
                         var errMsg = string.Format("ClientException e.Message:{0}", e.Message);
                         errLogger.Append(errMsg);
-                        return new RichResult(timeLogger.ToString(), errMsg, errLogger.ToString());
+                        return new RichResult(timeLogger.ToString(), errMsg, errLogger.ToString(), analysisResult);
                     }
 
 
@@ -428,7 +428,7 @@ namespace WeixinServer.Helpers
                     timeLogger.Append(string.Format("Exception Time: {0}\n ", DateTime.Now));
                     var errMsg = string.Format("Exception e.Message:{0}", e.Message);
                     errLogger.Append(errMsg);
-                    return new RichResult(timeLogger.ToString(), errMsg, errLogger.ToString());
+                    return new RichResult(timeLogger.ToString(), errMsg, errLogger.ToString(), analysisResult);
 
                 }
                 finally
@@ -450,10 +450,10 @@ namespace WeixinServer.Helpers
                 if (string.IsNullOrEmpty(resImg))
                 {
                     //return new RichResult(timeLogger.ToString(), resTxt, errLogger.ToString(), this.returnImageUrl, photoBytes);
-                    return new RichResult(timeLogger.ToString(), resTxt.Item2, errLogger.ToString(), this.returnImageUrl);
+                    return new RichResult(timeLogger.ToString(), resTxt.Item2, errLogger.ToString(), this.returnImageUrl, analysisResult);
                 }
 
-                return new RichResult(timeLogger.ToString(), resImg, errLogger.ToString(), this.returnImageUrl);
+                return new RichResult(timeLogger.ToString(), resImg, errLogger.ToString(), this.returnImageUrl, analysisResult);
             }
         }
 

@@ -17,15 +17,37 @@ namespace WeixinServer
         private static Dictionary<string, List<Tuple<string, string>>> cate2ListMap = new Dictionary<string, List<Tuple<string, string>>>();
         private static Dictionary<string, string> cateMap = null;
         private static Dictionary<string, string> cate2CommentMap = null;
+
+        public static Dictionary<int, List<Tuple<int, int, int, int, string>>> Age2FaceListMap = new Dictionary<int, List<Tuple<int, int, int, int, string>>>();
+
         public static ImageSearchClient ImageSearchClient;
         
         public void InitializeImageSearchClient()
         {
-            ImageSearchClient = new ImageSearchClient("https://www.bing.com/api/v3/images/search?appid=D41D8CD98F00B204E9800998ECF8427E7B0C1FF5&amp;mkt=zh-CN");
+            ImageSearchClient = new ImageSearchClient("https://www.bing.com/api/v3/images/search?appid=8CAC7991E5BF99536524FA8020425BE86ECE21D8&amp;mkt=zh-CN");
         }
         public static Dictionary<string, List<Tuple<string, string>>> GetCateMap()
         {
             return cate2ListMap;
+        }
+
+        public static void InitFacesMap()
+        {
+            var ret = dbContext.Faces.Select(p => new { p.age, p.gender, p.smile, p.wearingGlasses, p.headPose, p.url }).AsEnumerable();
+            foreach (var line in ret)
+            {
+                var key = 10 * (line.age / 10);
+                var val = new Tuple<int, int, int, int, string>(line.gender, line.smile, line.wearingGlasses, line.headPose, line.url);
+                if (!Age2FaceListMap.ContainsKey(key))
+                {
+                    Age2FaceListMap[key] = new List<Tuple<int, int, int, int, string>>();
+                }
+                Age2FaceListMap[key].Add(val);
+            }
+            //cateMap = dbContext.Story.ToDictionary(p => p.category,p => p.text);
+            //cate2CommentMap = dbContext.Story.ToDictionary(p => p.category, p => p.text_comment);
+            ////dbContext.Dispose();
+            
         }
         public static void InitCateMap()
         {
@@ -45,7 +67,7 @@ namespace WeixinServer
             }
             //cateMap = dbContext.Story.ToDictionary(p => p.category,p => p.text);
             //cate2CommentMap = dbContext.Story.ToDictionary(p => p.category, p => p.text_comment);
-            dbContext.Dispose();
+            //dbContext.Dispose();
         }
         protected void Application_Start()
         {
@@ -57,6 +79,7 @@ namespace WeixinServer
             BundleConfig.RegisterBundles(BundleTable.Bundles);
             InitializeImageSearchClient();
             InitCateMap();
+            InitFacesMap();
         }
 
         protected void Application_BeginRequest(object sender, EventArgs e)

@@ -17,6 +17,7 @@ using System.Net.Http.Headers;
 using System.Web.Http;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
+using Microsoft.ProjectOxford.Face.Contract;
 
 //using UpYunLibrary;
 namespace WeixinServer.Controllers
@@ -642,25 +643,24 @@ namespace WeixinServer.Controllers
 
                 }
 
+                res.stepSize = 5;
+                res.minAge = res.stepSize * (int)((int)res.analysisResult.RichFaces[0].Attributes.Age / (float)res.stepSize) + res.stepSize;
+                res.maxAge = 90;
 
-
-                //Trace.WriteLine(string.Format("Completed Analyze Request: RequestId: {0};", requestId));
-                //return Json(JsonConvert.SerializeObject(res),(Newtonsoft.Json.JsonSerializerSettings) "application/json", System.Text.Encoding.UTF8);
-
+                var urls = new List<string>();
+                for (var age = res.minAge; age <= res.maxAge; age += res.stepSize)
+                {
+                    var url = GetImageUrlByAge(age, res.analysisResult.RichFaces[0]);
+                    urls.Add(!string.IsNullOrEmpty(url) ? url : "");
+                }
+                res.agingImgUrls = urls.ToArray();
 
                 HttpResponseMessage result = new HttpResponseMessage(HttpStatusCode.OK);
-                //return Json(JsonConvert.SerializeObject(Json(JsonConvert.SerializeObject(res)).Content));
                 return Json(JsonConvert.SerializeObject(res), "application/json");
-                //result.Content = new StringContent(JsonConvert.SerializeObject(Json(JsonConvert.SerializeObject(res))));//new StringContent(JsonConvert.SerializeObject(res));
-                //result.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-                //return result;
-
-                //Error	20	Argument 2: cannot convert from 'string' to 'Newtonsoft.Json.JsonSerializerSettings'
-
             }
             catch (Exception e)
             {
-                return null;//new HttpStatusCodeResult(HttpStatusCode.InternalServerError, e.Message);
+                return new HttpStatusCodeResult(HttpStatusCode.InternalServerError, e.Message);
             }
         }
 
@@ -711,50 +711,24 @@ namespace WeixinServer.Controllers
             }
         }
 
-        [System.Web.Mvc.HttpPost]
-        public async Task<ActionResult> GetImageByAge (int age)
+        public string GetImageUrlByAge(int age, Face face)
         {
-
-            string requestId = Guid.NewGuid().ToString();
-            VisionHelper vision = new VisionHelper(GetVisionAPIkey(), fontPath, DateTime.Now, fontPath);
-            RichResult res = null;
-            string postString = string.Empty;
-
-            using (Stream stream = Request.InputStream)
+            //get images with the given age
+            try
             {
-                byte[] postBytes = new byte[stream.Length];
-                stream.Read(postBytes, 0, (int)stream.Length);
-                postString = Encoding.Unicode.GetString(postBytes);
-                return Json(JsonConvert.SerializeObject(postString), "application/json");
-            }
-
-            Stopwatch stopwatch = Stopwatch.StartNew();
-            
-            //if (string.Equals(Request.Headers.GetType(), "application/octet-stream"))
-            //{
-            // contentLength = Request.Content.;
-            //contentLength = Request.ContentLength;      
-            //var stream = new MemoryStream();
-            //await Request.Content.CopyToAsync(stream);
-            //stream.Seek(0, System.IO.SeekOrigin.Begin);
-            res = await vision.AnalyzeImage(Request.InputStream);
-
-
-
-
-            //Trace.WriteLine(string.Format("Completed Analyze Request: RequestId: {0};", requestId));
-            //return Json(JsonConvert.SerializeObject(res),(Newtonsoft.Json.JsonSerializerSettings) "application/json", System.Text.Encoding.UTF8);
-
-
-            HttpResponseMessage result = new HttpResponseMessage(HttpStatusCode.OK);
-            //return Json(JsonConvert.SerializeObject(Json(JsonConvert.SerializeObject(res)).Content));
-            return Json(JsonConvert.SerializeObject(res), "application/json");
-            //result.Content = new StringContent(JsonConvert.SerializeObject(Json(JsonConvert.SerializeObject(res))));//new StringContent(JsonConvert.SerializeObject(res));
-            //result.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-            //return result;
-
-            //Error	20	Argument 2: cannot convert from 'string' to 'Newtonsoft.Json.JsonSerializerSettings'
-
+                var list = MvcApplication.Age2FaceListMap[age];
+                string url = "";
+                foreach (var line in list)
+                {
+                    var gender = line.Item1;
+                    int faceGender = 1; //male
+                    if (! face.Attributes.Gender.Equals("male"))
+                        faceGender = 2;
+                    if (gender != faceGender) continue;
+                    url = line.Item5;
+                    return url;
+                }
+                return url;
             }
             catch (Exception e)
             {
