@@ -718,8 +718,13 @@ namespace WeixinServer.Controllers
             //get images with the given age
             try
             {
+                string requestId = Guid.NewGuid().ToString();
+                VisionHelper vision = new VisionHelper(GetVisionAPIkey(), fontPath, DateTime.Now, fontPath);
+                RichResult res = null;
+                string postString = string.Empty;
+
                 var list = MvcApplication.Age2FaceListMap[age];
-                string url = "";
+                var url = "";
                 var urlList = new List<string>();
                 var random = new Random();
                 int idx = 0;
@@ -727,7 +732,7 @@ namespace WeixinServer.Controllers
                 {
                     var gender = line.Item1;
                     int faceGender = 1; //male
-                    if (! face.Attributes.Gender.Equals("male"))
+                    if (!face.Attributes.Gender.Equals("male"))
                         faceGender = 2;
                     if (gender != faceGender) continue;
                     urlList.Add(line.Item5);
