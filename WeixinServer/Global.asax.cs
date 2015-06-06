@@ -21,7 +21,7 @@ namespace WeixinServer
         
         public void InitializeImageSearchClient()
         {
-            ImageSearchClient = new ImageSearchClient("https://www.bing.com/api/v3/images/search?appid=B7913ED52E4F488F1E0BB0449C2041467897EAA5&amp;mkt=zh-CN");
+            ImageSearchClient = new ImageSearchClient("https://www.bing.com/api/v3/images/search?appid=D41D8CD98F00B204E9800998ECF8427E7B0C1FF5&amp;mkt=zh-CN");
         }
         public static Dictionary<string, List<Tuple<string, string>>> GetCateMap()
         {

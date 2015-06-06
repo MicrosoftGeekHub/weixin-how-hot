@@ -85,7 +85,7 @@ namespace WeixinServer.Helpers
                 { "people_", "人" },
                 { "people_baby", "宝宝" },
                 { "people_crowd", "群众" },
-                { "people_group", "人群" },
+                { "people_group", "人" },
                 { "people_hand", "手" },
                 { "people_many", "许多人" },
                 { "people_portrait", "肖像" },
@@ -751,9 +751,9 @@ namespace WeixinServer.Helpers
             var ret = await this.faceServiceClient.VerifyAsync(leftFace.FaceId, rgtFace.FaceId);
             if(ret.Confidence > 0.5)
             {
-                if (!leftFace.Attributes.Gender.Equals(rgtFace.Attributes.Gender))
+                if (leftFace.Attributes.Gender.Equals(rgtFace.Attributes.Gender))
                 {
-                    return "同胞胎么";
+                    return "双胞胎么";
                 }
                 else 
                 {
@@ -767,7 +767,7 @@ namespace WeixinServer.Helpers
                 {
                     if (leftFace.Attributes.Gender.Equals("male"))
                     {
-                        if (Math.Abs(leftFace.Attributes.Age - rgtFace.Attributes.Age) < 15 && Math.Max(leftFace.Attributes.Age, rgtFace.Attributes.Age) > 18)
+                        if (Math.Abs(leftFace.Attributes.Age - rgtFace.Attributes.Age) > 15 && Math.Max(leftFace.Attributes.Age, rgtFace.Attributes.Age) > 18)
                         {
                             return "父子？";
                         }
@@ -775,7 +775,7 @@ namespace WeixinServer.Helpers
                     }
                     else
                     {
-                        if (Math.Abs(leftFace.Attributes.Age - rgtFace.Attributes.Age) < 15 && Math.Max(leftFace.Attributes.Age, rgtFace.Attributes.Age) > 18)
+                        if (Math.Abs(leftFace.Attributes.Age - rgtFace.Attributes.Age) > 15 && Math.Max(leftFace.Attributes.Age, rgtFace.Attributes.Age) > 18)
                         {
                             return "母女？";
                         }
@@ -785,42 +785,46 @@ namespace WeixinServer.Helpers
                 }
                 else
                 {
+                    //var maxAge = Math.Max(leftFace.Attributes.Age, rgtFace.Attributes.Age);
+                    //var minAge = Math.Min(leftFace.Attributes.Age, rgtFace.Attributes.Age);
+
                     if (leftFace.Attributes.Gender.Equals("male"))
                     {
-                        if (Math.Abs(leftFace.Attributes.Age - rgtFace.Attributes.Age) < 8)
-                        {
-                            return "子妹俩?";
-                        }
-                        else if (leftFace.Attributes.Age - rgtFace.Attributes.Age > 15)
+                        if (leftFace.Attributes.Age - rgtFace.Attributes.Age > 15)
                         {
                             return "父女?";
                         }
-                        else if (leftFace.Attributes.Age - rgtFace.Attributes.Age < 15)
+                        else if (rgtFace.Attributes.Age - leftFace.Attributes.Age > 15)
                         {
                             return "母子?";
                         }
+                        else if (leftFace.Attributes.Age > rgtFace.Attributes.Age)
+                        {
+                            return "兄妹?";
+                        }
                         else
                         {
-                            return "代沟";
+                            return "姐弟?";
                         }
+                      
                     }
                     else
                     {
-                        if (Math.Abs(leftFace.Attributes.Age - rgtFace.Attributes.Age) < 8)
-                        {
-                            return "子妹俩?";
-                        }
-                        else if (leftFace.Attributes.Age - rgtFace.Attributes.Age > 15)
+                        if (leftFace.Attributes.Age - rgtFace.Attributes.Age > 15)
                         {
                             return "母子?";
                         }
-                        else if (leftFace.Attributes.Age - rgtFace.Attributes.Age < 15)
+                        else if (rgtFace.Attributes.Age - leftFace.Attributes.Age > 15)
                         {
                             return "父女?";
                         }
+                        else if (leftFace.Attributes.Age > rgtFace.Attributes.Age)
+                        {
+                            return "姐弟?";
+                        }
                         else
                         {
-                            return "代沟";
+                            return "兄妹?";
                         }
                     }
                 }
@@ -904,7 +908,10 @@ namespace WeixinServer.Helpers
                 else 
                 {
                     if (Math.Abs(leftFace.Attributes.Age - rgtFace.Attributes.Age) < 8)
+                    {
                         return "情侣?";
+                    }
+                    else return "隔壁老王？";
                 }
             }
             return "不是一个娘养的";

@@ -689,7 +689,6 @@ namespace WeixinServer.Controllers
             return result;
         }
 
-
         [System.Web.Mvc.HttpPost]
         public async Task<ActionResult> BingImageSearch(string query)
         {
@@ -709,6 +708,57 @@ namespace WeixinServer.Controllers
             {
                 //Telemetry.TrackError(string.Format("Error While Searching: {0}; Error:{1}", query, e.ToString()), requestId);
                 return new HttpStatusCodeResult(HttpStatusCode.InternalServerError, "Error");
+            }
+        }
+
+        [System.Web.Mvc.HttpPost]
+        public async Task<ActionResult> GetImageByAge (int age)
+        {
+
+            string requestId = Guid.NewGuid().ToString();
+            VisionHelper vision = new VisionHelper(GetVisionAPIkey(), fontPath, DateTime.Now, fontPath);
+            RichResult res = null;
+            string postString = string.Empty;
+
+            using (Stream stream = Request.InputStream)
+            {
+                byte[] postBytes = new byte[stream.Length];
+                stream.Read(postBytes, 0, (int)stream.Length);
+                postString = Encoding.Unicode.GetString(postBytes);
+                return Json(JsonConvert.SerializeObject(postString), "application/json");
+            }
+
+            Stopwatch stopwatch = Stopwatch.StartNew();
+            
+            //if (string.Equals(Request.Headers.GetType(), "application/octet-stream"))
+            //{
+            // contentLength = Request.Content.;
+            //contentLength = Request.ContentLength;      
+            //var stream = new MemoryStream();
+            //await Request.Content.CopyToAsync(stream);
+            //stream.Seek(0, System.IO.SeekOrigin.Begin);
+            res = await vision.AnalyzeImage(Request.InputStream);
+
+
+
+
+            //Trace.WriteLine(string.Format("Completed Analyze Request: RequestId: {0};", requestId));
+            //return Json(JsonConvert.SerializeObject(res),(Newtonsoft.Json.JsonSerializerSettings) "application/json", System.Text.Encoding.UTF8);
+
+
+            HttpResponseMessage result = new HttpResponseMessage(HttpStatusCode.OK);
+            //return Json(JsonConvert.SerializeObject(Json(JsonConvert.SerializeObject(res)).Content));
+            return Json(JsonConvert.SerializeObject(res), "application/json");
+            //result.Content = new StringContent(JsonConvert.SerializeObject(Json(JsonConvert.SerializeObject(res))));//new StringContent(JsonConvert.SerializeObject(res));
+            //result.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+            //return result;
+
+            //Error	20	Argument 2: cannot convert from 'string' to 'Newtonsoft.Json.JsonSerializerSettings'
+
+            }
+            catch (Exception e)
+            {
+                return null;//new HttpStatusCodeResult(HttpStatusCode.InternalServerError, e.Message);
             }
         }
     }
