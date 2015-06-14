@@ -238,9 +238,11 @@ namespace WeixinServer.Helpers
                         faceDetect.FaceRectangle.Top, faceDetect.FaceRectangle.Width * 2, f.Height);
 
                     LinearGradientBrush b = new LinearGradientBrush(fr,
-                                                                    ColorTranslator.FromHtml("#FF6493"),
-                                                                    ColorTranslator.FromHtml("#D00F14"),
-                                                                    90);
+                                                                    System.Drawing.Color.Aqua,
+                                                                    System.Drawing.Color.DodgerBlue,
+                                                                    ////ColorTranslator.FromHtml("#FF6493"),
+                                                                    ////ColorTranslator.FromHtml("#D00F14"),
+                                                                    90);           //// the upper text 
 
                     //this makes the gradient repeat for each text line
                     System.Drawing.Rectangle fr2 = new System.Drawing.Rectangle(faceDetect.FaceRectangle.Left,
@@ -502,11 +504,15 @@ namespace WeixinServer.Helpers
 
                 //this makes the gradient repeat for each text line
                 System.Drawing.Rectangle fr = new System.Drawing.Rectangle(0, bmp.Height - 2 * f.Height, bmp.Width, f.Height);
-                LinearGradientBrush b = new LinearGradientBrush(fr,
-                                                                ColorTranslator.FromHtml("#FF6493"),
-                                                                ColorTranslator.FromHtml("#D00F14"),
-                                                                90);
+                ////LinearGradientBrush b = new LinearGradientBrush(fr,
+                ////                                                ColorTranslator.FromHtml("#FF6493"),
+                ////                                                ColorTranslator.FromHtml("#D00F14"),
+                ////                                                90);
 
+                LinearGradientBrush b = new LinearGradientBrush(fr,
+                                                System.Drawing.Color.Aqua,
+                                                System.Drawing.Color.DodgerBlue,
+                                                90);           //// the upper text 
                 //this will be the rectangle used to draw and auto-wrap the text.
                 //basically = image size
                 System.Drawing.Rectangle r;
