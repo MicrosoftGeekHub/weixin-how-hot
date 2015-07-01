@@ -745,6 +745,27 @@ namespace WeixinServer.Helpers
             Console.ResetColor();
         }
 
+        private double CreditsPredict(Face leftFace)
+        {
+            double res = 0;
+            //age
+            var age = leftFace.Attributes.Age;
+            res += 1000.0 / (Math.Abs(age - 30) + 10);                    
+
+            //eyes
+            var lm = leftFace.FaceLandmarks;
+            var emLargeRate = DistanceSquare(lm.EyeLeftBottom, lm.EyeLeftTop) / DistanceSquare(lm.EyeLeftInner, lm.EyeLeftOuter);
+            //var mouthLargeRate = DistanceSquare(lm.UpperLipBottom, lm.UnderLipTop) / DistanceSquare(lm.EyeLeftInner, lm.EyeRightInner);
+
+            res += emLargeRate * 400;
+            //gender
+
+            //mouth
+            var lipThickRate = DistanceSquare(lm.UpperLipBottom, lm.UpperLipTop) / DistanceSquare(lm.MouthRight, lm.MouthLeft);
+            res += lipThickRate * 400;
+
+            return res;
+        }
 
         private async Task<string> RelationShipPredict(Face leftFace, Face rgtFace)
         {
@@ -1103,16 +1124,22 @@ namespace WeixinServer.Helpers
                     //face.FaceLandmarks.
                 }
 
+                
                 if (result.RichFaces.Length > 1)
                 {
                     Task.Run(async () =>
                      {
                          var ret = await RelationShipPredict(result.RichFaces[0], result.RichFaces[1]);
                          var hasOrIs = result.RichFaces.Length > 2 ? "有" : "是";
-                         desStringWriter.Write("我猜这{0}个人{1}{2}", NumberToChineseChar(result.RichFaces.Length), hasOrIs, ret);
-                         commentStringWriter.Write("我猜这{0}个人{1}{2}", NumberToChineseChar(result.RichFaces.Length), hasOrIs, ret);
+                         desStringWriter.Write("我猜这{0}个人{1}{2}\n", NumberToChineseChar(result.RichFaces.Length), hasOrIs, ret);
+                         commentStringWriter.Write("我猜这{0}个人{1}{2}\n", NumberToChineseChar(result.RichFaces.Length), hasOrIs, ret);
                      }).Wait();
                 }
+
+                var credits = CreditsPredict(result.RichFaces[0]);
+                desStringWriter.Write("这{0}个人信用值高达{1:F0}分\n",
+                    NumberToChineseChar(result.RichFaces.Length), credits);
+
 
                 //GroupResult groupResult = null;
                 //Task.Run(async () =>
