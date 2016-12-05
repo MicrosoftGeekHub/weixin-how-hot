@@ -24,12 +24,12 @@ namespace Microsoft.ProjectOxford.Vision
         /// <summary>
         /// The service host
         /// </summary>
-        private const string ServiceHost = "https://api.projectoxford.ai/vision/v1";
+        private const string ServiceHost = "https://api.projectoxford.ai/vision/v1.0";
 
         /// <summary>
         /// The analyze query
         /// </summary>
-        private const string AnalyzeQuery = "analyses";
+        private const string AnalyzeQuery = "analyze";
 
         /// <summary>
         /// The subscription key name
