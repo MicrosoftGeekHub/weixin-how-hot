@@ -60,6 +60,7 @@ namespace WeixinServer
         public string text { get; set; }
         public string text_comment { get; set; }
     }
+
     public sealed class Token
     {
         [Key]

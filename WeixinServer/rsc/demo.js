@@ -15,7 +15,47 @@ function getTrans(n) {
     }[n]["cn"]
 }
 
+
 function searchImages() {
+    var query = $("#searchText").val();
+    if (query == null || query.length === 0) {
+        return;
+    }
+    $("#searchError").css("visibility", "hidden");
+    var servicePath = "/HomeApi/BingImageSearch?query=" + encodeURIComponent(query);
+    $.ajax({
+        type: "POST",
+        url: servicePath,
+        data: {},
+        contentType: false,
+        processData: false,
+        success: function (response) {
+            var jresponse = JSON.parse(response);
+            var imageList = $("#imageList");
+            if (jresponse != null && jresponse.length > 0) {
+                imageList.html("");
+                $.each(jresponse, function (index, element) {
+                    var image = '<img src="' + element.scroll_image_url + '" data-url="' + element.main_image_url + '">';
+                    $(image).appendTo(imageList);
+                    //$(image).attr("url", element.url2);
+
+                });
+                refresh();
+            }
+        },
+        error: function (xhr, status, error) {
+            if (xhr.status === 404) {
+                $("#searchError").html("We did not find any results for " + query + ".");
+            } else {
+                $("#searchError").html("Oops, something went wrong. Please try searching again.");
+            }
+            $("#searchError").css("visibility", "visible");
+        }
+    });
+    return false;
+}
+
+function searchImagesHacked() {
     var n = $("#searchText").val(),
         t;
     if (n != null && n.length !== 0) return $("#searchError").css("visibility", "hidden"), t = "/HomeApi/ImageSearch", $.ajax({
@@ -185,6 +225,7 @@ function updateThumbnail(n) {
     var t = document.getElementById("thumbnail");
     t.setAttribute("src", n)
 }
+
 
 function drawFaceRects() {
     var n, t;

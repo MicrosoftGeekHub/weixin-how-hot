@@ -194,6 +194,7 @@
     <Content Include="rsc\ai.0.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="rsc\bing2.png" />
     <Content Include="rsc\bootstrap.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -282,7 +283,9 @@
     <Content Include="fonts\segoeui.ttf" />
     <Content Include="fonts\segoeuil.ttf" />
     <Content Include="fonts\seguisb.ttf" />
+    <None Include="Properties\PublishProfiles\msftgeekblog - FTP %282%29.pubxml" />
     <None Include="Properties\PublishProfiles\msftgeekblog - FTP.pubxml" />
+    <None Include="Properties\PublishProfiles\msftgeekblog - Web Deploy %282%29.pubxml" />
     <None Include="Properties\PublishProfiles\msftgeekblog - Web Deploy.pubxml" />
     <None Include="Properties\PublishProfiles\msftgeekblog.pubxml" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />

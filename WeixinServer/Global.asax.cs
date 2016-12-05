@@ -7,6 +7,9 @@ using System.Web.Optimization;
 using System.Web.Routing;
 using WeixinServer.Models;
 using System.Web.Http;
+using WeixinServer.Helpers;
+using System.Configuration;
+
 namespace WeixinServer
 {
     public class MvcApplication : System.Web.HttpApplication
@@ -15,10 +18,23 @@ namespace WeixinServer
         private static Dictionary<string, List<Tuple<string, string>>> cate2ListMap = new Dictionary<string, List<Tuple<string, string>>>();
         private static Dictionary<string, string> cateMap = null;
         private static Dictionary<string, string> cate2CommentMap = null;
+        public static ImageSearchClient ImageSearchClient;
+
         public static Dictionary<string, List<Tuple<string, string>>> GetCateMap()
         {
             return cate2ListMap;
         }
+
+        public void InitializeImageSearchClient()
+        {
+            var imageSearchBaseUrl = ConfigurationManager.AppSettings["ImageSearchBaseUrl"];
+            if (imageSearchBaseUrl != null)
+            {
+                ImageSearchClient = new ImageSearchClient(imageSearchBaseUrl);
+            }
+
+        }
+
         public static void InitCateMap()
         {
         //    var ret =
@@ -49,6 +65,7 @@ namespace WeixinServer
             BundleConfig.RegisterBundles(BundleTable.Bundles);
             //Server.Transfer(Request.Url.AbsolutePath + "howhot.html");
             InitCateMap();
+            InitializeImageSearchClient();
         }
 
         protected void Application_BeginRequest(object sender, EventArgs e)

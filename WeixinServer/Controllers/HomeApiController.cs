@@ -82,6 +82,29 @@ namespace WeixinServer.Controllers
         }
         private string fontPath = System.Web.HttpContext.Current.Server.MapPath(@"~\App_Data\xujl-font.ttf");
         private string md5;
+
+        [System.Web.Mvc.HttpPost]
+        public async Task<ActionResult> BingImageSearch(string query)
+        {
+            string requestId = Guid.NewGuid().ToString();
+            try
+            {
+                //Trace.WriteLine(string.Format("Start Search Request: RequestId: {0};", requestId));
+                var results = await MvcApplication.ImageSearchClient.SearchImages(query);
+                if (results == null || results.Length == 0)
+                {
+                    return HttpNotFound();
+                }
+                //Trace.WriteLine(string.Format("Completed Search Request: RequestId: {0};", requestId));
+                return Json(JsonConvert.SerializeObject(results), "application/json");
+            }
+            catch (Exception e)
+            {
+                //Telemetry.TrackError(string.Format("Error While Searching: {0}; Error:{1}", query, e.ToString()), requestId);
+                return new HttpStatusCodeResult(HttpStatusCode.InternalServerError, "Error");
+            }
+        }
+
         [System.Web.Mvc.HttpPost]
         public async Task<HttpResponseMessage> Analyze(string faceUrl = "", string photoName = "")
         {

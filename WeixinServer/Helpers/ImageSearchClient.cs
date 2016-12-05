@@ -11,7 +11,7 @@ using System.Web;
 using System.Web.Mvc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-
+using System.Configuration;
 namespace WeixinServer.Helpers
 {
     public class ImageSearchClient
@@ -28,8 +28,9 @@ namespace WeixinServer.Helpers
             using (var client = new HttpClient())
             {
                 client.Timeout = TimeSpan.FromSeconds(5);
-                client.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("IIMLBuildDemo", "1"));
+                //client.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("IIMLBuildDemo", "1"));
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                client.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", ConfigurationManager.AppSettings["BingSearchSubscriptionKey"]);
                 // new bing api
                 var result =
                     await
