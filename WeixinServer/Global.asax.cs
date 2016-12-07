@@ -8,6 +8,7 @@ using System.Web.Routing;
 using WeixinServer.Models;
 using System.Web.Http;
 using WeixinServer.Helpers;
+using System.Configuration;
 namespace WeixinServer
 {
     public class MvcApplication : System.Web.HttpApplication
@@ -21,10 +22,14 @@ namespace WeixinServer
         public static Dictionary<int, List<Tuple<int, int, int, int, string>>> Age2FaceListMap = new Dictionary<int, List<Tuple<int, int, int, int, string>>>();
 
         public static ImageSearchClient ImageSearchClient;
-        
+
         public void InitializeImageSearchClient()
         {
-            ImageSearchClient = new ImageSearchClient("https://www.bing.com/api/v3/images/search?appid=8CAC7991E5BF99536524FA8020425BE86ECE21D8&amp;mkt=zh-CN");
+            var imageSearchBaseUrl = ConfigurationManager.AppSettings["ImageSearchBaseUrl"];
+            if (imageSearchBaseUrl != null)
+            {
+                ImageSearchClient = new ImageSearchClient(imageSearchBaseUrl);
+            }
         }
         public static Dictionary<string, List<Tuple<string, string>>> GetCateMap()
         {
@@ -54,7 +59,8 @@ namespace WeixinServer
         //    var ret =
         //    from jokes in dbContext.Story
         //    select new {jokes.category, jokes.text_comment, jokes.text};
-            var ret = dbContext.Story.Select(p => new { p.category, p.text, p.text_comment }).AsEnumerable();
+            //var ret = dbContext.Story.Select(p => new { p.category, p.text, p.text_comment }).AsEnumerable();
+            var ret = dbContext.Story.Select(p => new { p.category, p.text, p.text_comment, p.source }).Where(p => p.source == "mypoems").AsEnumerable();
             foreach (var line in ret)
             {
                 var key = line.category;

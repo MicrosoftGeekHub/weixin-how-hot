@@ -196,6 +196,7 @@
     <Content Include="rsc\ai.0.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="rsc\bing2.png" />
     <Content Include="rsc\bootstrap.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

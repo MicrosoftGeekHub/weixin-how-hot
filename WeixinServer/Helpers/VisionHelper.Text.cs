@@ -1217,7 +1217,9 @@ namespace WeixinServer.Helpers
 
             if (storyList.Count == 0)
             {
-                int numCate = 37;
+                //sample pooling algo
+                //int numCate = 37;
+                int numCate = 0;
                 foreach (var key in cat2StoryMap.Keys)
                 {
                     var randomIdx = random.Next(0, numCate--);
@@ -1240,7 +1242,7 @@ namespace WeixinServer.Helpers
                 //foreach (var line in story.Split(charArr))
                 //    commentStringWriter.WriteLine(line.Trim());
 
-                var story = String.Format(";--嗯，谈画我联想到一个笑话: \"{0}\";\n作为一个高冷机器人，我只能说，{1}", storyTuple.Item1, storyTuple.Item2);
+                var story = String.Format(";--嗯，谈画我联想到一首诗: \"{0}\";\n作为一个高冷机器人，我只能说，{1}", storyTuple.Item1, storyTuple.Item2);
 
                 commentStringWriter.WriteLine(story);
             }
