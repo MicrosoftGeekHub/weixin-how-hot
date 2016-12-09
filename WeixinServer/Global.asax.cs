@@ -91,11 +91,12 @@ namespace WeixinServer
         protected void Application_BeginRequest(object sender, EventArgs e)
         {
             //var uri = Request.Url.AbsolutePath.ToLower().Replace("://","");
+            //TODO switch to cshtml
             if (Request.Url.AbsolutePath.EndsWith("/") && !Request.HttpMethod.Equals("POST"))
             {
                 Response.ContentType = "text/html";
                 Server.Transfer(Request.Url.AbsolutePath + "howhot.html");
-            }  
+            }
         }
     }
 }

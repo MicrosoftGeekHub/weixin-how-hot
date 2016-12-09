@@ -647,7 +647,7 @@ namespace WeixinServer.Helpers
             //return string.Format("画说:\n{0}", resultUrl);
                 //return string.Format("谈画:\n{0}\n归图:\n{1}\n", noAdsTxtResult, resultUrl);
                 //return string.Format("谈画:\n{0}\n想知道您上传的图片有多\"Hot\"么? 请看归图:\n{1}\n", commentText, resultUrl);
-                return string.Format("谈画:\n{0}", commentText);
+                return string.Format("{0}", commentText);
             //return string.Format("画说:\n{0}\n归图:\n{1}\n原图:\n{2}", captionText, resultUrl, this.originalImageUrl);
         }
     }
