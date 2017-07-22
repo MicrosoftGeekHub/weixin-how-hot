@@ -1219,7 +1219,7 @@ namespace WeixinServer.Helpers
             {
                 //sample pooling algo
                 //int numCate = 37;
-                int numCate = 0;
+                int numCate = 5;
                 foreach (var key in cat2StoryMap.Keys)
                 {
                     var randomIdx = random.Next(0, numCate--);
@@ -1243,7 +1243,8 @@ namespace WeixinServer.Helpers
                 //    commentStringWriter.WriteLine(line.Trim());
 
                 //var story = String.Format("嗯，谈画我联想到一首诗:\n \"{0}\"\n作为一个高冷机器人，我只能说，{1}", storyTuple.Item1, storyTuple.Item2);
-                var story = String.Format("{0}", storyTuple.Item1);
+                //var story = String.Format("{0}\n --{1}", storyTuple.Item1, storyTuple.Item2);
+                var story = String.Format("{1}\n\n{0}", storyTuple.Item1, storyTuple.Item2);
 
                 commentStringWriter.WriteLine(story);
             }

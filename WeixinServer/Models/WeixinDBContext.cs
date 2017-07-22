@@ -17,6 +17,7 @@ namespace WeixinServer
         public DbSet<BlackValue> BlackList { get; set; }
         public DbSet<ImageStorage> ImageStorages { get; set; }
         public DbSet<Story> Story { get; set; }
+        public DbSet<Poems> Poems { get; set; }
         public DbSet<Faces> Faces { get; set; }
     }
 
@@ -60,6 +61,17 @@ namespace WeixinServer
         public string source { get; set; }
         public string text { get; set; }
         public string text_comment { get; set; }
+    }
+
+    [Table("Poems")]
+    public sealed class Poems
+    {
+        public int Id { get; set; }
+        public string category { get; set; }
+        public string author { get; set; }
+        public string title { get; set; }
+        public string source { get; set; }
+        public string text { get; set; }
     }
 
     [Table("Faces")]

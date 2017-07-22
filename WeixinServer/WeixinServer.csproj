@@ -370,7 +370,7 @@
           <AutoAssignPort>False</AutoAssignPort>
           <DevelopmentServerPort>30629</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
-          <IISUrl>http://127.0.0.1:8080/</IISUrl>
+          <IISUrl>http://localhost:8080/</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
           <UseCustomServer>False</UseCustomServer>
           <CustomServerUrl>

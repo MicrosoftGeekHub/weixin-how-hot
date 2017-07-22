@@ -60,16 +60,19 @@ namespace WeixinServer
         //    from jokes in dbContext.Story
         //    select new {jokes.category, jokes.text_comment, jokes.text};
             //var ret = dbContext.Story.Select(p => new { p.category, p.text, p.text_comment }).AsEnumerable();
-            var ret = dbContext.Story.Select(p => new { p.category, p.text, p.text_comment, p.source }).Where(p => p.source == "mypoems").AsEnumerable();
+            var ret = dbContext.Poems.Select(p => new { p.category, p.text, p.title,  p.author, p.source }).Where(p => p.source == "mypoems").AsEnumerable();
             foreach (var line in ret)
             {
                 var key = line.category;
-                var val = new Tuple<string, string>(line.text, line.text_comment);
-                if (! cate2ListMap.ContainsKey(key))
+                if (!string.IsNullOrWhiteSpace(key))
                 {
-                    cate2ListMap[key] = new List<Tuple<string, string>>();
+                    var val = new Tuple<string, string>(line.text, line.author + line.title);
+                    if (!cate2ListMap.ContainsKey(key))
+                    {
+                        cate2ListMap[key] = new List<Tuple<string, string>>();
+                    }
+                    cate2ListMap[key].Add(val);
                 }
-                cate2ListMap[key].Add(val);
             }
             //cateMap = dbContext.Story.ToDictionary(p => p.category,p => p.text);
             //cate2CommentMap = dbContext.Story.ToDictionary(p => p.category, p => p.text_comment);
